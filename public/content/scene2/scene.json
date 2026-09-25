@@ -1,0 +1,183 @@
+{
+  "title": "Explorer 1",
+  "steps": [
+    { "type": "cutscene", "data": "intro", "name": "What is a satellite?" },
+    { "type": "assembly", "data": "assembly", "name": "Build Explorer 1" },
+    { "type": "modelReveal", "data": "explorerReveal", "name": "Meet Explorer 1" },
+    { "type": "orbitControl", "data": "orbit", "name": "Guide it to orbit" },
+    { "type": "balance", "data": "balance", "name": "Keep it steady" },
+    { "type": "cutscene", "data": "results", "name": "A big discovery" },
+    { "type": "chapterComplete", "data": "complete", "name": "Chapter complete" }
+  ],
+
+  "intro": {
+    "slides": [
+      {
+        "heading": "What is a satellite?",
+        "text": "A satellite is anything that travels around a planet in a loop called an orbit. The Moon is Earth's natural satellite!",
+        "visual": "moonOrbit"
+      },
+      {
+        "heading": "Why doesn't it fall down?",
+        "text": "It does fall! But it also moves sideways so fast, about 28,000 km/h (17,500 mph), that it keeps missing the ground. Isaac Newton imagined this with a cannon on a very tall mountain.",
+        "visual": "newtonCannon"
+      },
+      {
+        "heading": "Satellites help us every day",
+        "text": "Today, satellites help us forecast the weather, watch TV, find our way with maps, make phone calls, and look after Earth's forests and oceans.",
+        "visual": "satelliteUses"
+      },
+      {
+        "year": "1958",
+        "heading": "Back to 1958",
+        "text": "Let's travel back to 1958, three years before Freedom 7. The Soviet Union had already launched Sputnik, and the United States wanted to launch a satellite too.",
+        "visual": "sputnik"
+      },
+      {
+        "year": "1958",
+        "heading": "Meet Explorer 1",
+        "text": "Explorer 1 was built at the Jet Propulsion Laboratory (JPL) in California. JPL became part of NASA later that same year.",
+        "image": { "src": "https://images-assets.nasa.gov/image/6414024/6414024~medium.jpg", "alt": "Workers attaching Explorer 1 to the top of its rocket" },
+        "credit": "Photo: NASA · Explorer 1 being attached to its rocket",
+        "visual": "explorerFacts"
+      },
+      {
+        "year": "1958",
+        "heading": "Launch!",
+        "text": "On January 31, 1958, a Juno I rocket launched Explorer 1 from Cape Canaveral, Florida. Here is a NASA film about Explorer 1 and everything that came after it.",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/GSFC_20180129_Explorer1_m12837_60yrs1/GSFC_20180129_Explorer1_m12837_60yrs1~mobile.mp4",
+          "credit": "Video: NASA Goddard · Explorer 1: Celebrating 60 Years"
+        },
+        "visual": "junoLaunch"
+      },
+      {
+        "heading": "A science mission",
+        "text": "Explorer 1 carried an experiment by Dr. James Van Allen to count tiny, fast particles in space. It was about 2 m (80 in) long and weighed about 14 kg (30.8 lb).",
+        "visual": "explorerFacts"
+      },
+      {
+        "heading": "Your mission",
+        "text": "Let's put Explorer 1 together, guide it into orbit, and keep it steady up there!",
+        "visual": "junoLaunch"
+      }
+    ],
+    "endLabel": "Let's build it!"
+  },
+
+  "assembly": {
+    "blueprintTitle": "Explorer 1 · blueprint",
+    "notToScale": "(simplified, not to scale)",
+    "trayTitle": "Parts box",
+    "progressLabel": "parts placed",
+    "wrongSpot": "Oops! That spot is for a different part:",
+    "intro": [
+      "Here is the blueprint of Explorer 1. Its nose points to the right.",
+      "Drag each part from the parts box onto the matching shape. I'll tell you what each part does!"
+    ],
+    "doneLine": "Explorer 1 is complete! A small satellite with a big job: measuring space around Earth.",
+    "continue": "See it in 3D",
+    "parts": [
+      { "id": "motor", "name": "Rocket Motor", "info": "The last rocket stage. It gave the final push into orbit and stayed attached to Explorer 1." },
+      { "id": "antennas", "name": "Whip Antennas", "info": "Four long, bendy antennas helped send radio signals. Their wobbling later made Explorer 1 tumble!" },
+      { "id": "batteries", "name": "Batteries", "info": "Batteries powered the science instruments and radios. They lasted until May 1958." },
+      { "id": "transmitter", "name": "Radio Transmitters", "info": "Two small radios sent the science readings down to Earth as radio signals." },
+      { "id": "cosmic", "name": "Cosmic Ray Detector", "info": "A Geiger counter that counted tiny, fast particles in space. It found the Van Allen radiation belts!" },
+      { "id": "micro", "name": "Micrometeorite Detector", "info": "Thin wires and a tiny microphone that noticed hits from specks of space dust." },
+      { "id": "nose", "name": "Nose Cone", "info": "Protects the instruments during launch. Sensors inside measured temperature, and the stripes helped keep it not too hot and not too cold." }
+    ]
+  },
+
+  "explorerReveal": {
+    "model": "explorer1",
+    "title": "Explorer 1",
+    "subtitle": "America's first satellite",
+    "stats": [
+      { "label": "Length", "value": "2.03 m (80 inches)" },
+      { "label": "Width", "value": "15.9 cm (6.25 inches)" },
+      { "label": "Weight", "value": "13.97 kg (30.8 pounds)" },
+      { "label": "Launched", "value": "January 31, 1958 on a Juno I rocket" }
+    ],
+    "line": "Here is Explorer 1! It spun like a spinning top to stay steady. Drag to spin it around, then let's launch it!",
+    "continue": "Launch it!"
+  },
+
+  "orbit": {
+    "intro": [
+      "Rockets don't fly straight up to reach orbit. They slowly tip over and fly sideways, faster and faster.",
+      "Steer the rocket along the glowing path. Use the arrow keys, or touch the screen where you want it to go. Watch the TVs light up as you climb!"
+    ],
+    "orbitLabel": "Orbit",
+    "launchLabel": "Cape Canaveral",
+    "steerBack": "Steer back to the glowing path!",
+    "stageText": "Stage 1 drops away!",
+    "resultTitle": "Explorer 1 is in orbit!",
+    "resultText": "You stayed on the path {pct}% of the time.",
+    "resultMore": "Satellites like Explorer 1 started a revolution. The TVs show some of what came next!",
+    "tvs": [
+      { "year": "1958", "name": "Explorer 1", "picture": "beep", "color": false, "fact": "America's first satellite sends radio beeps and science data." },
+      { "year": "1960", "name": "TIROS-1", "picture": "clouds", "color": false, "fact": "The first successful weather satellite sends TV pictures of clouds." },
+      { "year": "1962", "name": "Telstar 1", "picture": "ocean", "color": true, "fact": "The first live TV pictures sent across the Atlantic Ocean by satellite." },
+      { "year": "1964", "name": "Syncom 3", "picture": "torch", "color": true, "fact": "A satellite high above one spot helps send the Tokyo Olympics to TVs in America." },
+      { "year": "1972", "name": "Landsat 1", "picture": "landsat", "color": true, "fact": "The first satellite made to photograph Earth's land. It is still helping scientists today through newer Landsats." },
+      { "year": "1978", "name": "GPS", "picture": "gps", "color": true, "fact": "The first GPS satellite launches. Today GPS helps maps find where you are." }
+    ]
+  },
+
+  "balance": {
+    "intro": [
+      "Explorer 1 had no thrusters. It spun like a pencil to stay steady, but its bendy antennas slowly wasted that spin, and it started to tumble end over end! Engineers learned from this when they designed later satellites.",
+      "Many modern satellites DO have tiny thrusters. Let's pretend Explorer 1 had some! Tap when the white marker is inside the green zone to push the satellite back onto its orbit."
+    ],
+    "goal": 5,
+    "orbitLabel": "Correct orbit",
+    "driftLabel": "Drift",
+    "progressLabel": "Good puffs",
+    "puffLabel": "Fire thruster!",
+    "good": "Perfect puff!",
+    "early": "A little too early!",
+    "late": "A little too late!",
+    "tooFar": "Oh no, it drifted too far! Let's bring it back and try again.",
+    "resultTitle": "Steady as can be!",
+    "resultText": "Great timing! Real satellites use small puffs like these to stay exactly where they belong. It's called station keeping."
+  },
+
+  "results": {
+    "slides": [
+      {
+        "heading": "A big discovery",
+        "text": "Explorer 1's Geiger counter found belts of fast particles trapped by Earth's magnetism. They are called the Van Allen radiation belts, after Dr. James Van Allen.",
+        "visual": "vanAllen"
+      },
+      {
+        "heading": "The first launch photo",
+        "text": "Here is the real Juno I rocket carrying Explorer 1 into the night sky on January 31, 1958.",
+        "image": { "src": "https://images-assets.nasa.gov/image/0100075/0100075~medium.jpg", "alt": "A rocket launching at night" },
+        "credit": "Photo: NASA · Launch of Explorer 1",
+        "visual": "junoLaunch"
+      },
+      {
+        "heading": "Explorer 1 by the numbers",
+        "text": "It sent science data until its batteries ran out in May 1958, but it kept circling Earth until March 31, 1970, more than 58,000 times!",
+        "visual": "explorerSpin"
+      },
+      {
+        "heading": "A whole family of Explorers",
+        "text": "Explorer 1 was the first of many. NASA has launched many more Explorer missions since, and thousands of satellites now circle our planet.",
+        "visual": "explorerLegacy"
+      }
+    ],
+    "endLabel": "Finish chapter"
+  },
+
+  "complete": {
+    "title": "Chapter 2 complete!",
+    "badge": "Satellite Scientist",
+    "lines": [
+      "You learned what a satellite is and why it stays up.",
+      "You built Explorer 1 and guided it to orbit.",
+      "You kept a satellite steady with thruster puffs."
+    ],
+    "guide": "Brilliant! Now for the biggest adventure of all: Apollo 11, the first time people walked on the Moon!"
+  }
+}

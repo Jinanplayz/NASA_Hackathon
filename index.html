@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#070b1d" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="description" content="An educational space-history game: build Freedom 7, launch Explorer 1 and fly Apollo 11 to the Moon." />
+    <title>Star Sailors</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="game" aria-label="Star Sailors game" role="application"></div>
+
+      <div id="loading" role="status" aria-live="polite">
+        <div class="loader-rocket" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="72" height="72">
+            <path d="M32 4c9 8 13 20 12 34H20C19 24 23 12 32 4z" fill="#f4f6ff" />
+            <circle cx="32" cy="24" r="6" fill="#4fd1ff" />
+            <path d="M20 38l-8 10 10-2zM44 38l8 10-10-2z" fill="#ff6b6b" />
+            <path d="M26 46h12l-6 14z" fill="#ffd166" />
+          </svg>
+        </div>
+        <p id="loading-text">Getting the rocket ready…</p>
+      </div>
+
+      <div id="rotate" aria-live="polite">
+        <div class="rotate-phone" aria-hidden="true"></div>
+        <p>Please turn your device sideways<br />to play in landscape.</p>
+      </div>
+    </div>
+    <noscript>This game needs JavaScript to run.</noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,154 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #03050f;
+  color: #f4f6ff;
+  font-family: Lexend, 'Segoe UI', system-ui, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+}
+
+#game {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+}
+
+#game canvas {
+  display: block;
+  outline: none;
+}
+
+/* ---------- loading screen ---------- */
+#loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: radial-gradient(circle at 50% 40%, #16204a 0%, #070b1d 60%, #03050f 100%);
+  z-index: 10;
+  transition: opacity 0.5s ease;
+}
+
+#loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#loading p {
+  font-size: 18px;
+  color: #aab3d9;
+  margin: 0;
+  text-align: center;
+  max-width: 90vw;
+}
+
+.loader-rocket {
+  animation: bob 1.4s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+#loading .error-box {
+  background: #2a0f1a;
+  border: 2px solid #ff6b6b;
+  border-radius: 12px;
+  padding: 16px 20px;
+  max-width: min(720px, 90vw);
+  text-align: left;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 14px;
+  color: #ffd6d6;
+  white-space: pre-wrap;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ---------- rotate-your-phone overlay ---------- */
+#rotate {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #070b1d;
+  z-index: 20;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.rotate-phone {
+  width: 60px;
+  height: 100px;
+  border: 5px solid #4fd1ff;
+  border-radius: 12px;
+  animation: turn 2s ease-in-out infinite;
+}
+
+@keyframes turn {
+  0%, 30% { transform: rotate(0deg); }
+  60%, 100% { transform: rotate(-90deg); }
+}
+
+@media (orientation: portrait) and (pointer: coarse) {
+  #rotate {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-rocket,
+  .rotate-phone {
+    animation: none;
+  }
+}
+
+/* ---------- media shown on top of the game (videos, 3D views) ---------- */
+.media-frame {
+  background: #000;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 0 3px #2e3f85, 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.media-frame video,
+.media-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #000;
+}
+
+.three-frame {
+  pointer-events: none;
+}
+
+.three-frame canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

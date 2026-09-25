@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.wrangler/
+# Claude Code tool settings (not part of the game)
+.claude/

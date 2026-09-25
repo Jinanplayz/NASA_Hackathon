@@ -1,0 +1,566 @@
+{
+  "title": "Apollo 11",
+  "steps": [
+    { "type": "cutscene", "data": "intro", "name": "The race to the Moon" },
+    { "type": "partsList", "data": "partsList", "name": "Build the Moon rocket" },
+    { "type": "modelReveal", "data": "saturnReveal", "name": "Meet the Saturn V" },
+    { "type": "research", "data": "research", "name": "The work behind it" },
+    { "type": "wiring", "data": "wiring", "name": "Connect Mission Control" },
+    { "type": "launchSequence", "data": "launch", "name": "Launch countdown" },
+    { "type": "cutscene", "data": "launchFootage", "name": "Liftoff!" },
+    { "type": "spaceDodge", "data": "dodge", "name": "Journey to the Moon" },
+    { "type": "lunarLanding", "data": "landing", "name": "Land the Eagle" },
+    { "type": "cutscene", "data": "landingFootage", "name": "One small step" },
+    { "type": "samples", "data": "samples", "name": "Collect Moon samples" },
+    { "type": "repair", "data": "repair", "name": "Repair & get ready" },
+    { "type": "cutscene", "data": "reentry", "name": "Coming home" },
+    { "type": "splashdown", "data": "splashdown", "name": "Splashdown!" },
+    { "type": "rescue", "data": "rescue", "name": "Find the astronauts" },
+    { "type": "summary", "data": "summary", "name": "Mission summary" },
+    { "type": "chapterComplete", "data": "complete", "name": "Chapter complete" }
+  ],
+
+  "intro": {
+    "slides": [
+      {
+        "year": "1961",
+        "heading": "A giant goal",
+        "text": "In 1961, President John F. Kennedy asked America to land a person on the Moon and bring them home safely before the end of the 1960s.",
+        "visual": "kennedy"
+      },
+      {
+        "year": "1969",
+        "heading": "The crew",
+        "text": "Three astronauts were chosen: Neil Armstrong, the commander; Buzz Aldrin, who would land with him; and Michael Collins, who would fly the spaceship around the Moon.",
+        "image": { "src": "https://images-assets.nasa.gov/image/S69-31740/S69-31740~medium.jpg", "alt": "The three Apollo 11 astronauts in spacesuits" },
+        "credit": "Photo: NASA · Armstrong, Collins and Aldrin",
+        "visual": "crew"
+      },
+      {
+        "heading": "Two spaceships in one",
+        "text": "Apollo 11 had two spaceships: Columbia, where the crew lived, and Eagle, the lander that would touch down on the Moon.",
+        "visual": "spacecraftNames"
+      },
+      {
+        "heading": "The biggest rocket",
+        "text": "They rode on a Saturn V rocket, 110.6 meters (363 feet) tall. That's taller than the Statue of Liberty!",
+        "visual": "saturnPad"
+      },
+      {
+        "year": "1969",
+        "heading": "Apollo 11 highlights",
+        "text": "Here is NASA's short film of the whole adventure, from liftoff to leaving the Moon. Now it's your turn to live it!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/Apollo_11_Intro_720p/Apollo_11_Intro_720p~mobile.mp4",
+          "credit": "Video: NASA · Apollo 11 mission highlights"
+        },
+        "visual": "tripToMoon"
+      }
+    ],
+    "endLabel": "Let's go!"
+  },
+
+  "partsList": {
+    "listTitle": "Mission checklist",
+    "listHint": "Find these parts:",
+    "checkLabel": "Check my rocket",
+    "intro": [
+      "To reach the Moon we need the right parts. The checklist on the left shows exactly what Apollo 11 needs.",
+      "Tap parts to add them to the rocket. You can pick any part you like, but the rocket will only fly with the right ones!"
+    ],
+    "missingText": "Almost! You still need:",
+    "wrongIntro": "Hold on! These parts would make the mission fail:",
+    "doneLine": "Perfect! That's everything Apollo 11 needs. Let's see the whole rocket stacked together!",
+    "continue": "See it in 3D",
+    "parts": [
+      { "id": "les", "name": "Launch Escape Tower", "card": "card_les", "correct": true, "info": "Could pull the crew to safety if something went wrong during launch." },
+      { "id": "jetEngine", "name": "Jet Engine", "card": "card_jetEngine", "correct": false, "why": "Jet engines need air to breathe. Rockets carry their own oxygen, so they work in space." },
+      { "id": "cm", "name": "Command Module 'Columbia'", "card": "card_cm", "correct": true, "info": "Where the three astronauts lived. The only part that came back to Earth." },
+      { "id": "s1c", "name": "Stage 1 (S-IC)", "card": "card_sic", "correct": true, "info": "The biggest stage, with five huge F-1 engines to lift the rocket off the ground." },
+      { "id": "mercury", "name": "Mercury Capsule", "card": "card_capsule", "correct": false, "why": "It only fits one astronaut. Apollo 11 had a crew of three!" },
+      { "id": "sm", "name": "Service Module", "card": "card_sm", "correct": true, "info": "Held the main engine, fuel, oxygen and power for the trip." },
+      { "id": "solar", "name": "Solar Panels", "card": "card_solarPanels", "correct": false, "why": "Apollo made electricity with fuel cells, which also made drinking water. Solar panels would just add weight." },
+      { "id": "s2", "name": "Stage 2 (S-II)", "card": "card_sii", "correct": true, "info": "Five J-2 engines pushed Apollo 11 higher and faster, almost to orbit." },
+      { "id": "buggy", "name": "Moon Buggy", "card": "card_moonBuggy", "correct": false, "why": "The Moon buggy first went to the Moon on Apollo 15, in 1971. Apollo 11's astronauts explored on foot." },
+      { "id": "lm", "name": "Lunar Module 'Eagle'", "card": "card_lm", "correct": true, "info": "The lander that carried two astronauts down to the Moon's surface." },
+      { "id": "wings", "name": "Shuttle Wings", "card": "card_shuttleWings", "correct": false, "why": "The Moon has no air, so wings can't help there. Wings came later, with the Space Shuttle." },
+      { "id": "s4b", "name": "Stage 3 (S-IVB)", "card": "card_s4b", "correct": true, "info": "One J-2 engine that fired twice: once to reach orbit, and again to head for the Moon." },
+      { "id": "redstone", "name": "Redstone Rocket", "card": "card_redstone", "correct": false, "why": "Much too weak. It lifted Freedom 7 to space, but the Moon is about 384,000 km away!" },
+      { "id": "iu", "name": "Instrument Unit", "card": "card_iu", "correct": true, "info": "The rocket's brain: a ring of computers that steered the Saturn V." }
+    ]
+  },
+
+  "saturnReveal": {
+    "model": "saturnV",
+    "title": "The Saturn V",
+    "subtitle": "The rocket that carried Apollo 11",
+    "stats": [
+      { "label": "Height", "value": "110.6 m (363 ft)" },
+      { "label": "Engines at liftoff", "value": "5 F-1 engines" },
+      { "label": "Crew", "value": "3 astronauts" },
+      { "label": "Launch", "value": "July 16, 1969 · Kennedy Space Center, Florida" }
+    ],
+    "line": "Here it is: the mighty Saturn V, with Apollo 11 on top! Drag to spin it. Next, let's discover how hard it was to build.",
+    "continue": "Continue"
+  },
+
+  "research": {
+    "intro": [
+      "About 400,000 people worked on Apollo! Let's find out how hard some of the parts were to make.",
+      "Tap each glowing dot on the rocket to read its story. Then choose how hard it was to build. I'll tell you straight away if you're right!"
+    ],
+    "panelHint": "Tap a glowing dot on the rocket to start.",
+    "chooseLabel": "How hard was it to make?",
+    "rightPrefix": "Correct!",
+    "wrongPrefix": "Not quite.",
+    "doneLine": "You found out how hard each part was to make. Every one needed brilliant ideas and a lot of hard work!",
+    "categories": [
+      { "id": "hard", "stars": 1, "name": "Hard", "desc": "Made an old idea much, much better" },
+      { "id": "veryHard", "stars": 2, "name": "Very hard", "desc": "Needed new materials and careful handwork" },
+      { "id": "extreme", "stars": 3, "name": "Extremely hard", "desc": "Nothing like it had ever been built" }
+    ],
+    "items": [
+      {
+        "id": "f1",
+        "name": "F-1 Rocket Engines",
+        "at": 488,
+        "side": "below",
+        "answer": "hard",
+        "facts": [
+          "The F-1 is still the most powerful single-nozzle liquid-fuel rocket engine ever flown.",
+          "Early test engines shook themselves apart. Engineers even set off small bombs inside them until they found a design that stayed steady.",
+          "Rocket engines already existed. The F-1 made that idea much, much bigger."
+        ],
+        "explain": "Rocket engines already existed, so the F-1 was an old idea made much bigger and better. (Still super hard!)"
+      },
+      {
+        "id": "lm",
+        "name": "Lunar Module",
+        "at": 104,
+        "side": "above",
+        "answer": "extreme",
+        "facts": [
+          "It was the first crewed spaceship built to fly only in space. It was never meant to fly through Earth's air.",
+          "To save weight, some of its walls were about as thin as a few sheets of paper.",
+          "It was test-flown on Apollo 9 and Apollo 10 before it landed on Apollo 11."
+        ],
+        "explain": "Nobody had ever built a spaceship to land on another world before. It was brand new."
+      },
+      {
+        "id": "computer",
+        "name": "Apollo Guidance Computer",
+        "at": 52,
+        "side": "above",
+        "answer": "extreme",
+        "facts": [
+          "It was one of the first computers to use tiny computer chips called integrated circuits.",
+          "Its programs were woven by hand: workers threaded copper wires through or around tiny magnetic rings to store the 1s and 0s.",
+          "Margaret Hamilton led the team that wrote its flight software. No computer like it had ever flown people to another world."
+        ],
+        "explain": "A computer small enough to fly to the Moon had never existed. The team had to invent it."
+      },
+      {
+        "id": "shield",
+        "name": "Heat Shield",
+        "at": 57,
+        "side": "below",
+        "answer": "veryHard",
+        "facts": [
+          "Coming home, the capsule hit the air at almost 40,000 km/h. The shield faced about 2,760 °C (5,000 °F).",
+          "Workers filled a honeycomb of hundreds of thousands of tiny cells with a special material, one cell at a time, by hand.",
+          "It was made to slowly char and flake away, carrying the heat off with it."
+        ],
+        "explain": "The heat shield needed a special new material and a huge amount of careful handwork."
+      },
+      {
+        "id": "suit",
+        "name": "Spacesuits",
+        "at": 46,
+        "side": "belowFar",
+        "answer": "veryHard",
+        "facts": [
+          "Each Moon suit had about 21 layers to protect against heat, cold and tiny specks of space dust.",
+          "After a fire during a ground test in 1967, engineers created a new fireproof fabric called Beta cloth.",
+          "Skilled seamstresses sewed the suits by hand, with every stitch in exactly the right place."
+        ],
+        "explain": "The suits needed new fireproof materials and very careful sewing by hand."
+      }
+    ]
+  },
+
+  "wiring": {
+    "intro": [
+      "Apollo 11 wasn't just three astronauts. Thousands of people on Earth had to talk to each other all the time!",
+      "Connect the teams the way messages really travelled. Drag a wire from one team to another, or tap one and then the other. Follow the clues on the right."
+    ],
+    "cluesTitle": "Clues",
+    "doneLine": "Every team is connected! This network of people kept Apollo 11 safe from launch to splashdown.",
+    "genericWrong": "These two teams didn't talk directly. Think about who passes the message along!",
+    "nodes": [
+      { "id": "crew", "name": "Apollo 11 crew", "dept": "Astronauts", "color": "#ff9f43", "x": 150, "y": 160, "icon": "cm" },
+      { "id": "stations", "name": "Tracking stations", "dept": "Giant antennas", "color": "#4fd1ff", "x": 420, "y": 160, "icon": "dish" },
+      { "id": "mission", "name": "Mission Control", "dept": "Houston, Texas", "color": "#4fd1ff", "x": 470, "y": 350, "icon": "control" },
+      { "id": "launch", "name": "Launch Control", "dept": "Florida", "color": "#4fd1ff", "x": 150, "y": 370, "icon": "rocket" },
+      { "id": "engineers", "name": "Engineers & scientists", "dept": "Research", "color": "#a78bfa", "x": 770, "y": 170, "icon": "gear" },
+      { "id": "hq", "name": "NASA Headquarters", "dept": "Washington, D.C.", "color": "#ffd166", "x": 790, "y": 360, "icon": "building" },
+      { "id": "president", "name": "The President", "dept": "Government", "color": "#ffd166", "x": 780, "y": 540, "icon": "flag" },
+      { "id": "recovery", "name": "Recovery ship", "dept": "USS Hornet", "color": "#3ddc97", "x": 190, "y": 545, "icon": "ship" },
+      { "id": "tv", "name": "TV & the world", "dept": "News networks", "color": "#ff7eb6", "x": 480, "y": 560, "icon": "tv" }
+    ],
+    "links": [
+      { "a": "crew", "b": "stations", "clue": "Radio calls from the astronauts are caught by giant dish antennas on Earth." },
+      { "a": "stations", "b": "mission", "clue": "The tracking stations pass the voices and data on to Mission Control." },
+      { "a": "launch", "b": "mission", "clue": "Once the rocket clears the tower, Launch Control hands the flight to Mission Control." },
+      { "a": "mission", "b": "engineers", "clue": "When there's a problem, Mission Control asks engineers and scientists for help." },
+      { "a": "mission", "b": "hq", "clue": "Mission Control keeps NASA Headquarters updated." },
+      { "a": "hq", "b": "president", "clue": "NASA Headquarters reports to the President and the government." },
+      { "a": "mission", "b": "recovery", "clue": "Mission Control tells the recovery ship where the capsule will splash down." },
+      { "a": "mission", "b": "tv", "clue": "Mission Control sends the TV pictures on to the networks, so the whole world can watch." }
+    ],
+    "wrong": [
+      { "a": "crew", "b": "mission", "why": "Close! Radio calls from space are caught by the giant antennas first, then passed to Mission Control." },
+      { "a": "crew", "b": "president", "why": "The President did call the astronauts on the Moon, but the call went through Mission Control and the antennas." },
+      { "a": "crew", "b": "tv", "why": "The TV pictures from the Moon went through the antennas and Mission Control first." },
+      { "a": "launch", "b": "crew", "why": "The crew talked to Launch Control before liftoff, but in this map we follow the flight after it leaves the pad." }
+    ]
+  },
+
+  "launch": {
+    "intro": [
+      "It's launch day: July 16, 1969! Before liftoff, the launch team goes through a long checklist.",
+      "Copy each arrow sequence to finish every step. Use the arrow keys, tap the arrow buttons, or swipe in the right direction."
+    ],
+    "barTitle": "Launch sequence",
+    "stepLabel": "Step",
+    "copyLabel": "Copy this sequence:",
+    "steps": [
+      { "name": "Access arm swings away", "fact": "The walkway the astronauts used to climb aboard swings back from the rocket.", "length": 3 },
+      { "name": "Fuel tanks pressurized", "fact": "Gas is pumped into the tanks to push the fuel toward the engines.", "length": 3 },
+      { "name": "Switch to internal power", "fact": "About 50 seconds before liftoff, the rocket switches to its own batteries.", "length": 4 },
+      { "name": "Ignition sequence start", "fact": "About 9 seconds before liftoff, the five F-1 engines start up.", "length": 4 },
+      { "name": "Release hold-down arms", "fact": "Giant arms hold the rocket down until the engines reach full power. Then they let go!", "length": 3 }
+    ],
+    "holdText": "T-0: Release the arms now!",
+    "liftoffText": "LIFTOFF!",
+    "liftoffLine": "Liftoff! We have liftoff of Apollo 11!"
+  },
+
+  "launchFootage": {
+    "slides": [
+      {
+        "year": "1969",
+        "heading": "The real liftoff",
+        "text": "On July 16, 1969, at 9:32 in the morning, Apollo 11 lifted off from Kennedy Space Center in Florida.",
+        "image": { "src": "https://images-assets.nasa.gov/image/S69-39961/S69-39961~medium.jpg", "alt": "The Saturn V rocket lifting off with fire and smoke" },
+        "credit": "Photo: NASA · Liftoff of Apollo 11",
+        "visual": "saturnLaunch"
+      },
+      {
+        "heading": "NASA footage",
+        "text": "Watch NASA's footage of the mission, starting with the launch. The ground shook for miles as the five F-1 engines roared!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/Apollo_11_Intro_720p/Apollo_11_Intro_720p~mobile.mp4",
+          "start": 6,
+          "end": 32,
+          "credit": "Video: NASA · Apollo 11 mission highlights"
+        },
+        "visual": "saturnLaunch"
+      },
+      {
+        "heading": "Next stop: the Moon",
+        "text": "After less than 3 hours circling Earth, the third stage fired again and sent Apollo 11 on its way to the Moon.",
+        "visual": "tripToMoon"
+      }
+    ],
+    "endLabel": "Fly to the Moon!"
+  },
+
+  "dodge": {
+    "intro": [
+      "Apollo 11 is on its way to the Moon! The trip takes about 3 days.",
+      "Move up and down to dodge satellites near Earth, and space rocks and dust further out. Use the arrow keys, or touch and drag."
+    ],
+    "duration": 30,
+    "facts": [
+      { "at": 0.15, "text": "Near Earth, we pass satellites circling our planet." },
+      { "at": 0.45, "text": "The Moon is about 384,000 km (239,000 miles) away." },
+      { "at": 0.75, "text": "Tiny specks of space dust zoom by at incredible speeds!" }
+    ],
+    "dayLabels": ["Day 1", "Day 2", "Day 3"],
+    "hitText": "Shield bump!",
+    "resultTitle": "You reached the Moon!",
+    "bumpsLabel": "Bumps",
+    "resultText": "Now Michael Collins stays in Columbia, circling the Moon, while Neil and Buzz fly Eagle down to the surface.",
+    "continue": "Land on the Moon"
+  },
+
+  "landing": {
+    "intro": [
+      "This is it! Neil Armstrong and Buzz Aldrin fly Eagle down to the Moon.",
+      "Hold THRUST to slow down, and use the side jets to move left and right. Land gently on the flat, safe spot with the green lights. Keep your speeds green!",
+      "Eagle's shadow shows where you will land. If it gets tricky, switch on Landing help and the computer will slow you down for you."
+    ],
+    "controls": "Keys: Up or Space = thrust · Left/Right = side jets · H = landing help",
+    "thrust": "THRUST",
+    "altitude": "Height",
+    "vspeed": "Down speed",
+    "hspeed": "Side speed",
+    "fuel": "Fuel",
+    "padLabel": "Safe spot",
+    "rocksLabel": "Boulders!",
+    "helpLabel": "Landing help",
+    "helpOn": "Landing help is on! The computer keeps you slow. You just steer to the green lights.",
+    "helpOffer": "The real Eagle had a computer to help, too! Want Landing help? It keeps your down speed gentle, so you only need to steer.",
+    "helpYes": "Yes, help me",
+    "helpNo": "No thanks",
+    "tips": {
+      "hop": "Hold THRUST to hop up",
+      "slow": "Too fast! Hold THRUST",
+      "hover": "Not there yet! Hold THRUST to stay up",
+      "right": "Jet right ▶",
+      "left": "◀ Jet left",
+      "down": "Now down gently…",
+      "good": "Looking good!"
+    },
+    "alarm": "Program alarm 1202! The computer has too much to do... Mission Control: 'We're GO on that alarm!'",
+    "lowFuel": "Mission Control: '30 seconds!' Not much fuel left!",
+    "offPad": "Bumpy ground here! Hold THRUST to hop up, then fly over to the green lights.",
+    "success": "The Eagle has landed!",
+    "successText": "Just like the real landing on July 20, 1969! Neil Armstrong flew past a crater full of boulders to find a safe spot, with only seconds of fuel to spare.",
+    "crashFast": "Too fast! Hold THRUST as you get close to the ground.",
+    "crashSide": "Sliding sideways too fast! Stop drifting before you touch down.",
+    "crashRocks": "Those are boulders! Aim for the flat, safe spot.",
+    "crashFuel": "Out of fuel! Try using thrust in short bursts.",
+    "retry": "Try again",
+    "continue": "Continue"
+  },
+
+  "landingFootage": {
+    "slides": [
+      {
+        "year": "July 20, 1969",
+        "heading": "\"The Eagle has landed.\"",
+        "text": "This NASA film was shot through Eagle's window as it came down. After touchdown, Neil Armstrong radioed: 'Houston, Tranquility Base here. The Eagle has landed.'",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928~mobile.mp4",
+          "start": 745,
+          "end": 802,
+          "credit": "Video: NASA · The Flight of Apollo 11 (1969 film)"
+        },
+        "visual": "lunarDescent"
+      },
+      {
+        "heading": "One small step",
+        "text": "Armstrong stepped onto the Moon and said: 'That's one small step for man, one giant leap for mankind.' Watch NASA's footage of the moonwalk!",
+        "speak": "Armstrong stepped onto the Moon and said: That's one small step for man, one giant leap for mankind. Watch NASA's footage of the moonwalk!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/Apollo_11_moonwalk_montage_720p/Apollo_11_moonwalk_montage_720p~mobile.mp4",
+          "credit": "Video: NASA · Apollo 11 moonwalk highlights"
+        },
+        "visual": "moonwalk"
+      },
+      {
+        "heading": "Planting the flag",
+        "text": "Buzz Aldrin joined Neil on the surface. Together they set up a flag and science experiments, and collected Moon rocks.",
+        "image": { "src": "https://images-assets.nasa.gov/image/as11-40-5875/as11-40-5875~medium.jpg", "alt": "Buzz Aldrin standing beside the flag on the Moon" },
+        "credit": "Photo: NASA · Buzz Aldrin and the flag",
+        "visual": "moonwalk"
+      }
+    ],
+    "endLabel": "Collect samples"
+  },
+
+  "samples": {
+    "intro": [
+      "Scientists back on Earth were waiting to study real Moon rocks!",
+      "First, tap each item on the ground to collect it. Then we'll sort everything into the right boxes for the scientists."
+    ],
+    "collectTitle": "Collect the samples",
+    "bagLabel": "Collected",
+    "sortIntro": "Great collecting! Now drag each item into the right box. Look closely at the rocks!",
+    "wrongPrefix": "Not that box.",
+    "hintPrefix": "Try this box instead:",
+    "doneLine": "Apollo 11 brought back 21.5 kg (47.5 pounds) of Moon rocks and soil. The crew also left science behind: a seismometer to feel moonquakes, and a laser mirror that scientists still bounce lasers off today!",
+    "continue": "Continue",
+    "bins": [
+      { "id": "basalt", "name": "Lava rocks", "sub": "Basalt: dark, with tiny holes", "color": "#6d6d72" },
+      { "id": "breccia", "name": "Jumbled rocks", "sub": "Breccia: broken bits stuck together", "color": "#b5aea2" },
+      { "id": "soil", "name": "Moon soil", "sub": "Fine dust and cores", "color": "#9aa1ae" },
+      { "id": "data", "name": "Science data", "sub": "Films and experiments", "color": "#4fd1ff" }
+    ],
+    "items": [
+      { "id": "a", "key": "soilBag", "bin": "soil", "name": "First soil sample", "fact": "Neil Armstrong scooped this up first, just in case they had to leave in a hurry." },
+      { "id": "b", "key": "basalt0", "bin": "basalt", "name": "Dark rock", "fact": "Basalt formed from lava. The tiny holes were gas bubbles!" },
+      { "id": "c", "key": "breccia0", "bin": "breccia", "name": "Speckled rock", "fact": "Breccia is broken rock glued together when space rocks crashed into the Moon." },
+      { "id": "d", "key": "foil", "bin": "data", "name": "Solar wind foil", "fact": "This foil caught tiny particles from the Sun. It was rolled up and brought back to Earth!" },
+      { "id": "e", "key": "basalt1", "bin": "basalt", "name": "Dark rock", "fact": "The dark 'seas' of the Moon are made of old lava rock like this." },
+      { "id": "f", "key": "coreTube", "bin": "soil", "name": "Core tube", "fact": "Tubes hammered into the ground collected layers of Moon soil." },
+      { "id": "g", "key": "breccia1", "bin": "breccia", "name": "Speckled rock", "fact": "Breccias tell the story of billions of years of crashes on the Moon." },
+      { "id": "h", "key": "film", "bin": "data", "name": "Camera film", "fact": "Film from the Moon cameras. It held the famous photos of the moonwalk!" },
+      { "id": "i", "key": "basalt2", "bin": "basalt", "name": "Dark rock", "fact": "Some Apollo 11 basalts are about 3.6 to 3.9 billion years old." },
+      { "id": "j", "key": "soilBag", "bin": "soil", "name": "Bag of Moon dust", "fact": "Moon dust is powdery and sticky. It clung to the astronauts' suits!" }
+    ]
+  },
+
+  "repair": {
+    "taskTitles": ["Fix the broken switch", "Separate the Service Module", "Aim the heat shield", "Pick the entry angle"],
+    "intro": [
+      "Back inside Eagle, Buzz Aldrin spotted a problem: a switch had broken off! Without it, the engine that lifts them off the Moon might not start.",
+      "Drag the right tool onto the broken switch. Think carefully: there's electricity inside!"
+    ],
+    "switchLabel": "ENGINE ARM",
+    "tools": [
+      { "id": "pen", "key": "toolPen", "name": "Felt-tip pen", "correct": true },
+      { "id": "screwdriver", "key": "toolScrewdriver", "name": "Metal screwdriver", "correct": false, "why": "Metal carries electricity. It could cause a spark inside the switch!" },
+      { "id": "hammer", "key": "toolHammer", "name": "Hammer", "correct": false, "why": "Too rough! You could break the whole panel." },
+      { "id": "tape", "key": "toolTape", "name": "Tape", "correct": false, "why": "Tape can't push the switch in. It needs to be pressed firmly." }
+    ],
+    "fixedLine": "It worked! Buzz Aldrin really used a felt-tip pen, because it wasn't made of metal. Eagle lifted off the Moon and met up with Columbia.",
+    "separateIntro": "Almost home! Before hitting Earth's air, the crew leaves the Service Module behind. Only the Command Module has a heat shield. Hold the button to separate!",
+    "holdLabel": "Hold to separate",
+    "separatedLine": "Separated! Now only Columbia, the Command Module, is heading home.",
+    "aimIntro": "The heat shield must face forward, into the air. Turn the capsule until the shield points at the arrow.",
+    "aimLeft": "Turn",
+    "aimRight": "Turn",
+    "aimDone": "Shield forward! That's where the heat will hit.",
+    "angleIntro": "Now choose the entry angle. Too steep and it gets too hot. Too shallow and the capsule skips off the air like a stone on water! Slide into the green zone.",
+    "tooSteep": "Too steep! Too hot and too bumpy.",
+    "tooShallow": "Too shallow! It would skip off the air.",
+    "justRight": "Just right!",
+    "confirm": "Lock it in",
+    "doneLine": "Columbia is lined up perfectly for re-entry. Here we go!"
+  },
+
+  "reentry": {
+    "slides": [
+      {
+        "heading": "Re-entry!",
+        "text": "Columbia hit Earth's air at almost 40,000 km/h (25,000 mph). The air in front of it glowed, and the heat shield reached about 2,760 °C (5,000 °F), but the crew inside stayed safe.",
+        "visual": "reentry"
+      },
+      {
+        "heading": "NASA footage",
+        "text": "Here is NASA's 1969 film of Apollo 11 coming home: the recovery ship waiting at dawn, the glowing capsule streaking across the sky, and sailors watching for it.",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928/KSC-19690716-MH-NAS01-0001-The_Flight_of_Apollo_11_The_Eagle_Has_Landed_HS_from_Film_JSC-DVC_1928~mobile.mp4",
+          "start": 1486,
+          "end": 1528,
+          "credit": "Video: NASA · The Flight of Apollo 11 (1969 film)"
+        },
+        "visual": "reentry"
+      },
+      {
+        "heading": "Blackout",
+        "text": "For a few minutes, the super-hot air around the capsule blocked the radio. Mission Control waited to hear the crew's voices again.",
+        "visual": "reentry"
+      },
+      {
+        "heading": "Parachutes next!",
+        "text": "Once the capsule slowed down, it was time for the parachutes. Get ready to help!",
+        "visual": "chutes"
+      }
+    ],
+    "endLabel": "Get ready!"
+  },
+
+  "splashdown": {
+    "intro": [
+      "Columbia is falling through the sky. You're in charge of the parachutes and the safety gear!",
+      "Press the button when the height meter reaches the green zone. First the small drogue parachutes, then the three big main parachutes."
+    ],
+    "heightLabel": "Height",
+    "drogueBtn": "Drogue chutes",
+    "mainBtn": "Main chutes",
+    "tooEarly": "Too early! Wait for the green zone.",
+    "auto": "The automatic backup opened them for you. Try to be quicker next time!",
+    "drogueOk": "Drogue chutes open! They steady the capsule and slow it down.",
+    "mainOk": "Three big main parachutes! Now we float down gently.",
+    "splash": "SPLASHDOWN!",
+    "flipIntro": "Splashdown in the Pacific Ocean! But the capsule landed upside down, just like the real Apollo 11. Tap the three balloon bags to flip it upright!",
+    "flipDone": "Upright! The balloon bags turned the capsule the right way up.",
+    "gearIntro": "Now switch on the safety gear so the rescue team can find us. Tap each one!",
+    "gear": [
+      { "id": "chutes", "name": "Cut parachutes loose", "fact": "So the wind can't drag the capsule across the waves." },
+      { "id": "light", "name": "Flashing light", "fact": "A bright flashing light helps rescuers see the capsule." },
+      { "id": "beacon", "name": "Radio beacon", "fact": "It beeps a radio signal that helicopters can follow." },
+      { "id": "dye", "name": "Green dye marker", "fact": "Bright green dye spreads in the water, easy to spot from the air." }
+    ],
+    "doneLine": "All safety gear is on. Now let's switch places and help the rescue team find the crew!",
+    "continue": "Start the search"
+  },
+
+  "rescue": {
+    "intro": [
+      "You are flying the recovery helicopter, called Helicopter 66, from the ship USS Hornet.",
+      "Follow the radio beeps: the faster they beep, the closer you are. The arrow points toward the signal. Use the arrow keys, or touch where you want to fly."
+    ],
+    "signal": "Signal",
+    "found": "Found them! Swimmers jump in to help.",
+    "steps": [
+      "Swimmers attach a floating collar around the capsule.",
+      "The astronauts put on special suits in case they brought back Moon germs.",
+      "The helicopter lifts the crew up in a basket."
+    ],
+    "homeLine": "Welcome home! The crew landed on the USS Hornet, where President Nixon was waiting to greet them. Then they spent about three weeks in quarantine, just in case.",
+    "continue": "Mission summary"
+  },
+
+  "summary": {
+    "pages": [
+      {
+        "title": "Mission report: Apollo 11",
+        "kind": "stats",
+        "stats": [
+          { "label": "Launch", "value": "July 16, 1969" },
+          { "label": "Moon landing", "value": "July 20, 1969" },
+          { "label": "Time walking on the Moon", "value": "About 2 hours 31 minutes" },
+          { "label": "Moon samples", "value": "21.5 kg (47.5 lb)" },
+          { "label": "Splashdown", "value": "July 24, 1969, Pacific Ocean" },
+          { "label": "Whole mission", "value": "8 days, 3 hours, 18 minutes" }
+        ],
+        "image": { "src": "https://images-assets.nasa.gov/image/as11-40-5903/as11-40-5903~medium.jpg", "alt": "Buzz Aldrin walking on the Moon near Eagle", "credit": "Photo: NASA · Buzz Aldrin on the Moon" },
+        "say": "Apollo 11 launched on July 16, 1969, landed on the Moon on July 20, and splashed down safely on July 24. The whole mission took just over 8 days."
+      },
+      {
+        "title": "The steps that led to the Moon",
+        "kind": "timeline",
+        "items": [
+          { "year": "1957", "name": "Sputnik 1", "text": "The first satellite." },
+          { "year": "1958", "name": "Explorer 1 & NASA", "text": "America's first satellite, and NASA begins." },
+          { "year": "1961", "name": "Freedom 7", "text": "Alan Shepard, the first American in space." },
+          { "year": "1962", "name": "Friendship 7", "text": "John Glenn, the first American to orbit Earth." },
+          { "year": "1965-66", "name": "Gemini", "text": "Practice: spacewalks, meeting up and docking in space." },
+          { "year": "1968", "name": "Apollo 8", "text": "The first people to fly around the Moon." },
+          { "year": "1969", "name": "Apollo 11", "text": "The first people to walk on the Moon!" }
+        ],
+        "say": "Each mission taught NASA something new: from the first satellites, to flying people in space, to practicing spacewalks and docking, and finally flying around the Moon. Step by step, they got ready for Apollo 11."
+      },
+      {
+        "title": "What Apollo gave the world",
+        "kind": "tech",
+        "items": [
+          { "name": "Computer chips", "text": "Apollo was one of the first big users of computer chips, helping them grow into the devices we use today." },
+          { "name": "Software engineering", "text": "Margaret Hamilton's team helped make writing software a real engineering job." },
+          { "name": "Cordless tools", "text": "Battery-powered drills made for Apollo helped inspire cordless tools." },
+          { "name": "Moon science", "text": "Moon rocks are still studied today, and scientists still bounce lasers off the mirror Apollo 11 left behind." }
+        ],
+        "say": "Apollo's hard work still helps us today: better computer chips, careful software, cordless tools, and science that continues more than fifty years later."
+      }
+    ],
+    "next": "Next",
+    "back": "Back",
+    "finish": "Finish"
+  },
+
+  "complete": {
+    "title": "Mission accomplished!",
+    "badge": "Moonwalker",
+    "lines": [
+      "You built the Saturn V and learned how hard Apollo was to make.",
+      "You connected Mission Control and launched Apollo 11.",
+      "You landed Eagle on the Moon and collected samples.",
+      "You brought the crew home safely!"
+    ],
+    "guide": "You did it, star sailor! From the very first satellite all the way to the Moon. More adventures are coming soon: Apollo 13, Voyager, Mars rovers and the James Webb Space Telescope!"
+  }
+}

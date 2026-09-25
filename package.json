@@ -1,0 +1,24 @@
+{
+  "name": "star-sailors",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Educational web game about the history of space exploration (NASA Space Apps prototype).",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "voices": "node scripts/make-voices.mjs"
+  },
+  "dependencies": {
+    "@fontsource/lexend": "^5.3.0",
+    "phaser": "3.90.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "vite": "^8.3.1"
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "title": "The First Astronaut",
+  "steps": [
+    { "type": "cutscene", "data": "intro", "name": "The space race begins" },
+    { "type": "systems", "data": "systems", "name": "8 systems of a spaceship" },
+    { "type": "builder", "data": "builder", "name": "Build Freedom 7" },
+    { "type": "modelReveal", "data": "freedom7Reveal", "name": "Meet Freedom 7" },
+    { "type": "ascent", "data": "ascent", "name": "Fly to space!" },
+    { "type": "cutscene", "data": "firstPicture", "name": "Pictures from space" },
+    { "type": "chapterComplete", "data": "complete", "name": "Chapter complete" }
+  ],
+
+  "intro": {
+    "slides": [
+      {
+        "year": "Long ago",
+        "heading": "Looking up",
+        "text": "For thousands of years, people looked up at the night sky and wondered what was out there. In the 1950s, they finally built rockets powerful enough to find out!",
+        "visual": "sky"
+      },
+      {
+        "year": "1957",
+        "heading": "Sputnik 1",
+        "text": "On October 4, 1957, the Soviet Union launched Sputnik 1, the first human-made satellite. It was about the size of a beach ball, and it sent 'beep-beep' radio signals from space.",
+        "visual": "sputnik"
+      },
+      {
+        "year": "1958",
+        "heading": "NASA is born",
+        "text": "The United States created NASA, its space agency. NASA opened on October 1, 1958, to explore space for the good of everyone.",
+        "visual": "nasa"
+      },
+      {
+        "year": "1961",
+        "heading": "The first person in space",
+        "text": "On April 12, 1961, Soviet cosmonaut Yuri Gagarin became the first person in space. His ship, Vostok 1, went once around Earth in 108 minutes.",
+        "visual": "vostok"
+      },
+      {
+        "heading": "Cosmonaut or astronaut?",
+        "text": "'Cosmonaut' is the Russian word for a space traveler. Americans say 'astronaut', which comes from Greek words meaning 'star sailor'.",
+        "visual": "starSailor"
+      },
+      {
+        "year": "1959",
+        "heading": "The Mercury Seven",
+        "text": "NASA's first program to fly people was called Project Mercury. In 1959, NASA chose seven pilots to be its very first astronauts.",
+        "image": { "src": "https://images-assets.nasa.gov/image/6413212/6413212~medium.jpg", "alt": "The seven Mercury astronauts in their silver spacesuits" },
+        "credit": "Photo: NASA · The Mercury Seven astronauts",
+        "visual": "mercurySeven"
+      },
+      {
+        "year": "1961",
+        "heading": "Freedom 7",
+        "text": "On May 5, 1961, Alan Shepard flew the Freedom 7 capsule and became the first American in space. Let's watch NASA's film of that day!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/jsc2021m000148_The_Day_Alan_Shepard_Made_American_History_MP4/jsc2021m000148_The_Day_Alan_Shepard_Made_American_History_MP4~mobile.mp4",
+          "credit": "Video: NASA · The Day Alan Shepard Made American History"
+        },
+        "visual": "freedom7Launch"
+      },
+      {
+        "heading": "Your mission",
+        "text": "Before we can fly, we need to understand how a spaceship works. Let's explore the 8 major systems every spaceship needs!",
+        "visual": "systems"
+      }
+    ],
+    "endLabel": "Let's explore!"
+  },
+
+  "systems": {
+    "title": "The 8 major systems of a spaceship",
+    "intro": [
+      "Every spaceship is made of a few big systems that work together, like the parts of your body.",
+      "Scroll through the 8 systems below. Drag the 3D model to spin it and look closely at the details!"
+    ],
+    "doneLine": "Great job! You've explored all 8 systems. Now let's use what you learned to build Freedom 7.",
+    "hint": "Tap each system below. Explore all 8 to continue!",
+    "labels": { "what": "What it does", "where": "Where it's used", "fact": "Fun fact", "continue": "Build Freedom 7", "viewed": "explored" },
+    "items": [
+      {
+        "id": "propulsion",
+        "name": "Propulsion",
+        "subtitle": "Rocket engines",
+        "icon": "sys_propulsion",
+        "model": "engine",
+        "color": "#ff9f43",
+        "what": "Burns fuel to push the ship up. Hot gas rushes out of the bottom and the rocket moves the other way, like a balloon letting out its air.",
+        "where": "At the bottom of the rocket. Freedom 7 rode on a Redstone rocket with one big engine.",
+        "fact": "Rockets carry their own oxygen, so their engines still work where there is no air!"
+      },
+      {
+        "id": "guidance",
+        "name": "Guidance & Navigation",
+        "subtitle": "Knowing where you're going",
+        "icon": "sys_guidance",
+        "model": "gyroscope",
+        "color": "#a78bfa",
+        "what": "Spinning gyroscopes and computers keep track of which way the ship is pointing and where it is going.",
+        "where": "Inside the rocket and the capsule. Apollo's guidance computer helped steer all the way to the Moon.",
+        "fact": "A spinning gyroscope tries to keep pointing the same way, like a spinning top that won't fall over."
+      },
+      {
+        "id": "attitude",
+        "name": "Attitude Control",
+        "subtitle": "Small steering thrusters",
+        "icon": "sys_attitude",
+        "model": "thrusters",
+        "color": "#4fd1ff",
+        "what": "Small thrusters puff out gas to turn the ship: nose up or down, left or right, or rolling around.",
+        "where": "Around the outside of the capsule. Alan Shepard used a hand controller to fire them on Freedom 7.",
+        "fact": "In space, 'attitude' means the direction your spaceship is facing, not how you behave!"
+      },
+      {
+        "id": "power",
+        "name": "Electrical Power",
+        "subtitle": "Batteries, fuel cells, solar panels",
+        "icon": "sys_power",
+        "model": "power",
+        "color": "#3ddc97",
+        "what": "Gives electricity to the radios, lights, computers and fans.",
+        "where": "Freedom 7 used batteries. Apollo used fuel cells, and satellites and space stations use solar panels.",
+        "fact": "Apollo's fuel cells made electricity AND drinking water for the astronauts!"
+      },
+      {
+        "id": "comms",
+        "name": "Communications",
+        "subtitle": "Radios and antennas",
+        "icon": "sys_comms",
+        "model": "antenna",
+        "color": "#4fd1ff",
+        "what": "Radios and antennas send voices, pictures and data between the spaceship and people on Earth.",
+        "where": "Antennas on the outside, radios inside. Giant dish antennas on Earth listen for the signals.",
+        "fact": "Radio signals travel at the speed of light. A message from the Moon reaches Earth in just over one second!"
+      },
+      {
+        "id": "life",
+        "name": "Life Support",
+        "subtitle": "Air, pressure and temperature",
+        "icon": "sys_life",
+        "model": "lifeSupport",
+        "color": "#7fc4ff",
+        "what": "Keeps astronauts alive: it gives them oxygen, removes the carbon dioxide they breathe out, and keeps the cabin at a safe pressure and temperature.",
+        "where": "Inside the cabin and inside the astronaut's spacesuit.",
+        "fact": "Alan Shepard wore a pressure suit on Freedom 7, so he would stay safe even if the cabin lost its air."
+      },
+      {
+        "id": "thermal",
+        "name": "Heat Shield",
+        "subtitle": "Thermal protection",
+        "icon": "sys_thermal",
+        "model": "heatShield",
+        "color": "#ff6b3d",
+        "what": "Protects the capsule when it falls back into the air super fast. It squeezes the air in front of it so hard that the air glows hotter than lava!",
+        "where": "On the wide bottom of the capsule, which faces forward when it comes home.",
+        "fact": "Some heat shields are made to slowly burn away on purpose, carrying the heat off with them."
+      },
+      {
+        "id": "recovery",
+        "name": "Recovery & Landing",
+        "subtitle": "Parachutes",
+        "icon": "sys_recovery",
+        "model": "parachute",
+        "color": "#ffd166",
+        "what": "Slows the capsule down so it can land gently.",
+        "where": "Packed in the top of the capsule. Freedom 7 floated down under its parachute into the Atlantic Ocean.",
+        "fact": "A small parachute opens first to steady the capsule, then the big main parachute opens."
+      }
+    ]
+  },
+
+  "builder": {
+    "title": "Build Freedom 7",
+    "intro": [
+      "Here is a big box of spaceship parts from many different missions.",
+      "Freedom 7 needs exactly 6 of them. Follow the glowing arrow and tap the right parts to build it from the bottom up!"
+    ],
+    "catalogTitle": "Spaceship parts",
+    "buildTitle": "Freedom 7",
+    "progress": "parts added",
+    "wrongPrefix": "Not this one!",
+    "doneLine": "You built Freedom 7! A Redstone rocket with a Mercury capsule on top. Let's take a closer look.",
+    "continue": "See it in 3D",
+    "parts": [
+      { "id": "redstone", "name": "Redstone Rocket", "card": "card_redstone", "correct": true, "order": 1, "info": "The Redstone rocket pushes Freedom 7 up into space. Its engine burned for about two and a half minutes." },
+      { "id": "retroPack", "name": "Retrorocket Pack", "card": "card_retroPack", "correct": true, "order": 2, "info": "Three small rockets strapped under the heat shield. They slow a capsule down to come home from orbit. Alan Shepard fired them as a test!" },
+      { "id": "heatShield", "name": "Heat Shield", "card": "card_heatShield", "correct": true, "order": 3, "info": "The heat shield protects the bottom of the capsule from the heat of coming back through the air." },
+      { "id": "capsule", "name": "Mercury Capsule", "card": "card_capsule", "correct": true, "order": 4, "info": "This is Freedom 7 itself! It had room for just one astronaut. Astronauts joked that you don't climb into a Mercury capsule, you put it on." },
+      { "id": "parachutePack", "name": "Parachute Section", "card": "card_parachutePack", "correct": true, "order": 5, "info": "The top of the capsule holds the parachutes and the radio antennas." },
+      { "id": "escapeTower", "name": "Launch Escape Tower", "card": "card_escapeTower", "correct": true, "order": 6, "info": "A small rocket on a tower. If something went wrong at launch, it would pull the capsule and the astronaut away to safety." },
+      { "id": "solarPanels", "name": "Solar Panels", "card": "card_solarPanels", "correct": false, "why": "Freedom 7 used batteries. The whole trip lasted only about 15 minutes!" },
+      { "id": "shuttleWings", "name": "Shuttle Wings", "card": "card_shuttleWings", "correct": false, "why": "Wings came 20 years later with the Space Shuttle. Freedom 7 had no wings." },
+      { "id": "landingLegs", "name": "Landing Legs", "card": "card_landingLegs", "correct": false, "why": "Freedom 7 splashed down in the ocean, so it didn't need legs to land." },
+      { "id": "roverWheels", "name": "Rover Wheels", "card": "card_roverWheels", "correct": false, "why": "Wheels are for rovers that drive on the Moon or Mars. Freedom 7 never needed to drive!" },
+      { "id": "dishAntenna", "name": "Giant Dish Antenna", "card": "card_dishAntenna", "correct": false, "why": "Big dishes talk across huge distances. Freedom 7 stayed close to Earth, so small antennas were enough." },
+      { "id": "saturnV", "name": "Saturn V Rocket", "card": "card_saturnV", "correct": false, "why": "The giant Saturn V came later, for trips to the Moon. Freedom 7 only needed the Redstone." }
+    ]
+  },
+
+  "freedom7Reveal": {
+    "model": "mercuryRedstone",
+    "title": "Freedom 7 is ready!",
+    "subtitle": "Mercury-Redstone 3",
+    "stats": [
+      { "label": "Height", "value": "25.4 m (83 ft) with its rocket" },
+      { "label": "Crew", "value": "1 astronaut: Alan Shepard" },
+      { "label": "Capsule width", "value": "1.9 m (6.2 ft)" },
+      { "label": "Launch site", "value": "Cape Canaveral, Florida" }
+    ],
+    "line": "Here it is: Freedom 7 on top of its Redstone rocket! Drag to spin it around. When you're ready, let's launch!",
+    "continue": "Launch!"
+  },
+
+  "ascent": {
+    "title": "Fly to space!",
+    "intro": [
+      "3, 2, 1... Liftoff! Now YOU fly Freedom 7 up through the sky.",
+      "Steer left and right to dodge clouds, birds, balloons and meteors. Use the arrow keys, or touch and drag. Climb to 100 kilometers, where space begins!"
+    ],
+    "goalKm": 100,
+    "altitudeLabel": "Altitude",
+    "speedLabel": "km",
+    "layers": [
+      { "name": "Troposphere", "from": 0, "to": 12, "color": "#6ec6ff", "fact": "Troposphere: this is where all our weather happens!" },
+      { "name": "Stratosphere", "from": 12, "to": 50, "color": "#3a7bd5", "fact": "Stratosphere: the ozone layer up here protects us from the Sun's harsh rays." },
+      { "name": "Mesosphere", "from": 50, "to": 85, "color": "#1a2a6c", "fact": "Mesosphere: most meteors burn up here as shooting stars!" },
+      { "name": "Thermosphere", "from": 85, "to": 100, "color": "#0b1033", "fact": "Thermosphere: the air is super thin. Auroras glow up here." }
+    ],
+    "hits": {
+      "cloud": "Bumpy cloud!",
+      "bird": "Watch out for the birds!",
+      "balloon": "Weather balloon!",
+      "meteor": "Meteor!",
+      "wind": "Strong winds!"
+    },
+    "spaceText": "You crossed the Kármán line at 100 km. You're in SPACE!",
+    "endLines": [
+      "Great flying! The real Freedom 7 kept climbing to 187 kilometers (116 miles).",
+      "Alan Shepard floated weightless for about five minutes before falling back to Earth."
+    ],
+    "resultTitle": "You reached space!",
+    "resultText": "Obstacles bumped: {hits}",
+    "continue": "Continue"
+  },
+
+  "firstPicture": {
+    "slides": [
+      {
+        "year": "1946",
+        "heading": "The first photo from space",
+        "text": "Cameras went to space before people did! In 1946, a camera on a V-2 rocket took the first photo of Earth from space, about 105 km (65 miles) up.",
+        "visual": "v2photo",
+        "credit": "Illustration of the 1946 photo"
+      },
+      {
+        "heading": "Freedom 7's view",
+        "text": "During his flight, Alan Shepard looked at Earth through a periscope. He said: 'What a beautiful view!'",
+        "visual": "periscope"
+      },
+      {
+        "year": "1961",
+        "heading": "Liftoff!",
+        "text": "Here is the real launch of Freedom 7 from Cape Canaveral, Florida, on May 5, 1961.",
+        "image": { "src": "https://images-assets.nasa.gov/image/6100884/6100884~medium.jpg", "alt": "Freedom 7 lifting off on its Redstone rocket" },
+        "credit": "Photo: NASA · Launch of Freedom 7",
+        "visual": "freedom7Launch"
+      },
+      {
+        "heading": "Mission facts",
+        "text": "Flight time: 15 minutes 28 seconds. Highest point: 187 km (116 miles). Top speed: 8,262 km/h (5,134 mph).",
+        "visual": "freedom7Arc"
+      },
+      {
+        "heading": "Splashdown!",
+        "text": "Freedom 7 landed in the Atlantic Ocean. A helicopter picked up Shepard and his capsule and carried them to the ship USS Lake Champlain.",
+        "visual": "splashMercury"
+      },
+      {
+        "heading": "What happened next?",
+        "text": "Ten years later, Alan Shepard walked on the Moon with Apollo 14, and he even hit golf balls there!",
+        "visual": "moonGolf"
+      }
+    ],
+    "endLabel": "Finish chapter"
+  },
+
+  "complete": {
+    "title": "Chapter 1 complete!",
+    "badge": "First Flight",
+    "lines": [
+      "You learned the 8 systems of a spaceship.",
+      "You built Freedom 7 and flew it to space.",
+      "You saw the first pictures from space."
+    ],
+    "guide": "Amazing work, star sailor! Next, let's go back to 1958 and meet America's first satellite: Explorer 1."
+  }
+}
