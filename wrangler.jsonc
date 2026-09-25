@@ -1,0 +1,9 @@
+// Cloudflare hosting settings: publishes the built game (the dist folder made by `npm run build`)
+// as a static website. The name must match the project name in the Cloudflare dashboard.
+{
+  "name": "nasa-hackathon",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}
