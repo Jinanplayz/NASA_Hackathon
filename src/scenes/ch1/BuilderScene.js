@@ -1,4 +1,4 @@
-import { W, H, COLORS, CSS, DEPTH, TEX } from '../../core/constants.js';
+import { COLORS, CSS, DEPTH, TEX } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
@@ -29,6 +29,9 @@ export class BuilderScene extends BaseScene {
 
   create() {
     this.setupStage();
+    // (Phaser reuses this screen when it is played again: start from a clean slate)
+    this.busy = false;
+    this.glowTween = null;
     blueprint(this);
     this.parts = this.T('parts', []);
     this.correct = this.parts.filter((p) => p.correct).sort((a, b) => a.order - b.order);

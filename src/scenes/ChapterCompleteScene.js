@@ -1,4 +1,4 @@
-import { W, H, COLORS, CSS, DEPTH, TEX } from '../core/constants.js';
+import { W, COLORS, CSS } from '../core/constants.js';
 import { Content } from '../core/Content.js';
 import { Progress } from '../core/Progress.js';
 import { Flow } from '../core/Flow.js';

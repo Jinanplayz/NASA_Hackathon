@@ -10,7 +10,8 @@ const VARIANTS = {
   warn: { fill: COLORS.orange, hover: 0xffb877, text: CSS.dark, icon: COLORS.bg, stroke: null },
   danger: { fill: COLORS.red, hover: 0xff9090, text: CSS.dark, icon: COLORS.bg, stroke: null },
   secondary: { fill: COLORS.panel2, hover: 0x26357a, text: CSS.text, icon: COLORS.white, stroke: COLORS.stroke },
-  ghost: { fill: 0x0b1230, hover: 0x18214d, text: CSS.text, icon: COLORS.white, stroke: 0x3a4a92, fillAlpha: 0.75 }
+  ghost: { fill: 0x0b1230, hover: 0x18214d, text: CSS.text, icon: COLORS.white, stroke: 0x3a4a92, fillAlpha: 0.75 },
+  outline: { fill: 0x0a1a4a, hover: 0x15307a, text: CSS.text, icon: COLORS.white, stroke: COLORS.cyan, fillAlpha: 0.85 }
 };
 
 export class Button extends Phaser.GameObjects.Container {
@@ -86,7 +87,9 @@ export class Button extends Phaser.GameObjects.Container {
     this.bg.fillRoundedRect(-w / 2, -h / 2, w, h, o.radius);
     // top highlight
     this.bg.fillStyle(0xffffff, 0.12 * a);
-    this.bg.fillRoundedRect(-w / 2 + 4, -h / 2 + 3, w - 8, h * 0.42, { tl: o.radius - 4, tr: o.radius - 4, bl: 6, br: 6 });
+    // (corner sizes limited to the highlight's own height, so pill-shaped buttons look right too)
+    const hr = Math.min(o.radius - 4, h * 0.21);
+    this.bg.fillRoundedRect(-w / 2 + 4, -h / 2 + 3, w - 8, h * 0.42, { tl: hr, tr: hr, bl: Math.min(6, hr), br: Math.min(6, hr) });
     if (v.stroke || o.stroke) {
       this.bg.lineStyle(2, o.stroke ?? v.stroke, a);
       this.bg.strokeRoundedRect(-w / 2, -h / 2, w, h, o.radius);

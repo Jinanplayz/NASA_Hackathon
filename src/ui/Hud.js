@@ -3,7 +3,8 @@ import { Content } from '../core/Content.js';
 import { Settings } from '../core/Settings.js';
 import { Speech } from '../core/Speech.js';
 import { txt } from './text.js';
-import { iconButton } from './Button.js';
+import { Button, iconButton } from './Button.js';
+import { toast } from './widgets.js';
 
 // Top bar: chapter + activity name on the left, step dots, and quick buttons on the right.
 export class Hud {
@@ -44,13 +45,33 @@ export class Hud {
 
     // right-side buttons
     const menuBtn = iconButton(scene, W - 44, 38, 'menu', () => scene.openPause && scene.openPause());
-    this.voiceBtn = iconButton(scene, W - 110, 38, Settings.get('readAloud') ? 'speaker' : 'speakerOff', () => {
-      const on = !Settings.get('readAloud');
-      Settings.set('readAloud', on);
-      if (!on) Speech.stop();
+    // Read-aloud on/off, with a small "VOICE" caption so it's clear this is Captain Nova's voice
+    // (not the music or sound effects).
+    this.voiceBtn = new Button(scene, W - 110, 38, {
+      width: 58,
+      height: 58,
+      icon: Settings.get('readAloud') ? 'speaker' : 'speakerOff',
+      iconSize: 22,
+      variant: 'ghost',
+      radius: 16,
+      onClick: () => {
+        const on = !Settings.get('readAloud');
+        Settings.set('readAloud', on);
+        if (on) Speech.say(Content.ui('readAloudOn', 'Read aloud is on.'));
+        else Speech.stop();
+        toast(scene, on ? Content.ui('readAloudOn', 'Read aloud is on.') : Content.ui('readAloudOff', 'Read aloud is off.'), { y: 96, duration: 1800, sound: false, size: 18 });
+      }
     });
+    this.voiceBtn.iconG.y = -8;
+    this.voiceCaption = txt(scene, 0, 17, Content.ui('voiceLabel', 'Voice').toUpperCase(), { size: 11, weight: 800, origin: 0.5, color: CSS.cyan, scale: false });
+    this.voiceBtn.add(this.voiceCaption);
+    const showVoice = (on) => {
+      this.voiceBtn.setIcon(on ? 'speaker' : 'speakerOff');
+      this.voiceCaption.setColor(on ? CSS.cyan : CSS.dim);
+    };
+    showVoice(Settings.get('readAloud'));
     this.unsub = Settings.on((k, v) => {
-      if (k === 'readAloud' && this.voiceBtn.active) this.voiceBtn.setIcon(v ? 'speaker' : 'speakerOff');
+      if (k === 'readAloud' && this.voiceBtn.active) showVoice(v);
     });
     menuBtn.setDepth(DEPTH.hud + 1);
     this.voiceBtn.setDepth(DEPTH.hud + 1);

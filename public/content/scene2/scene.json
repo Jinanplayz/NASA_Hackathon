@@ -105,8 +105,10 @@
   "orbit": {
     "intro": [
       "Rockets don't fly straight up to reach orbit. They slowly tip over and fly sideways, faster and faster.",
+      "See the TVs at the bottom? Each one shows something amazing that satellites did after Explorer 1. As you climb, they switch on one by one, and I'll tell you about each one.",
       "Steer the rocket along the glowing path. Use the arrow keys, or touch the screen where you want it to go. Watch the TVs light up as you climb!"
     ],
+    "tvsTitle": "What satellites did next",
     "orbitLabel": "Orbit",
     "launchLabel": "Cape Canaveral",
     "steerBack": "Steer back to the glowing path!",

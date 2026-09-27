@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, clamp, seeded } from '../../core/constants.js';
+import { W, H, FULL, COLORS, CSS, DEPTH, TEX, clamp, seeded } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
@@ -62,7 +62,8 @@ export class LunarLandingScene extends BaseScene {
   buildTerrain() {
     const rnd = seeded(31);
     this.ground = [];
-    for (let x = 0; x <= W + 20; x += 20) {
+    // the ground carries on past the stage, into the extra background of wide screens
+    for (let x = FULL.x; x <= FULL.x + FULL.w + 20; x += 20) {
       let y;
       if (x >= PAD.x0 - 10 && x <= PAD.x1 + 10) y = PAD.y;
       else y = 598 + Math.sin(x / 90) * 22 + Math.sin(x / 31 + 2) * 9 + (rnd() - 0.5) * 8;
@@ -72,9 +73,9 @@ export class LunarLandingScene extends BaseScene {
     const g = this.add.graphics().setDepth(DEPTH.world);
     g.fillStyle(0x8f8f8c, 1);
     g.beginPath();
-    g.moveTo(0, H);
+    g.moveTo(FULL.x, FULL.y + FULL.h);
     this.ground.forEach((p) => g.lineTo(p.x, p.y));
-    g.lineTo(W + 20, H);
+    g.lineTo(FULL.x + FULL.w + 20, FULL.y + FULL.h);
     g.closePath();
     g.fillPath();
     g.lineStyle(3, 0xc9c9c4, 1);
@@ -82,7 +83,7 @@ export class LunarLandingScene extends BaseScene {
     // speckles
     for (let i = 0; i < 90; i++) {
       g.fillStyle(0x6f6f6c, 0.6);
-      g.fillCircle(rnd() * W, 620 + rnd() * 100, 1 + rnd() * 3);
+      g.fillCircle(FULL.x + rnd() * FULL.w, 620 + rnd() * 240, 1 + rnd() * 3);
     }
     // boulder field
     this.boulders = [];
@@ -107,7 +108,7 @@ export class LunarLandingScene extends BaseScene {
   }
 
   groundY(x) {
-    const i = clamp(Math.floor(x / 20), 0, this.ground.length - 2);
+    const i = clamp(Math.floor((x - FULL.x) / 20), 0, this.ground.length - 2);
     const a = this.ground[i], b = this.ground[i + 1];
     return a.y + ((b.y - a.y) * (x - a.x)) / (b.x - a.x);
   }

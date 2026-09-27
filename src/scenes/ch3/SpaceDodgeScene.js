@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, clamp } from '../../core/constants.js';
+import { W, H, FULL, COLORS, CSS, DEPTH, TEX, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
@@ -29,8 +29,8 @@ export class SpaceDodgeScene extends BaseScene {
     this.spawnT = 0.8;
     this.factsShown = new Set();
 
-    this.far = this.add.tileSprite(W / 2, H / 2, W, H, 'starsTile').setTileScale(1 / TEX).setAlpha(0.6);
-    this.near = this.add.tileSprite(W / 2, H / 2, W, H, 'starsTile').setTileScale(1.6 / TEX).setAlpha(0.9);
+    this.far = this.add.tileSprite(W / 2, H / 2, FULL.w, FULL.h, 'starsTile').setTileScale(1 / TEX).setAlpha(0.6);
+    this.near = this.add.tileSprite(W / 2, H / 2, FULL.w, FULL.h, 'starsTile').setTileScale(1.6 / TEX).setAlpha(0.9);
     this.earth = img(this, 60, H / 2 + 40, 'earthBig', 1.0);
     this.moon = img(this, W + 260, H / 2, 'moon', 1.5);
 
@@ -90,7 +90,9 @@ export class SpaceDodgeScene extends BaseScene {
       speed = 520;
     }
     if (this.relaxed) speed *= 0.72;
-    const s = key === 'softDot' ? this.add.image(W + 60, y, key).setScale(scale).setTint(0xffe6a8) : img(this, W + 60, y, key, scale);
+    // appear just past the right edge of the screen (wide screens show more than the stage)
+    const x0 = Math.max(W, this.cameras.main.worldView.right) + 60;
+    const s = key === 'softDot' ? this.add.image(x0, y, key).setScale(scale).setTint(0xffe6a8) : img(this, x0, y, key, scale);
     s.setDepth(DEPTH.world + 3);
     this.obstacles.push({ s, r, speed, spin: (Math.random() < 0.5 ? -1 : 1) * spin, vy: (Math.random() - 0.5) * 40 });
   }
@@ -147,7 +149,7 @@ export class SpaceDodgeScene extends BaseScene {
       o.s.y += o.vy * dt;
       o.s.angle += o.spin * dt;
       if (this.invuln <= 0 && hitPts.some((h) => Phaser.Math.Distance.Between(h.x, h.y, o.s.x, o.s.y) < o.r + 16)) this.onHit(o);
-      if (o.s.x < -100) {
+      if (o.s.x < Math.min(0, this.cameras.main.worldView.x) - 100) {
         o.s.destroy();
         return false;
       }

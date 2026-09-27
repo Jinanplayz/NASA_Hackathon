@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, clamp } from '../../core/constants.js';
+import { COLORS, CSS, DEPTH, TEX, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -9,7 +9,6 @@ import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
 import { drawPanel, toast, floatText, shake, Slider } from '../../ui/widgets.js';
-import { drawIcon } from '../../ui/icons.js';
 
 // Four quick jobs to get home: fix the broken switch (with a felt-tip pen, like Buzz Aldrin),
 // separate the Service Module, point the heat shield forward, and pick a safe entry angle.
@@ -20,6 +19,12 @@ export class RepairScene extends BaseScene {
 
   create() {
     this.setupStage();
+    // (Phaser reuses this screen when it is played again: start from a clean slate)
+    this.sepTick = null;
+    this.capsule = null;
+    this.aimDrag = null;
+    this.aimHold = 0;
+    this.aimDone = false;
     starfield(this, { count: 140 });
     this.titles = this.T('taskTitles', []);
     this.layer = this.add.container(0, 0);
@@ -164,7 +169,12 @@ export class RepairScene extends BaseScene {
     btn.on('pointerup', () => (btn.isHeld = false));
     btn.on('pointerout', () => (btn.isHeld = false));
     const key = this.input.keyboard ? this.input.keyboard.addKey('SPACE') : null;
-    btn.activate = () => (held = 1.5); // ENTER completes it for keyboard users
+    // ENTER completes it for keyboard users. (Past the finish line, so the slow drain in
+    // sepTick can't pull it back under. A mouse click also calls this, but the button is
+    // being held then, so clicking still means holding.)
+    btn.activate = () => {
+      if (!btn.isHeld) held = 2;
+    };
     this.layer.add(btn);
     this.sepTick = (dt) => {
       if (done) return;

@@ -39,6 +39,74 @@ const PRONOUNCE = [
   [/\s·\s/g, '. ']
 ];
 
+// ---------- numbers said as words ----------
+// The voice sometimes garbles years, speeds and measurements ("1982", "108 mins", "km/h",
+// "mph"...). Lines containing those are recorded with every number and unit written out in
+// words, e.g. "8,262 km/h" -> "eight thousand two hundred sixty-two kilometers per hour" and
+// "1957" -> "nineteen fifty-seven". (Other lines keep their recordings.)
+const NEEDS_WORDS = /\b(1[89]\d\d|20\d\d)s?\b|km\/h|\bmph\b|\d\s?km\b|°\s?[CF]|\d\s?mins?\b|\d\s?minutes?\b|\d\s?(m|kg|lb)\b|\d in\)|\d[\d,.]*\s(kilometers|miles|meters|feet|pounds)\b/;
+
+const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+const under100 = (n) => (n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? '-' + ONES[n % 10] : ''));
+const under1000 = (n) => {
+  const h = Math.floor(n / 100), r = n % 100;
+  return [h ? ONES[h] + ' hundred' : '', r || !h ? under100(r) : ''].filter(Boolean).join(' ');
+};
+function cardinal(n) {
+  if (n === 0) return 'zero';
+  const out = [];
+  for (const [v, name] of [[1e9, 'billion'], [1e6, 'million'], [1e3, 'thousand']]) {
+    if (n >= v) {
+      out.push(under1000(Math.floor(n / v)) + ' ' + name);
+      n %= v;
+    }
+  }
+  if (n) out.push(under1000(n));
+  return out.join(' ');
+}
+// "28,000" -> "twenty-eight thousand", "110.6" -> "one hundred ten point six"
+function numberWords(str) {
+  const [whole, dec] = str.replace(/,/g, '').split('.');
+  return cardinal(parseInt(whole, 10)) + (dec ? ' point ' + dec.split('').map((d) => ONES[+d]).join(' ') : '');
+}
+// 1957 -> "nineteen fifty-seven", 1905 -> "nineteen oh five", 1900 -> "nineteen hundred", 2004 -> "two thousand four"
+function yearWords(y) {
+  if (y >= 2000 && y < 2010) return 'two thousand' + (y % 10 ? ' ' + ONES[y % 10] : '');
+  const lo = y % 100;
+  return under100(Math.floor(y / 100)) + ' ' + (lo === 0 ? 'hundred' : lo < 10 ? 'oh ' + ONES[lo] : under100(lo));
+}
+const ORD = { one: 'first', two: 'second', three: 'third', five: 'fifth', eight: 'eighth', nine: 'ninth', twelve: 'twelfth' };
+function ordinal(n) {
+  const w = under100(n);
+  const last = w.split('-').pop();
+  const o = ORD[last] || (last.endsWith('y') ? last.slice(0, -1) + 'ieth' : last + 'th');
+  return w.includes('-') ? w.replace(/[^-]+$/, o) : o;
+}
+const UNIT_WORDS = { 'km/h': 'kilometers per hour', mph: 'miles per hour', km: 'kilometers', '°C': 'degrees Celsius', '°F': 'degrees Fahrenheit', kg: 'kilograms', lb: 'pounds', min: 'minutes', mins: 'minutes', m: 'meters', in: 'inches' };
+// a number like 7, 110.6 or 28,000 (a comma only counts when three digits follow it)
+const NUM = String.raw`\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?`;
+const MONTHS = 'January|February|March|April|May|June|July|August|September|October|November|December';
+
+export function speakNumbers(t) {
+  return (
+    t
+      // "July 16, 1969" -> "July sixteenth, 1969"
+      .replace(new RegExp(`\\b(${MONTHS}) (\\d{1,2})\\b`, 'g'), (m, mon, d) => `${mon} ${ordinal(+d)}`)
+      // "9:32" -> "nine thirty-two"
+      .replace(/\b(\d{1,2}):(\d{2})\b/g, (m, h, mm) => `${cardinal(+h)} ${+mm === 0 ? "o'clock" : +mm < 10 ? 'oh ' + ONES[+mm] : under100(+mm)}`)
+      // "1950s" -> "nineteen fifties"
+      .replace(/\b(1[89]\d0|20\d0)s\b/g, (m, y) => yearWords(+y).replace(/y$/, 'ies').replace(/hundred$/, 'hundreds'))
+      // numbers with units: "8,262 km/h", "2,760 °C", "14 kg", "2 m", "(80 in)", "108 mins"
+      .replace(new RegExp(String.raw`(${NUM})\s?(km\/h|mph|km|°\s?[CF]|kg|lb|mins?|m)(?![A-Za-z])`, 'g'), (m, n, u) => `${numberWords(n)} ${UNIT_WORDS[u.replace(/\s/g, '')]}`)
+      .replace(new RegExp(String.raw`(${NUM}) in\)`, 'g'), (m, n) => `${numberWords(n)} inches)`)
+      // years
+      .replace(/\b(1[0-9]\d\d|20\d\d)\b(?!,\d)/g, (m, y) => yearWords(+y))
+      // every other number
+      .replace(new RegExp(NUM, 'g'), (n) => numberWords(n))
+  );
+}
+
 // Config keys whose text is only shown on screen, never spoken.
 const NOT_SPOKEN = new Set([
   'id', 'type', 'data', 'card', 'icon', 'model', 'key', 'color', 'src', 'poster', 'visual', 'bin', 'answer',
@@ -51,7 +119,7 @@ const NOT_SPOKEN = new Set([
   'aimLeft', 'aimRight', 'next', 'back', 'finish', 'badge', 'lines', 'hits', 'dayLabels', 'sub', 'nodes',
   'categories', 'stats', 'steerBack', 'hint', 'dept', 'bumpsLabel', 'panelHint', 'ratedLabel', 'rocketLabel',
   'travelLabel', 'airLabel', 'shieldLabel', 'shallowLabel', 'steepLabel', 'fuelLeft', 'selectedLabel',
-  'swipeHint', 'subtitle', 'steps_meta', 'a', 'b', 'layersName', 'helpLabel', 'helpYes', 'helpNo', 'tips', 'music'
+  'swipeHint', 'subtitle', 'steps_meta', 'a', 'b', 'layersName', 'helpLabel', 'helpYes', 'helpNo', 'tips', 'music', 'tvsTitle'
 ]);
 
 function readJSON(f) {
@@ -107,9 +175,13 @@ for (const ch of game.chapters.filter((c) => c.folder && !c.comingSoon)) {
 // ---------- plan ----------
 const signature = JSON.stringify([narration.voiceId, narration.model, narration.format, narration.settings]);
 const plan = [...lines.values()].map((l) => {
-  const hash = crypto.createHash('sha1').update(signature + '|' + l.text).digest('hex').slice(0, 16);
+  let spoken = PRONOUNCE.reduce((t, [re, to]) => t.replace(re, to), l.text);
+  // lines with numbers the voice tends to garble are recorded with the numbers in words
+  // (and get a new file name, so they are re-recorded once)
+  const words = NEEDS_WORDS.test(l.text);
+  if (words) spoken = speakNumbers(spoken);
+  const hash = crypto.createHash('sha1').update(signature + '|' + (words ? spoken : l.text)).digest('hex').slice(0, 16);
   const rel = (l.folder ? `${l.folder}/audio/voice/` : 'voice/') + `${hash}.mp3`;
-  const spoken = PRONOUNCE.reduce((t, [re, to]) => t.replace(re, to), l.text);
   return { ...l, rel, abs: path.join(CONTENT, rel), spoken };
 });
 const todo = plan.filter((p) => !(fs.existsSync(p.abs) && fs.statSync(p.abs).size > 0));
@@ -119,8 +191,9 @@ console.log(`Voice: ${narration.voiceName} (${narration.voiceId}), model ${narra
 console.log(`${plan.length} spoken lines, ${plan.length - todo.length} already recorded, ${todo.length} to generate (${chars.toLocaleString()} characters).`);
 
 if (DRY) {
-  todo.slice(0, 15).forEach((p) => console.log('  -', p.spoken.slice(0, 90)));
-  if (todo.length > 15) console.log(`  ... and ${todo.length - 15} more`);
+  const all = process.argv.includes('--all');
+  todo.slice(0, all ? todo.length : 15).forEach((p) => console.log('  -', all ? p.spoken : p.spoken.slice(0, 90)));
+  if (!all && todo.length > 15) console.log(`  ... and ${todo.length - 15} more (add --all to see them)`);
   process.exit(0);
 }
 

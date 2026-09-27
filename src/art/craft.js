@@ -1,7 +1,7 @@
 // Spacecraft and spacecraft parts, painted with Canvas 2D.
 // Each draw function paints inside the box (x, y, w, h) with the nose pointing up.
 
-import { makeTex, cylGrad, roundRect, circle, poly, radial, linear, shadeHex, blob } from './core.js';
+import { makeTex, cylGrad, roundRect, circle, poly, radial, linear, blob } from './core.js';
 import { seeded } from '../core/constants.js';
 
 const WHITE = '#eef1f7';
@@ -427,6 +427,26 @@ export function drawCsmLm(c, x, y, w, h) {
   c.restore();
 }
 
+// Just the canopy (no cords): its bottom edge is the bottom of the picture.
+export function drawCanopy(c, x, y, w, h, gores = 8) {
+  const cx = x + w / 2, top = y + 2, rim = y + h - 3;
+  for (let i = 0; i < gores; i++) {
+    const a0 = Math.PI + (i / gores) * Math.PI, a1 = Math.PI + ((i + 1) / gores) * Math.PI;
+    c.fillStyle = i % 2 ? '#ffffff' : '#ff7a2f';
+    c.beginPath();
+    c.moveTo(cx, rim);
+    c.ellipse(cx, rim, w * 0.48, rim - top, 0, a0, a1);
+    c.closePath();
+    c.fill();
+  }
+  // a soft shadow along the rim gives the canopy some depth
+  c.strokeStyle = 'rgba(0,0,0,0.18)';
+  c.lineWidth = 2;
+  c.beginPath();
+  c.ellipse(cx, rim, w * 0.48, 3, 0, 0, Math.PI);
+  c.stroke();
+}
+
 export function drawParachute(c, x, y, w, h, gores = 8) {
   const cx = x + w / 2, top = y + h * 0.05, rim = y + h * 0.45;
   for (let i = 0; i < gores; i++) {
@@ -623,6 +643,8 @@ export function buildCraftArt(scene) {
   makeTex(scene, 'cmHot', 70, 60, (c, w, h) => drawCM(c, 0, 0, w, h, { hot: true }));
   makeTex(scene, 'mainChute', 110, 120, (c, w, h) => drawParachute(c, 0, 0, w, h, 10));
   makeTex(scene, 'drogue', 50, 70, (c, w, h) => drawParachute(c, 0, 0, w, h, 6));
+  makeTex(scene, 'mainCanopy', 110, 56, (c, w, h) => drawCanopy(c, 0, 0, w, h, 10));
+  makeTex(scene, 'drogueCanopy', 50, 30, (c, w, h) => drawCanopy(c, 0, 0, w, h, 6));
   makeTex(scene, 'vostok', 90, 60, (c) => {
     // Vostok: ball-shaped cabin + cone-shaped equipment module
     c.fillStyle = cylGrad(c, 44, 42, '#9aa1ae');

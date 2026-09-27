@@ -1,16 +1,18 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, clamp, seeded } from '../../core/constants.js';
+import { W, FULL, COLORS, CSS, DEPTH, TEX, clamp, seeded } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
-import { toast, dialog, floatText } from '../../ui/widgets.js';
+import { toast, dialog, floatText, pointerArrow } from '../../ui/widgets.js';
 import { live } from '../../core/voiceText.js';
+import { Speech, estimateMs } from '../../core/Speech.js';
 
 // Steer the Juno I rocket along the glowing path into orbit. As Explorer 1 climbs,
-// a row of TVs lights up, one by one, showing what satellites made possible.
+// a row of TVs lights up, one by one, showing what satellites made possible. Each TV is
+// read out in full before the next one switches on.
 const EARTH = { x: 640, y: 3000, r: 2480 };
 const ORBIT_R = 2810;
 const N = 300;
@@ -34,6 +36,9 @@ export class OrbitControlScene extends BaseScene {
     this.total = 0;
     this.idx = 0;
     this.staged = false;
+    this.tvNext = 0; // the next TV to switch on
+    this.tvBusy = false; // a TV's milestone is being read out
+    this.tvDone = Promise.resolve();
 
     // Earth and the orbit line
     const g = this.add.graphics();
@@ -46,7 +51,7 @@ export class OrbitControlScene extends BaseScene {
     g.fillEllipse(900, earthY(900, EARTH.r) + 40, 400, 70);
     g.lineStyle(2, COLORS.dim, 0.35);
     const orbitPts = [];
-    for (let x = 0; x <= W; x += 20) orbitPts.push({ x, y: earthY(x, ORBIT_R) });
+    for (let x = FULL.x; x <= FULL.x + FULL.w; x += 20) orbitPts.push({ x, y: earthY(x, ORBIT_R) });
     g.strokePoints(orbitPts, false);
     txt(this, 1100, earthY(1100, ORBIT_R) - 26, this.T('orbitLabel', 'Orbit'), { size: 16, weight: 700, color: CSS.dim, origin: 0.5, scale: false });
     txt(this, 200, earthY(200, EARTH.r) + 22, this.T('launchLabel', 'Cape Canaveral'), { size: 14, weight: 700, origin: 0.5, scale: false, stroke: '#070b1d', strokeThickness: 4 });
@@ -77,15 +82,20 @@ export class OrbitControlScene extends BaseScene {
     this.heading = -Math.PI / 2;
     this.rocket = img(this, this.pos.x, this.pos.y, 'juno', 0.26).setDepth(DEPTH.world + 5);
     this.flame = this.add.image(0, 0, 'flame').setScale(0.22, 0.4).setOrigin(0.5, 0).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.world + 4);
-    this.warn = txt(this, W / 2, 110, '', { size: 22, weight: 800, color: CSS.orange, origin: 0.5, stroke: '#070b1d', strokeThickness: 6, scale: false }).setDepth(DEPTH.hud);
+    this.warn = txt(this, W / 2, 178, '', { size: 22, weight: 800, color: CSS.orange, origin: 0.5, stroke: '#070b1d', strokeThickness: 6, scale: false }).setDepth(DEPTH.hud);
 
     // TV bar
     this.buildTVs();
 
     // controls
     this.keys = this.input.keyboard ? this.input.keyboard.addKeys('LEFT,RIGHT,UP,DOWN,A,D,W,S') : null;
+    // while Captain Nova explains, point at the TVs so it's clear what they are
+    const arrow = pointerArrow(this, W / 2, BAR_Y - 70, 'down', COLORS.yellow).setDepth(DEPTH.guide + 5);
+    this.tvTitle.setDepth(DEPTH.guide + 5);
     this.guide.sequence(this.T('intro', []), { modal: true, position: 'top', lastLabel: Content.ui('play', 'Play') }).then((r) => {
+      arrow.destroy();
       if (r === null) return;
+      this.tvTitle.setDepth(DEPTH.ui + 2);
       this.state = 'flying';
       this.rumble = Sfx.rumble({ freq: 240, vol: 0.3 });
       this.rumble.set(0.8);
@@ -96,9 +106,18 @@ export class OrbitControlScene extends BaseScene {
   buildTVs() {
     const bar = this.add.graphics().setDepth(DEPTH.ui);
     bar.fillStyle(0x0b1230, 0.95);
-    bar.fillRect(0, BAR_Y, W, H - BAR_Y);
+    bar.fillRect(FULL.x, BAR_Y, FULL.w, FULL.y + FULL.h - BAR_Y);
     bar.lineStyle(2, COLORS.stroke, 1);
-    bar.lineBetween(0, BAR_Y, W, BAR_Y);
+    bar.lineBetween(FULL.x, BAR_Y, FULL.x + FULL.w, BAR_Y);
+    // what the TVs are for
+    const title = txt(this, 0, 0, this.T('tvsTitle', 'What satellites did next'), { size: 15, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
+    const tw = title.width + 36;
+    const tg = this.add.graphics();
+    tg.fillStyle(0x0b1230, 0.95);
+    tg.fillRoundedRect(-tw / 2, -15, tw, 30, 15);
+    tg.lineStyle(2, COLORS.yellow, 0.8);
+    tg.strokeRoundedRect(-tw / 2, -15, tw, 30, 15);
+    this.tvTitle = this.add.container(W / 2, BAR_Y - 26, [tg, title]).setDepth(DEPTH.ui + 2);
     this.tvs = this.T('tvs', []).map((tv, i, arr) => {
       const x = 110 + i * ((W - 220) / Math.max(1, arr.length - 1));
       const y = BAR_Y + 58;
@@ -219,8 +238,12 @@ export class OrbitControlScene extends BaseScene {
     s.fillRoundedRect(x0 + 8, y0 + 6, w * 0.5, h * 0.22, 8);
   }
 
+  // Switches a TV on and reads out its milestone. Resolves once it has been read in full
+  // (or, with read-aloud off, after enough time to read it).
   lightTV(o) {
     o.lit = true;
+    this.tvNext = Math.max(this.tvNext, this.tvs.indexOf(o) + 1);
+    this.tvBusy = true;
     Sfx.play('static');
     const tw = this.tweens.addCounter({
       from: 0.05,
@@ -234,7 +257,18 @@ export class OrbitControlScene extends BaseScene {
         this.tweens.add({ targets: o.c, scale: 1.12, duration: 160, yoyo: true });
       }
     });
-    toast(this, `${o.tv.year} · ${o.tv.name}: ${o.tv.fact}`, { y: 110, color: o.tv.color ? COLORS.yellow : COLORS.dim, duration: 4200, speak: [o.tv.year, o.tv.name, o.tv.fact], sound: false, wrap: 820 });
+    // the card stays up until the milestone has been read out
+    const card = toast(this, `${o.tv.year} · ${o.tv.name}: ${o.tv.fact}`, { y: 110, color: o.tv.color ? COLORS.yellow : COLORS.dim, duration: 600000, sound: false, wrap: 820 });
+    const words = [o.tv.year, o.tv.name, o.tv.fact];
+    const spoken = Speech.say(words);
+    const readTime = new Promise((r) => this.time.delayedCall(Math.max(3500, estimateMs(words) * 0.8), r));
+    const here = this.stillHere();
+    this.tvDone = Promise.all([spoken, readTime]).then(() => {
+      if (!here()) return;
+      this.tvBusy = false;
+      if (card.active) this.tweens.add({ targets: card, alpha: 0, y: card.y - 20, duration: 260, onComplete: () => card.destroy() });
+    });
+    return this.tvDone;
   }
 
   nearest() {
@@ -277,7 +311,7 @@ export class OrbitControlScene extends BaseScene {
     const tAng = Math.atan2(tangent.y, tangent.x);
     const inside = near.d <= this.half;
     if (this.relaxed) this.heading += Phaser.Math.Angle.Wrap(tAng - this.heading) * 0.4 * dt;
-    let speed = this.relaxed ? 32 : 38;
+    let speed = this.relaxed ? 26 : 30;
     if (!inside) {
       speed *= 0.6;
       // gently pull back so nobody gets lost
@@ -314,19 +348,18 @@ export class OrbitControlScene extends BaseScene {
       this.rocket.setTexture('junoTop').setScale(0.62 / TEX);
       floatText(this, this.pos.x, this.pos.y - 40, this.T('stageText', 'Stage 1 drops away!'), CSS.cyan, 20);
     }
-    this.tvs.forEach((o) => {
-      if (!o.lit && s >= o.threshold) this.lightTV(o);
-    });
+    // one TV at a time: the next waits until the last one has been read out
+    const next = this.tvs[this.tvNext];
+    if (next && !this.tvBusy && s >= next.threshold) this.lightTV(next);
     if (this.rumble) this.rumble.set(0.8 - s * 0.5);
     if (near.i >= N - 3 || this.pos.x > W - 40) this.reachOrbit();
   }
 
-  reachOrbit() {
+  async reachOrbit() {
     this.state = 'orbit';
     this.warn.setText('');
     if (this.rumble) this.rumble.stop();
     this.flame.setVisible(false);
-    this.tvs.forEach((o) => !o.lit && this.lightTV(o));
     Sfx.play('bigSuccess');
     // Explorer 1 separates and glides along the orbit, beeping
     const ex = img(this, this.pos.x, this.pos.y, 'explorer1', 0.35).setRotation(this.heading + Math.PI / 2);
@@ -345,7 +378,14 @@ export class OrbitControlScene extends BaseScene {
     const beeps = this.time.addEvent({ delay: 500, repeat: 5, callback: () => Sfx.play('beep') });
     const pct = this.total ? this.inside / this.total : 1;
     const stars = pct > 0.85 ? 3 : pct > 0.6 ? 2 : 1;
-    this.time.delayedCall(2600, () => {
+    // every TV still to come switches on and is read out, one after another
+    const here = this.stillHere();
+    const glide = new Promise((r) => this.time.delayedCall(2600, r));
+    await this.tvDone;
+    while (here() && this.tvNext < this.tvs.length) await this.lightTV(this.tvs[this.tvNext]);
+    await glide;
+    if (!here()) return;
+    {
       dialog(this, {
         title: this.T('resultTitle', 'Explorer 1 is in orbit!'),
         stars,
@@ -360,7 +400,7 @@ export class OrbitControlScene extends BaseScene {
         if (v === 'retry') this.scene.restart(this.payload);
         else this.done(stars);
       });
-    });
+    }
   }
 
   onShutdown() {

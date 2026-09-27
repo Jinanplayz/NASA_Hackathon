@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, shuffle } from '../../core/constants.js';
+import { W, COLORS, CSS, TEX, shuffle } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';

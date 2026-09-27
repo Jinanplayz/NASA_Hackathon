@@ -143,6 +143,20 @@ body {
   background: #000;
 }
 
+/* slow zoom on NASA photos; paused together with the slide */
+.media-frame img.kenburns {
+  animation: kenburns 9s ease-out forwards;
+}
+
+.media-frame.paused img.kenburns {
+  animation-play-state: paused;
+}
+
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
 .three-frame {
   pointer-events: none;
 }

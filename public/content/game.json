@@ -1,6 +1,7 @@
 {
   "title": "Star Sailors",
   "subtitle": "A journey through the history of space exploration",
+  "subtitleHighlight": "space exploration",
   "credit": "NASA Space Apps Challenge prototype · Videos & photos courtesy of NASA",
   "guide": {
     "name": "Captain Nova"
@@ -71,6 +72,8 @@
     "readAloud": "Read text aloud",
     "readAloudHint": "A voice reads every message",
     "readAloudOn": "Read aloud is on.",
+    "readAloudOff": "Read aloud is off.",
+    "voiceLabel": "Voice",
     "voiceSpeed": "Voice speed",
     "voiceTest": "This is how fast I will talk.",
     "slow": "Slow",

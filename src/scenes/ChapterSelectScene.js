@@ -1,4 +1,5 @@
-import { W, H, COLORS, CSS, DEPTH } from '../core/constants.js';
+import Phaser from 'phaser';
+import { W, H, FULL, COLORS, CSS, DEPTH } from '../core/constants.js';
 import { Content } from '../core/Content.js';
 import { Progress } from '../core/Progress.js';
 import { Flow } from '../core/Flow.js';
@@ -108,34 +109,58 @@ export class ChapterSelectScene extends BaseScene {
 
   chapterArt(kind) {
     const c = this.add.container(0, 0);
+    const calm = this.reducedMotion;
+    // gentle up-and-down float
+    const float = (target, dy, ms) => !calm && this.tweens.add({ targets: target, y: target.y + dy, duration: ms, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     if (kind === 'freedom7') {
       c.add(img(this, 0, 150, 'earth', 1.1));
-      const r = img(this, 40, 0, 'mercuryRedstone', 0.34).setAngle(8);
-      c.add(r);
-      const f = this.add.image(r.x - 6, r.y + 92, 'flame').setScale(0.35, 0.55).setAngle(8);
-      c.add(f);
-      this.tweens.add({ targets: f, scaleY: 0.7, duration: 90, yoyo: true, repeat: -1 });
-      c.add(img(this, -120, -50, 'sputnik', 0.6));
+      // the rocket and its flame move as one piece, so they never come apart
+      const ship = this.add.container(40, -26);
+      const r = img(this, 0, 0, 'mercuryRedstone', 0.34).setAngle(8);
+      ship.add([this.flameUnder(r, 0.3, 0.42), r]);
+      c.add(ship);
+      float(ship, -8, 1800);
+      const sputnik = img(this, -120, -50, 'sputnik', 0.6);
+      c.add(sputnik);
+      if (!calm) this.tweens.add({ targets: sputnik, x: -105, y: -58, angle: 8, duration: 3200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     } else if (kind === 'explorer1') {
       c.add(img(this, -40, 120, 'earth', 0.9));
       const belt = img(this, -40, 120, 'belt', 1.2).setAlpha(0.7);
       c.add(belt);
+      if (!calm) this.tweens.add({ targets: belt, alpha: 0.45, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
       const ex = img(this, 90, -30, 'explorer1', 0.9).setAngle(60);
       c.add(ex);
-      this.tweens.add({ targets: ex, angle: 420, duration: 6000, repeat: -1 });
+      // a slow, soft turn (one full turn every 24 seconds) while it floats
+      if (!calm) this.tweens.add({ targets: ex, angle: 420, duration: 24000, repeat: -1 });
+      float(ex, 7, 2600);
     } else if (kind === 'apollo11') {
-      c.add(img(this, 100, -20, 'moon', 0.7));
-      const sv = img(this, -90, 10, 'saturnV', 0.34).setAngle(-12);
-      c.add(sv);
-      c.add(img(this, 60, 50, 'lm', 0.7));
+      const moon = img(this, 100, -20, 'moon', 0.7);
+      c.add(moon);
+      if (!calm) this.tweens.add({ targets: moon, angle: 360, duration: 90000, repeat: -1 });
+      const rocket = this.add.container(-92, -12);
+      const sv = img(this, 0, 0, 'saturnV', 0.3).setAngle(-12);
+      rocket.add([this.flameUnder(sv, 0.3, 0.4), sv]);
+      c.add(rocket);
+      float(rocket, -9, 2000);
+      const lm = img(this, 60, 44, 'lm', 0.7);
+      c.add(lm);
+      float(lm, -8, 1500);
     }
     return c;
+  }
+
+  // A flickering flame fixed to the bottom of a rocket picture (turned with the rocket).
+  flameUnder(rocket, sx, sy) {
+    const a = rocket.rotation, half = rocket.displayHeight / 2 - 3;
+    const f = this.add.image(rocket.x - Math.sin(a) * half, rocket.y + Math.cos(a) * half, 'flame').setOrigin(0.5, 0).setScale(sx, sy).setRotation(a).setBlendMode(Phaser.BlendModes.ADD);
+    if (!this.reducedMotion) this.tweens.add({ targets: f, scaleY: sy * 1.25, duration: 90, yoyo: true, repeat: -1 });
+    return f;
   }
 
   openActivities(c) {
     const steps = Content.chapter(c.id).steps;
     const root = this.add.container(0, 0).setDepth(DEPTH.modal);
-    const dim = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.65).setInteractive();
+    const dim = this.add.rectangle(W / 2, H / 2, FULL.w, FULL.h, 0x000000, 0.65).setInteractive();
     root.add(dim);
     const pw = 880, ph = 620;
     root.add(panel(this, W / 2 - pw / 2, H / 2 - ph / 2, pw, ph, { stroke: COLORS.cyan, strokeWidth: 3, radius: 26 }));

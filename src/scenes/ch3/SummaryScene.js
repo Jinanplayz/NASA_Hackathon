@@ -1,4 +1,4 @@
-import { W, H, COLORS, CSS, DEPTH, TEX } from '../../core/constants.js';
+import { W, COLORS, CSS, TEX } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -17,6 +17,8 @@ export class SummaryScene extends BaseScene {
 
   create() {
     this.setupStage();
+    // (Phaser reuses this screen when it is played again: start from a clean slate)
+    this.photo = null;
     starfield(this, { count: 180 });
     this.pages = this.T('pages', []);
     this.page = -1;

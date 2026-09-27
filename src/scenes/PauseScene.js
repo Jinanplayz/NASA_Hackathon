@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, RES, COLORS, CSS } from '../core/constants.js';
+import { W, H, FULL, RES, COLORS, CSS } from '../core/constants.js';
 import { Content } from '../core/Content.js';
 import { Flow } from '../core/Flow.js';
 import { FocusManager } from '../ui/Focus.js';
@@ -24,7 +24,7 @@ export class PauseScene extends Phaser.Scene {
     this.focus = new FocusManager(this);
     const under = this.scene.get(this.from);
 
-    this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.65).setInteractive();
+    this.add.rectangle(W / 2, H / 2, FULL.w, FULL.h, 0x000000, 0.65).setInteractive();
     const pw = 520, ph = 560;
     panel(this, W / 2 - pw / 2, H / 2 - ph / 2, pw, ph, { stroke: COLORS.cyan, strokeWidth: 3, radius: 28 });
     txt(this, W / 2, H / 2 - ph / 2 + 50, Content.ui('paused', 'Paused'), { size: 40, weight: 800, origin: 0.5, color: CSS.yellow, scale: false });

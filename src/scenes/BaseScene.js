@@ -78,13 +78,15 @@ export class BaseScene extends Phaser.Scene {
   }
 
   _onPaused() {
-    Speech.stop();
+    Speech.pause();
     Sfx.setPaused(true);
     this.domEls.forEach((d) => d.active && d.setVisible(false));
     if (this.onPause) this.onPause();
   }
 
   _onResumed() {
+    // (a screen can keep the voice paused, e.g. a cutscene the player paused themselves)
+    if (!(this.holdSpeech && this.holdSpeech())) Speech.resume();
     Sfx.setPaused(false);
     this.relaxed = Settings.get('relaxed');
     this.reducedMotion = Settings.get('reducedMotion');

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH } from '../core/constants.js';
+import { W, H, FULL, COLORS, CSS, DEPTH } from '../core/constants.js';
 import { Settings } from '../core/Settings.js';
 import { Speech } from '../core/Speech.js';
 import { Sfx } from '../core/Sfx.js';
@@ -36,8 +36,9 @@ export function toast(scene, message, o = {}) {
   scene._toasts = scene._toasts || {};
   const prev = scene._toasts[y];
   if (prev && prev.active) prev.destroy();
-  const t = txt(scene, 0, 0, message, { size: o.size ?? 22, weight: 600, wrap: o.wrap ?? 760, align: 'center', origin: 0.5 });
-  const w = Math.min(t.width + 56, 840), h = t.height + 28;
+  // the text always wraps inside the box (at most 840 wide), so it can never spill out
+  const t = txt(scene, 0, 0, message, { size: o.size ?? 22, weight: 600, wrap: Math.min(o.wrap ?? 760, 840 - 56), align: 'center', origin: 0.5 });
+  const w = t.width + 56, h = t.height + 28;
   const g = scene.add.graphics();
   g.fillStyle(0x0b1230, 0.95);
   g.fillRoundedRect(-w / 2, -h / 2, w, h, h / 2 > 28 ? 22 : h / 2);
@@ -124,7 +125,7 @@ export function starsRow(scene, x, y, count, max = 3, size = 44) {
 export function dialog(scene, o = {}) {
   return new Promise((resolve) => {
     const root = scene.add.container(0, 0).setDepth(DEPTH.modal);
-    const dim = scene.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.6).setInteractive();
+    const dim = scene.add.rectangle(W / 2, H / 2, FULL.w, FULL.h, 0x000000, 0.6).setInteractive();
     root.add(dim);
     const w = o.width ?? 760;
     const title = o.title ? txt(scene, W / 2, 0, o.title, { size: o.titleSize ?? 40, weight: 800, origin: [0.5, 0], color: o.titleColor ?? CSS.yellow, align: 'center', wrap: w - 60 }) : null;

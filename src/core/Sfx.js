@@ -156,7 +156,9 @@ const SOUNDS = {
     seq.forEach((f, i) => tone({ freq: f, type: 'triangle', decay: 0.22, vol: 0.18, delay: i * 0.12 }));
     [523, 659, 784, 1047].forEach((f) => tone({ freq: f, type: 'sine', attack: 0.05, decay: 1.6, vol: 0.08, delay: 0.9 }));
   },
-  type: () => tone({ freq: 1800 + Math.random() * 400, type: 'sine', decay: 0.015, vol: 0.02 })
+  type: () => tone({ freq: 1800 + Math.random() * 400, type: 'sine', decay: 0.015, vol: 0.02 }),
+  softWhoosh: () => noise({ attack: 0.15, decay: 0.7, vol: 0.06, freq: 500, to: 2600, q: 1.4 }),
+  twinkle: () => tone({ freq: 1760 + Math.random() * 600, type: 'sine', attack: 0.01, decay: 0.5, vol: 0.02 })
 };
 
 // A continuous rocket/engine rumble whose loudness can be changed while playing.

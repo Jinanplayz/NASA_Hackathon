@@ -25,6 +25,8 @@ Later missions (Apollo 13, Voyager 1, Mars rovers, JWST) appear as "coming soon"
 - **Bigger text**, **Calm motion** (no screen shake or fast flashing) and **Relaxed mode** (slower, more forgiving mini-games) in Settings.
 - Play with **touch, mouse or keyboard**: TAB and SHIFT+TAB move a yellow focus ring, ENTER presses, and arrow keys, space and WASD work in the games.
 - **Pause menu** on every screen (ESC or ☰), with Restart and **Skip activity**, so nobody gets stuck.
+  In the narrated "videos", the ⏸ button pauses everything (voice, animation, NASA film) and ▶ carries on from the same spot.
+- The **VOICE** button in the top bar turns Captain Nova's voice on or off.
 - The **Lexend** font was designed for easy reading; the colours are high contrast.
 - Nobody can "lose": mistakes explain what went wrong and let you try again.
 
@@ -105,6 +107,8 @@ src/
 
 - **Phaser 3** runs the game; **three.js** draws the detailed 3D spacecraft models, as the concept doc specifies.
 - The game is designed at 1280 × 720 and scales to fit any landscape screen (it asks phones to rotate).
+- **Fills the whole screen:** on phones (wider than 16:9) and tablets (taller) the backgrounds carry on
+  to the edges instead of showing black bars; buttons and text stay in the middle 1280 × 720 area.
 - **Sharp on every screen:** the canvas always has exactly as many pixels as the part of the screen it covers
   (up to 4K), and updates when the window is resized, goes full screen or moves to another monitor. On big
   high-resolution screens the pictures are painted at 3×, and computers get NASA's 720p films and 1920 px photos
@@ -158,5 +162,5 @@ team's concept document. The narration voice was generated with ElevenLabs' AI t
 - Concept and project team: Ahnaf Saleque, Abdullah Al Nahian, Labib Azmain, Takrim Hossain
 - Videos and photos: NASA (images.nasa.gov)
 - Narration voice: generated with [ElevenLabs](https://elevenlabs.io)
-- Font: [Lexend](https://www.lexend.com) (SIL Open Font License)
+- Fonts: [Lexend](https://www.lexend.com) and [Fredoka](https://fonts.google.com/specimen/Fredoka) for the logo (both SIL Open Font License)
 - Built with [Phaser](https://phaser.io), [three.js](https://threejs.org) and [Vite](https://vitejs.dev)

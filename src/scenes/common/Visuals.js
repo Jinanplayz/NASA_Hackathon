@@ -7,6 +7,7 @@ import { Sfx } from '../../core/Sfx.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { starPoints } from '../../ui/icons.js';
+import { drawShrouds } from './parachute.js';
 
 function stars(scene, c, w, h, n = 90, seed = 3) {
   const rnd = seeded(seed);
@@ -69,75 +70,161 @@ function orbit(scene, c, obj, cx, cy, rx, ry, period, start = 0, rotateToPath = 
   return state;
 }
 
-function launchScene(scene, c, w, h, rocketKey, o = {}) {
+// A counter tween that stops when the picture is removed.
+function counter(scene, c, cfg) {
+  const tw = scene.tweens.addCounter(cfg);
+  c.once('destroy', () => tw.stop());
+  return tw;
+}
+
+// One detailed launch, played once before a NASA launch film (it never starts over):
+// countdown with venting vapour, the gantry arm swinging away, ignition and billowing smoke,
+// liftoff, the climb through the clouds as the sky turns black, the first stage dropping away,
+// then the rocket carries on into space until the film starts.
+// o: scale, tower, night, split (how much of the picture, from the top, flies on after staging),
+//    stageText, spaceText
+function launchSequence(scene, c, w, h, rocketKey, o = {}) {
+  const padY = h - 70;
   sky(scene, c, w, h, o.night ? 0x02040d : 0x3a78c9, o.night ? 0x0c1640 : 0xa9d4ff);
-  if (o.night) stars(scene, c, w, h * 0.7, 70);
+  const dark = scene.add.rectangle(w / 2, h / 2, w, h, 0x02030a, 1).setAlpha(0);
+  c.add(dark);
+  const starry = stars(scene, c, w, h, 110, 8).setAlpha(o.night ? 0.7 : 0);
+
+  // everything on the ground (and the clouds above it) scrolls down as the rocket climbs
+  const world = scene.add.container(0, 0);
+  c.add(world);
+  for (let i = 0; i < 5; i++) {
+    const cl = img(scene, 90 + ((i * 290) % (w - 120)), -140 - i * 300, 'cloud' + (i % 3), 0.9 + (i % 2) * 0.4).setAlpha(o.night ? 0.35 : 0.9);
+    world.add(cl);
+  }
   const ground = scene.add.graphics();
   ground.fillStyle(o.night ? 0x0d1a12 : 0x3f7a4a, 1);
-  ground.fillRect(0, h - 60, w, 60);
+  ground.fillRect(-40, h - 60, w + 80, 400);
   ground.fillStyle(0x777b85, 1);
   ground.fillRect(w / 2 - 90, h - 70, 180, 16);
-  c.add(ground);
-  // gantry
+  world.add(ground);
+  const towerH = o.tower ?? 300;
+  const gx = w / 2 + 60;
   const gan = scene.add.graphics();
   gan.lineStyle(3, o.night ? 0x8a3a2a : 0xb8452f, 1);
-  const gx = w / 2 + 60;
-  gan.strokeRect(gx, h - 70 - (o.tower ?? 300), 34, o.tower ?? 300);
-  for (let y = h - 70; y > h - 70 - (o.tower ?? 300); y -= 24) gan.lineBetween(gx, y, gx + 34, y - 24);
-  c.add(gan);
-  const rocket = img(scene, w / 2, h - 70, rocketKey, o.scale ?? 0.8).setOrigin(0.5, 1);
-  c.add(rocket);
-  const flame = scene.add.image(w / 2, h - 70, 'flame').setOrigin(0.5, 0).setScale(0.6, 0.9).setVisible(false).setBlendMode(Phaser.BlendModes.ADD);
-  c.add(flame);
+  gan.strokeRect(gx, padY - towerH, 34, towerH);
+  for (let y = padY; y > padY - towerH; y -= 24) gan.lineBetween(gx, y, gx + 34, y - 24);
+  world.add(gan);
+  // the arm that holds the rocket until launch
+  const arm = scene.add.rectangle(gx, padY - towerH * 0.72, 44, 7, o.night ? 0x8a3a2a : 0xb8452f).setOrigin(1, 0.5);
+  world.add(arm);
   const smoke = scene.add.particles(0, 0, 'smoke', {
     x: w / 2,
     y: h - 60,
-    speedX: { min: -160, max: 160 },
-    speedY: { min: -40, max: 0 },
-    lifespan: 1800,
-    scale: { start: 0.4, end: 1.4 },
-    alpha: { start: 0.7, end: 0 },
-    frequency: 25,
+    speedX: { min: -260, max: 260 },
+    speedY: { min: -60, max: 0 },
+    lifespan: 2200,
+    scale: { start: 0.5, end: 2.2 },
+    alpha: { start: 0.8, end: 0 },
+    frequency: 18,
     emitting: false
   });
-  c.add(smoke);
-  const count = label(scene, c, 90, 60, '', { size: 44 });
-  const run = () => {
-    rocket.setY(h - 70);
-    flame.setVisible(false);
-    let n = 3;
-    count.setText('3');
-    const tick = scene.time.addEvent({
-      delay: 700,
-      repeat: 3,
-      callback: () => {
-        n--;
-        if (n > 0) {
-          count.setText(String(n));
-          sfx(c, 'tick');
-        } else if (n === 0) {
-          count.setText(o.liftoff || 'Liftoff!');
-          sfx(c, 'ignition');
-          flame.setVisible(true);
-          smoke.emitting = true;
-          scene.tweens.add({
-            targets: rocket,
-            y: -60,
-            duration: 3200,
-            ease: 'Quad.easeIn',
-            onUpdate: () => flame.setY(rocket.y)
-          });
-          later(scene, c, 1600, () => {
-            smoke.emitting = false;
-          });
-        }
-      }
-    });
-    c.once('destroy', () => tick.remove());
+  world.add(smoke);
+
+  // the rocket: two copies of the picture, cut where the stages separate
+  const rk = scene.add.container(w / 2, padY);
+  const scale = o.scale ?? 0.8;
+  const upper = img(scene, 0, 0, rocketKey, scale).setOrigin(0.5, 1);
+  const lower = img(scene, 0, 0, rocketKey, scale).setOrigin(0.5, 1);
+  const fw = upper.frame.width, fh = upper.frame.height;
+  const split = o.split ?? 0.5;
+  upper.setCrop(0, 0, fw, fh * split);
+  lower.setCrop(0, fh * split, fw, fh * (1 - split));
+  const rH = upper.displayHeight, rW = upper.displayWidth;
+  const fs = (rW * 0.95) / 80; // flame picture is 80 px wide
+  const flame = scene.add.image(0, -2, 'flame').setOrigin(0.5, 0).setScale(fs * 0.3, fs * 0.4).setBlendMode(Phaser.BlendModes.ADD).setVisible(false);
+  rk.add([flame, lower, upper]);
+  c.add(rk);
+  const vent = scene.add.particles(0, 0, 'smoke', {
+    x: w / 2 + rW * 0.45,
+    y: padY - rH * 0.55,
+    speedX: { min: 20, max: 60 },
+    speedY: { min: -10, max: 10 },
+    lifespan: 1400,
+    scale: { start: 0.15, end: 0.55 },
+    alpha: { start: 0.45, end: 0 },
+    frequency: 140,
+    emitting: false
+  });
+  c.add(vent);
+  const trail = scene.add.particles(0, 0, 'smoke', {
+    follow: rk,
+    speedY: { min: 90, max: 150 },
+    speedX: { min: -18, max: 18 },
+    lifespan: 1500,
+    scale: { start: 0.25, end: 1.1 },
+    alpha: { start: 0.5, end: 0 },
+    frequency: 40,
+    emitting: false
+  });
+  c.addAt(trail, c.getIndex(rk));
+
+  const count = label(scene, c, 76, 58, '', { size: 44 });
+  const news = label(scene, c, w / 2, 44, '', { size: 26, color: CSS.yellow });
+  const say = (t, color = CSS.yellow) => {
+    news.setText(t).setColor(color).setAlpha(0).setScale(0.7);
+    scene.tweens.add({ targets: news, alpha: 1, scale: 1, duration: 300, ease: 'Back.easeOut' });
   };
-  scene.tweens.add({ targets: flame, scaleY: 1.1, duration: 80, yoyo: true, repeat: -1 });
-  later(scene, c, 500, run);
-  loop(scene, c, 7000, run);
+
+  later(scene, c, 200, () => (vent.emitting = true));
+  ['5', '4', '3', '2', '1'].forEach((n, i) =>
+    later(scene, c, 400 + i * 700, () => {
+      count.setText(n);
+      sfx(c, 'tick');
+    })
+  );
+  // the arm swings away from the rocket
+  later(scene, c, 2000, () => scene.tweens.add({ targets: arm, angle: -80, duration: 900, ease: 'Sine.easeInOut' }));
+  // ignition: fire and smoke, the rocket strains against the pad
+  later(scene, c, 3700, () => {
+    count.setText('');
+    say(o.igniteText || 'Ignition!', CSS.orange);
+    vent.emitting = false;
+    flame.setVisible(true);
+    scene.tweens.add({ targets: flame, alpha: 0.7, duration: 70, yoyo: true, repeat: -1 });
+    scene.tweens.add({ targets: flame, scaleX: fs * 0.7, scaleY: fs * 1.1, duration: 600 });
+    smoke.emitting = true;
+    sfx(c, 'ignition');
+    scene.tweens.add({ targets: rk, x: w / 2 + 1.5, duration: 50, yoyo: true, repeat: 16 });
+  });
+  // liftoff: slowly at first, then faster, clearing the tower
+  later(scene, c, 4600, () => {
+    say(o.liftoffText || 'Liftoff!');
+    trail.emitting = true;
+    scene.tweens.add({ targets: rk, y: h * 0.62, scale: 0.6, duration: 3200, ease: 'Quad.easeIn' });
+    scene.tweens.add({ targets: flame, scaleY: fs * 1.5, duration: 1500 });
+  });
+  later(scene, c, 6200, () => (smoke.emitting = false));
+  // the climb: the ground falls away, clouds rush past, the sky turns black
+  later(scene, c, 7600, () => {
+    scene.tweens.add({ targets: world, y: 1700, duration: 6500, ease: 'Sine.easeIn' });
+    scene.tweens.add({ targets: dark, alpha: 0.92, duration: 6000 });
+    scene.tweens.add({ targets: starry, alpha: 1, duration: 6000, delay: 1500 });
+    scene.tweens.add({ targets: rk, scale: 0.5, duration: 6000 });
+  });
+  // staging: the used stage drops away and the next part flies on
+  later(scene, c, 10800, () => {
+    say(o.stageText || 'Stage 1 drops away!', CSS.cyan);
+    sfx(c, 'whoosh');
+    flame.setVisible(false);
+    scene.tweens.add({ targets: lower, y: rH * 0.9, angle: -24, alpha: 0, duration: 2600, ease: 'Quad.easeIn' });
+    later(scene, c, 700, () => {
+      flame.setY(-rH * (1 - split)).setScale(fs * 0.45, fs * 0.8).setVisible(true);
+    });
+  });
+  // space!
+  later(scene, c, 13000, () => {
+    say(o.spaceText || 'Space!', CSS.text);
+    trail.frequency = 90;
+    scene.tweens.add({ targets: rk, y: '-=14', duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+  });
+  // the NASA film waits until the whole launch has been shown
+  c.setData('filmAfter', 14500);
 }
 
 export const VISUALS = {
@@ -255,15 +342,17 @@ export const VISUALS = {
   },
 
   freedom7Launch(scene, c, w, h) {
-    launchScene(scene, c, w, h, 'mercuryRedstone', { scale: 0.7, tower: 260 });
+    // the Freedom 7 capsule (top 36% of the picture) separates from its Redstone rocket
+    launchSequence(scene, c, w, h, 'mercuryRedstone', { scale: 0.7, tower: 260, split: 0.364, stageText: 'Freedom 7 separates from the rocket!', spaceText: 'Space!' });
   },
 
   junoLaunch(scene, c, w, h) {
-    launchScene(scene, c, w, h, 'juno', { scale: 0.85, tower: 270, night: true });
+    launchSequence(scene, c, w, h, 'juno', { scale: 0.85, tower: 270, night: true, split: 0.29, stageText: 'Stage 1 drops away!', spaceText: 'On to orbit!' });
   },
 
   saturnLaunch(scene, c, w, h) {
-    launchScene(scene, c, w, h, 'saturnV', { scale: 0.75, tower: 360, liftoff: 'Liftoff!' });
+    // the first stage (S-IC) is the bottom 38% of the Saturn V
+    launchSequence(scene, c, w, h, 'saturnV', { scale: 0.75, tower: 360, split: 0.62, stageText: 'Stage 1 drops away!', spaceText: 'On to orbit!' });
   },
 
   systems(scene, c, w, h) {
@@ -652,91 +741,186 @@ export const VISUALS = {
     scene.tweens.add({ targets: ship, y: h / 2 - 10, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   },
 
+  // The whole trip, once: a lap of Earth, the engine burn, three days of coasting, then
+  // Apollo 11 settles into orbit around the Moon (and stays there until the film starts).
   tripToMoon(scene, c, w, h) {
     stars(scene, c, w, h);
-    c.add(img(scene, 110, h / 2, 'earth', 0.5));
-    c.add(img(scene, w - 90, h / 2, 'moonSmall', 0.9));
+    const E = { x: 120, y: h / 2 + 20 }, M = { x: w - 100, y: h / 2 + 10 };
+    c.add(img(scene, E.x, E.y, 'earth', 0.5));
+    c.add(img(scene, M.x, M.y, 'moonSmall', 0.9));
+    const arc = (t) => ({ x: E.x + 120 + (M.x - 80 - (E.x + 120)) * t, y: E.y - Math.sin(t * Math.PI) * 130 - 10 * t });
     const path = scene.add.graphics();
-    path.lineStyle(2, COLORS.yellow, 0.6);
+    path.lineStyle(2, COLORS.yellow, 0.25);
     const pts = [];
-    for (let i = 0; i <= 50; i++) {
-      const t = i / 50;
-      pts.push({ x: 110 + (w - 200) * t, y: h / 2 - Math.sin(t * Math.PI) * 120 });
-    }
+    for (let i = 0; i <= 60; i++) pts.push(arc(i / 60));
     path.strokePoints(pts, false);
     c.add(path);
-    const ship = img(scene, 110, h / 2, 'csmLm', 0.5);
-    c.add(ship);
-    const tw = scene.tweens.addCounter({
+    const done = scene.add.graphics();
+    c.add(done);
+    const ship = img(scene, E.x + 120, E.y, 'csmLm', 0.45);
+    const burn = scene.add.image(0, 0, 'flame').setOrigin(0.5, 0).setScale(0.18, 0.3).setBlendMode(Phaser.BlendModes.ADD).setVisible(false);
+    c.add([burn, ship]);
+    const day = label(scene, c, w / 2, 42, 'Leaving Earth orbit', { size: 24, color: CSS.cyan });
+    const place = (x, y, ang) => {
+      ship.setPosition(x, y).setRotation(ang);
+      // the engine is at the back of the ship
+      burn.setPosition(x - Math.cos(ang) * 58, y - Math.sin(ang) * 58).setRotation(ang + Math.PI / 2);
+    };
+    // 1. a lap around Earth
+    counter(scene, c, {
       from: 0,
       to: 1,
-      duration: 5000,
-      repeat: -1,
-      onUpdate: (t) => {
-        const v = t.getValue();
-        ship.setPosition(110 + (w - 200) * v, h / 2 - Math.sin(v * Math.PI) * 120);
+      duration: 2600,
+      ease: 'Sine.easeInOut',
+      onUpdate: (tw) => {
+        const a = tw.getValue() * Math.PI * 2;
+        place(E.x + Math.cos(a) * 120, E.y + Math.sin(a) * 70, a + Math.PI / 2);
       }
     });
-    c.once('destroy', () => tw.stop());
-    label(scene, c, w / 2, h - 40, 'About 3 days · 384,400 km (238,900 miles)', { size: 22, color: CSS.cyan });
+    // 2. the engine burn that sends them to the Moon
+    later(scene, c, 2600, () => {
+      day.setText('Engine burn: next stop, the Moon!');
+      burn.setVisible(true);
+      sfx(c, 'powerUp');
+    });
+    // 3. three days of coasting
+    later(scene, c, 3800, () => {
+      burn.setVisible(false);
+      counter(scene, c, {
+        from: 0,
+        to: 1,
+        duration: 8000,
+        ease: 'Sine.easeInOut',
+        onUpdate: (tw) => {
+          const t = tw.getValue();
+          const p = arc(t), q = arc(Math.min(1, t + 0.01));
+          place(p.x, p.y, Math.atan2(q.y - p.y, q.x - p.x));
+          done.clear();
+          done.lineStyle(3, COLORS.yellow, 0.9);
+          done.strokePoints(pts.slice(0, Math.max(2, Math.round(t * 60) + 1)), false);
+          day.setText(`Day ${Math.min(3, 1 + Math.floor(t * 3))} of 3 · coasting to the Moon`);
+        }
+      });
+    });
+    // 4. into orbit around the Moon
+    later(scene, c, 11800, () => {
+      day.setText('In orbit around the Moon!');
+      sfx(c, 'chime');
+      counter(scene, c, {
+        from: Math.PI,
+        to: Math.PI * 3,
+        duration: 6000,
+        repeat: -1,
+        onUpdate: (tw) => {
+          const a = tw.getValue();
+          place(M.x + Math.cos(a) * 80, M.y + Math.sin(a) * 46, a + Math.PI / 2);
+        }
+      });
+    });
+    label(scene, c, w / 2, 76, 'About 3 days · 384,400 km (238,900 miles)', { size: 18, color: CSS.text });
+    c.setData('filmAfter', 12500);
   },
 
+  // The Moon landing, once: Eagle pitches over, flies long past the boulders,
+  // hovers down through the dust and touches down.
+  lunarDescent(scene, c, w, h) {
+    sky(scene, c, w, h, 0x000000, 0x05060a);
+    stars(scene, c, w, h * 0.5, 40);
+    const gy = h * 0.75;
+    const ground = scene.add.graphics();
+    ground.fillStyle(0xa3a3a0, 1);
+    ground.fillRect(0, gy, w, h - gy);
+    ground.fillStyle(0x8c8c89, 1);
+    [[w * 0.18, 60], [w * 0.8, 44]].forEach(([x, r]) => ground.fillEllipse(x, gy + 26, r * 2, r * 0.5));
+    // the boulder field Armstrong had to fly past
+    ground.fillStyle(0x6e6e6b, 1);
+    for (let i = 0; i < 7; i++) ground.fillEllipse(w * 0.3 + i * 34, gy - 4 + (i % 2) * 6, 26 - (i % 3) * 5, 16);
+    c.add(ground);
+    const spot = w * 0.66;
+    const lm = img(scene, w * 0.12, 40, 'lm', 1.1);
+    const flame = scene.add.image(0, 0, 'flame').setOrigin(0.5, 0).setScale(0.26, 0.34).setBlendMode(Phaser.BlendModes.ADD);
+    c.add([flame, lm]);
+    scene.tweens.add({ targets: flame, alpha: 0.7, duration: 70, yoyo: true, repeat: -1 });
+    const dust = scene.add.particles(0, 0, 'smoke', { x: spot, y: gy, speedX: { min: -220, max: 220 }, speedY: { min: -30, max: 0 }, lifespan: 900, scale: { start: 0.2, end: 0.7 }, alpha: { start: 0.55, end: 0 }, tint: 0xc9c2b0, frequency: 30, emitting: false });
+    c.add(dust);
+    const call = label(scene, c, w / 2, 40, 'Eagle is coming down', { size: 24, color: CSS.cyan });
+    const follow = () => flame.setPosition(lm.x, lm.y + 36).setRotation(lm.rotation);
+    // 1. pitch over and glide across
+    scene.tweens.add({ targets: lm, x: w * 0.33, y: h * 0.32, angle: { from: 25, to: 10 }, duration: 4000, ease: 'Sine.easeInOut', onUpdate: follow });
+    // 2. boulders! fly on to find a safe spot
+    later(scene, c, 4000, () => {
+      call.setText('Boulders! Armstrong flies on...').setColor(CSS.orange);
+      scene.tweens.add({ targets: lm, x: spot, y: h * 0.42, angle: 0, duration: 3000, ease: 'Sine.easeInOut', onUpdate: follow });
+    });
+    // 3. straight down through the dust
+    later(scene, c, 7000, () => {
+      call.setText('Picking up some dust...').setColor(CSS.cyan);
+      scene.tweens.add({
+        targets: lm,
+        y: gy - 44,
+        duration: 4000,
+        ease: 'Sine.easeOut',
+        onUpdate: () => {
+          follow();
+          dust.emitting = lm.y > h * 0.52;
+        }
+      });
+    });
+    // 4. contact!
+    later(scene, c, 11000, () => {
+      flame.setVisible(false);
+      dust.emitting = false;
+      call.setText('Contact light!').setColor(CSS.green);
+      sfx(c, 'snap');
+    });
+    later(scene, c, 12200, () => call.setText('"The Eagle has landed."').setColor(CSS.yellow));
+    c.setData('filmAfter', 12800);
+  },
+
+  // Out on the Moon: bouncy steps from Eagle to the flag, leaving footprints.
   moonwalk(scene, c, w, h) {
     sky(scene, c, w, h, 0x000000, 0x05060a);
     stars(scene, c, w, h * 0.5, 40);
     c.add(img(scene, w * 0.82, h * 0.18, 'earthSmall', 0.7));
+    const gy = h * 0.7;
     const ground = scene.add.graphics();
     ground.fillStyle(0xa3a3a0, 1);
     ground.fillRect(0, h * 0.68, w, h * 0.32);
     c.add(ground);
-    c.add(img(scene, w * 0.22, h * 0.7, 'lm', 1.6).setOrigin(0.5, 1));
-    const flag = scene.add.container(w * 0.62, h * 0.7);
+    c.add(img(scene, w * 0.22, gy, 'lm', 1.6).setOrigin(0.5, 1));
+    const flag = scene.add.container(w * 0.72, gy);
     const pole = scene.add.rectangle(0, -70, 3, 140, 0xdddddd);
     const f = img(scene, 46, -118, 'flag', 1);
     flag.add([pole, f]);
     c.add(flag);
-    const guy = img(scene, w * 0.45, h * 0.7, 'moonwalker', 1.2).setOrigin(0.5, 1);
+    const prints = scene.add.graphics();
+    c.add(prints);
+    const guy = img(scene, w * 0.3, gy, 'moonwalker', 1.2).setOrigin(0.5, 1);
     c.add(guy);
-    scene.tweens.add({ targets: guy, y: h * 0.7 - 22, x: '+=30', duration: 700, yoyo: true, repeat: -1, ease: 'Quad.easeOut' });
-    label(scene, c, w / 2, 36, '"One small step for a man, one giant leap for mankind."', { size: 20, color: CSS.yellow, wrap: w - 60 });
-  },
-
-  lunarDescent(scene, c, w, h) {
-    sky(scene, c, w, h, 0x000000, 0x05060a);
-    stars(scene, c, w, h * 0.5, 40);
-    const ground = scene.add.graphics();
-    ground.fillStyle(0xa3a3a0, 1);
-    ground.fillRect(0, h * 0.75, w, h * 0.25);
-    c.add(ground);
-    const lm = img(scene, w / 2, 40, 'lm', 1.4);
-    c.add(lm);
-    const flame = scene.add.image(w / 2, 0, 'flame').setOrigin(0.5, 0).setScale(0.3, 0.4).setBlendMode(Phaser.BlendModes.ADD);
-    c.add(flame);
-    const dust = scene.add.particles(0, 0, 'smoke', { x: w / 2, y: h * 0.75, speedX: { min: -200, max: 200 }, speedY: { min: -30, max: 0 }, lifespan: 900, scale: { start: 0.2, end: 0.6 }, alpha: { start: 0.5, end: 0 }, tint: 0xc9c2b0, frequency: 40, emitting: false });
-    c.add(dust);
-    const t = label(scene, c, w / 2, h - 30, '', { size: 26, color: CSS.yellow });
-    const run = () => {
-      lm.setY(40);
-      flame.setVisible(true);
-      t.setText('');
-      scene.tweens.add({
-        targets: lm,
-        y: h * 0.75 - 60,
-        duration: 4500,
-        ease: 'Sine.easeOut',
-        onUpdate: () => {
-          flame.setY(lm.y + 30);
-          dust.emitting = lm.y > h * 0.5;
-        },
-        onComplete: () => {
-          flame.setVisible(false);
-          dust.emitting = false;
-          t.setText('"The Eagle has landed."');
-        }
+    const hops = 6, x0 = w * 0.3, x1 = w * 0.66;
+    for (let i = 0; i < hops; i++) {
+      later(scene, c, 600 + i * 900, () => {
+        const nx = x0 + ((x1 - x0) * (i + 1)) / hops;
+        scene.tweens.add({ targets: guy, x: nx, duration: 800, ease: 'Linear' });
+        scene.tweens.add({
+          targets: guy,
+          y: gy - 34,
+          duration: 400,
+          yoyo: true,
+          ease: 'Quad.easeOut',
+          onComplete: () => {
+            // a footprint where the boot lands
+            prints.fillStyle(0x7d7d7a, 1);
+            prints.fillEllipse(nx - 8, gy + 6, 12, 5);
+            prints.fillEllipse(nx + 6, gy + 9, 12, 5);
+          }
+        });
       });
-    };
-    run();
-    loop(scene, c, 8000, run);
+    }
+    // standing by the flag, bobbing gently in the low gravity
+    later(scene, c, 600 + hops * 900, () => scene.tweens.add({ targets: guy, y: gy - 4, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' }));
+    label(scene, c, w / 2, 36, '"One small step for a man, one giant leap for mankind."', { size: 20, color: CSS.yellow, wrap: w - 60 });
+    c.setData('filmAfter', 600 + hops * 900);
   },
 
   reentry(scene, c, w, h) {
@@ -782,15 +966,16 @@ export const VISUALS = {
     sea.fillRect(0, h * 0.86, w, h * 0.14);
     c.add(sea);
     const grp = scene.add.container(w / 2, h * 0.3);
+    const canopies = [
+      [-92, -8, -12],
+      [0, -26, 0],
+      [92, -8, 12]
+    ].map(([dx, dy, a]) => img(scene, dx, dy, 'mainCanopy', 1.1).setOrigin(0.5, 1).setAngle(a));
     const lines = scene.add.graphics();
-    lines.lineStyle(1.5, 0xffffff, 0.8);
-    [-80, 0, 80].forEach((dx) => {
-      lines.lineBetween(0, 150, dx - 40, 20);
-      lines.lineBetween(0, 150, dx + 40, 20);
-    });
-    grp.add(lines);
-    [-80, 0, 80].forEach((dx) => grp.add(img(scene, dx, -20, 'mainChute', 1.1)));
-    grp.add(img(scene, 0, 170, 'cm', 1.1));
+    lines.lineStyle(1.5, 0xffffff, 0.85);
+    // the capsule is 66 px tall at this size: its tip is 29 px above its middle
+    drawShrouds(lines, canopies, { x: 0, y: 170 - 29 });
+    grp.add([lines, ...canopies, img(scene, 0, 170, 'cm', 1.1)]);
     c.add(grp);
     scene.tweens.add({ targets: grp, y: h * 0.36, angle: 3, duration: 2400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   },

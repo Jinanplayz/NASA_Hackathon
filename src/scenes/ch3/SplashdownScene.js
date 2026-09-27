@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, clamp, lerpColor } from '../../core/constants.js';
+import { W, H, FULL, COLORS, CSS, DEPTH, TEX, lerpColor } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -8,6 +8,7 @@ import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
 import { toast, floatText, drawPanel } from '../../ui/widgets.js';
+import { drawShrouds } from '../common/parachute.js';
 
 // Open the parachutes at the right heights, flip the upside-down capsule with its
 // balloon bags (Apollo 11 really landed upside down), then switch on the safety gear.
@@ -16,6 +17,7 @@ const MAIN = { hi: 3600, lo: 2500 };
 const START_ALT = 10500;
 const METER_X = 1150, METER_TOP = 110, METER_BOT = 560;
 const SEA_Y = 520;
+const TIP_Y = -40; // the capsule's tip (where the cords and balloons attach), in the capsule's own frame
 
 export class SplashdownScene extends BaseScene {
   constructor() {
@@ -31,16 +33,27 @@ export class SplashdownScene extends BaseScene {
     this.sky = this.add.graphics();
     this.clouds = [];
     for (let i = 0; i < 7; i++) {
-      const c = img(this, Phaser.Math.Between(80, 1000), Phaser.Math.Between(120, 700), 'cloud' + (i % 3), 0.8 + Math.random() * 0.6).setAlpha(0.8);
+      const c = img(this, Phaser.Math.Between(FULL.x + 60, FULL.x + FULL.w - 60), Phaser.Math.Between(120, 700), 'cloud' + (i % 3), 0.8 + Math.random() * 0.6).setAlpha(0.8);
       this.clouds.push(c);
     }
     this.sea = this.add.graphics().setVisible(false);
-    this.capsule = this.add.container(560, 300).setDepth(20);
+    this.capsule = this.add.container(560, 340).setDepth(20);
+    // the capsule (and, later, its balloons) tips and flips as one piece
+    this.cmGroup = this.add.container(0, 0);
     this.cmImg = img(this, 0, 0, 'cm', 1.5);
-    this.drogues = [-26, 26].map((dx) => img(this, dx, -120, 'drogue', 0.8).setVisible(false));
-    this.mains = [-70, 0, 70].map((dx) => img(this, dx, -190, 'mainChute', 1.0).setVisible(false));
+    this.cmGroup.add(this.cmImg);
+    this.drogues = [-24, 24].map((dx) => img(this, dx, -118, 'drogueCanopy', 0.8).setOrigin(0.5, 1).setVisible(false));
+    this.mains = [
+      [-84, -204, -12],
+      [0, -222, 0],
+      [84, -204, 12]
+    ].map(([dx, dy, a]) => {
+      const m = img(this, dx, dy, 'mainCanopy', 1).setOrigin(0.5, 1).setAngle(a).setVisible(false);
+      m.baseAngle = a;
+      return m;
+    });
     this.lines = this.add.graphics();
-    this.capsule.add([this.lines, ...this.drogues, ...this.mains, this.cmImg]);
+    this.capsule.add([this.lines, ...this.drogues, ...this.mains, this.cmGroup]);
 
     // height meter
     const mg = this.add.graphics().setDepth(DEPTH.hud);
@@ -97,7 +110,7 @@ export class SplashdownScene extends BaseScene {
     Sfx.play('whoosh');
     this.drogues.forEach((d) => d.setVisible(true).setScale(0.1 / TEX));
     this.tweens.add({ targets: this.drogues, scale: 0.8 / TEX, duration: 400, ease: 'Back.easeOut' });
-    toast(this, auto ? this.T('auto', '') : this.T('drogueOk', ''), { y: 128, color: auto ? COLORS.orange : COLORS.green, duration: 3200, speak: true, sound: auto ? 'error' : 'success' });
+    toast(this, auto ? this.T('auto', '') : this.T('drogueOk', ''), { y: 440, color: auto ? COLORS.orange : COLORS.green, duration: 3200, speak: true, sound: auto ? 'error' : 'success' });
   }
 
   openMains(auto) {
@@ -108,25 +121,25 @@ export class SplashdownScene extends BaseScene {
     this.mains.forEach((m) => m.setVisible(true).setScale(0.1 / TEX));
     this.tweens.add({ targets: this.mains, scale: 1 / TEX, duration: 600, ease: 'Back.easeOut' });
     if (this.wind) this.wind.set(0.3);
-    toast(this, auto ? this.T('auto', '') : this.T('mainOk', ''), { y: 128, color: auto ? COLORS.orange : COLORS.green, duration: 3200, speak: true, sound: auto ? 'error' : 'success' });
+    toast(this, auto ? this.T('auto', '') : this.T('mainOk', ''), { y: 440, color: auto ? COLORS.orange : COLORS.green, duration: 3200, speak: true, sound: auto ? 'error' : 'success' });
   }
 
   update(time, delta) {
     const dt = Math.min(0.05, delta / 1000);
     // swaying chutes
-    this.mains.forEach((m, i) => (m.angle = Math.sin(time / 700 + i) * 4));
+    this.mains.forEach((m, i) => (m.angle = m.baseAngle + Math.sin(time / 700 + i) * 3));
     if (!['fall1', 'fall2', 'fall3'].includes(this.phase)) return;
     const rate = this.phase === 'fall1' ? 820 : this.phase === 'fall2' ? 620 : 330; // game-speed metres per second
     this.alt = Math.max(0, this.alt - rate * dt * (this.relaxed ? 0.75 : 1));
     // clouds rush upward to show the fall
     this.clouds.forEach((c) => {
       c.y -= rate * dt * 0.35;
-      if (c.y < -80) {
-        c.y = H + 80;
-        c.x = Phaser.Math.Between(80, 1000);
+      if (c.y < FULL.y - 80) {
+        c.y = FULL.y + FULL.h + 80;
+        c.x = Phaser.Math.Between(FULL.x + 60, FULL.x + FULL.w - 60);
       }
     });
-    this.cmImg.angle = this.phase === 'fall1' ? Math.sin(time / 120) * 10 : Math.sin(time / 500) * 3;
+    this.cmGroup.angle = this.phase === 'fall1' ? Math.sin(time / 120) * 10 : Math.sin(time / 500) * 3;
     this.drawLines();
     this.marker.y = this.yFor(this.alt);
     this.altText.setText(`${Math.round(this.alt).toLocaleString()} m`);
@@ -138,18 +151,24 @@ export class SplashdownScene extends BaseScene {
       const k = 1 - this.alt / 1600;
       this.sea.setVisible(true).clear();
       this.sea.fillStyle(0x1f5fa8, 1);
-      this.sea.fillRect(0, H - k * (H - SEA_Y), W, H);
+      this.sea.fillRect(FULL.x, H - k * (H - SEA_Y), FULL.w, FULL.h);
       this.cameras.main.setBackgroundColor(lerpColor(0x6aaee8, 0x9fd0ff, k));
     }
     if (this.alt <= 0) this.splash();
   }
 
+  // where the cords meet: the tip of the capsule, wherever it is swinging
+  tip() {
+    const a = this.cmGroup.rotation;
+    return { x: this.cmGroup.x - TIP_Y * Math.sin(a), y: this.cmGroup.y + TIP_Y * Math.cos(a) };
+  }
+
   drawLines() {
     const g = this.lines;
     g.clear();
-    g.lineStyle(1.5, 0xffffff, 0.8);
-    this.drogues.forEach((d) => d.visible && d.alpha > 0.1 && g.lineBetween(0, -30, d.x, d.y + 12));
-    this.mains.forEach((m) => m.visible && [-40, 40].forEach((o) => g.lineBetween(0, -30, m.x + o * m.scaleX * TEX, m.y + 30)));
+    g.lineStyle(1.5, 0xffffff, 0.85);
+    drawShrouds(g, this.drogues, this.tip(), 3);
+    drawShrouds(g, this.mains, this.tip(), 5);
   }
 
   splash() {
@@ -168,7 +187,7 @@ export class SplashdownScene extends BaseScene {
     const drops = this.add.particles(560, SEA_Y, 'dot', { speedY: { min: -320, max: -120 }, speedX: { min: -200, max: 200 }, gravityY: 600, lifespan: 1000, scale: { start: 1, end: 0.3 }, tint: 0xdff4ff, emitting: false }).setDepth(25);
     drops.explode(40);
     // tip over to upside-down (Stable 2)
-    this.tweens.add({ targets: this.cmImg, angle: 180, y: 10, duration: 1400, ease: 'Back.easeOut' });
+    this.tweens.add({ targets: this.cmGroup, angle: 180, y: 10, duration: 1400, ease: 'Back.easeOut' });
     this.time.delayedCall(1800, () => this.startFlip());
   }
 
@@ -177,45 +196,53 @@ export class SplashdownScene extends BaseScene {
     this.bob = this.tweens.add({ targets: this.capsule, y: this.capsule.y + 6, duration: 1300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.mains.forEach((m) => m.setVisible(false));
     this.guide.say(this.T('flipIntro', ''), { next: false, position: 'top' });
-    this.bags = [-36, 0, 36].map((dx, i) => {
-      const b = this.add.container(dx, 44);
-      const im = img(this, 0, 0, 'uprightBag', 0.5);
-      const ring = this.add.circle(0, 0, 22).setStrokeStyle(3, COLORS.yellow);
-      this.tweens.add({ targets: ring, scale: 1.4, alpha: 0, duration: 800, repeat: -1 });
+    // the three balloon bags are fixed to the capsule's tip (under the water while it's upside down)
+    this.bags = [-60, 0, 60].map((deg) => {
+      const r = Phaser.Math.DegToRad(deg);
+      const dir = { x: Math.sin(r), y: -Math.cos(r) };
+      const b = this.add.container(dir.x * 12, TIP_Y + dir.y * 12);
+      b.dir = dir;
+      const im = img(this, 0, 0, 'uprightBag', 0.6);
+      const ring = this.add.circle(0, 0, 15).setStrokeStyle(3, COLORS.yellow);
+      this.tweens.add({ targets: ring, scale: 1.5, alpha: 0, duration: 800, repeat: -1 });
       b.add([ring, im]);
-      b.setSize(56, 56).setInteractive({ useHandCursor: true });
+      b.setSize(40, 40).setInteractive({ useHandCursor: true });
       b.inflated = false;
       b.im = im;
       b.enabled = true;
       b.activate = () => this.inflate(b);
-      b.on('pointerup', () => this.inflate(b));
+      // the bags sit close together: a tap on one that's already full fills the next one
+      b.on('pointerup', () => this.inflate(b.inflated ? this.bags.find((x) => !x.inflated) : b));
       this.focus.add(b);
-      this.capsule.add(b);
+      // behind the capsule, so they grow out from under it; they turn with it when it flips
+      this.cmGroup.addAt(b, 0);
       return b;
     });
   }
 
   inflate(b) {
-    if (b.inflated || this.phase !== 'flip') return;
+    if (!b || b.inflated || this.phase !== 'flip') return;
     b.inflated = true;
     b.enabled = false;
     b.disableInteractive();
     Sfx.play('inflate');
-    this.tweens.add({ targets: b.im, scale: 1.3 / TEX, duration: 600, ease: 'Back.easeOut' });
+    // it grows outward from the tip, staying attached
+    this.tweens.add({ targets: b.im, scale: 1.9 / TEX, duration: 600, ease: 'Back.easeOut' });
+    this.tweens.add({ targets: b, x: b.dir.x * 26, y: TIP_Y + b.dir.y * 26, duration: 600, ease: 'Back.easeOut' });
     b.list[0].destroy();
     if (this.bags.every((x) => x.inflated)) {
       this.phase = 'flipping';
       this.time.delayedCall(600, () => {
         Sfx.play('whoosh');
-        this.bags.forEach((x) => this.tweens.add({ targets: x, alpha: 0, duration: 800, delay: 900 }));
+        // the balloons lift the tip, and the capsule rolls upright (they stay on top, like on the real Apollo 11)
         this.tweens.add({
-          targets: this.cmImg,
+          targets: this.cmGroup,
           angle: 360,
           y: 0,
           duration: 1400,
           ease: 'Sine.easeInOut',
           onComplete: () => {
-            this.cmImg.angle = 0;
+            this.cmGroup.angle = 0;
             Sfx.play('success');
             toast(this, this.T('flipDone', ''), { y: 128, color: COLORS.green, duration: 3000, speak: true, sound: false });
             this.time.delayedCall(2600, () => this.startGear());
@@ -251,11 +278,12 @@ export class SplashdownScene extends BaseScene {
     toast(this, `${gd.name}: ${gd.fact}`, { y: 450, color: COLORS.green, duration: 3000, speak: [gd.name, gd.fact], sound: false, wrap: 760 });
     const cx = this.capsule.x, cy = this.capsule.y;
     if (gd.id === 'light') {
-      const l = this.add.circle(cx, cy - 46, 8, 0xffffff).setDepth(30);
-      const glow = this.add.image(cx, cy - 46, 'softDot').setScale(1.4).setDepth(29).setBlendMode(Phaser.BlendModes.ADD);
+      // the flashing light sits on the capsule's shoulder, beside the balloons
+      const l = this.add.circle(cx - 26, cy - 26, 7, 0xffffff).setDepth(30);
+      const glow = this.add.image(cx - 26, cy - 26, 'softDot').setScale(0.75).setDepth(29).setBlendMode(Phaser.BlendModes.ADD);
       this.tweens.add({ targets: [l, glow], alpha: 0.1, duration: 250, yoyo: true, repeat: -1, hold: 400 });
     } else if (gd.id === 'beacon') {
-      const w = img(this, cx + 34, cy - 60, 'waves', 0.8).setDepth(30);
+      const w = img(this, cx + 44, cy - 34, 'waves', 0.8).setDepth(30);
       this.tweens.add({ targets: w, alpha: 0.2, scale: 1.1 / TEX, duration: 500, yoyo: true, repeat: -1 });
       this.time.addEvent({ delay: 900, loop: true, callback: () => this.phase === 'gear' && Sfx.play('radio') });
     } else if (gd.id === 'dye') {

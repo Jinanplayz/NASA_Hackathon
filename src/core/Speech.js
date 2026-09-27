@@ -7,13 +7,23 @@
 import { Settings } from './Settings.js';
 import { Sfx } from './Sfx.js';
 import { Content } from './Content.js';
-import { cleanSpeech, speechParts, voiceKey } from './voiceText.js';
+import { speechParts, voiceKey } from './voiceText.js';
 
 const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
 let voice = null;
 let token = 0;
 let watchdog = null;
 let cancelCurrent = null;
+// Pausing: a recorded line stops where it is and carries on from there; a browser-voice
+// sentence is stopped and said again from its start (browsers can't reliably pause speech).
+let paused = false;
+let pausedTTS = false;
+let current = null; // the recorded line playing now: { el, arm }
+let resumeWaiters = [];
+
+function whenResumed() {
+  return paused ? new Promise((r) => resumeWaiters.push(r)) : Promise.resolve();
+}
 
 // ---------- browser voice (fallback) ----------
 // Prefer calm, natural-sounding female English voices when the device has them.
@@ -66,7 +76,7 @@ function speakTTS(text, my) {
       settled = true;
       clearTimeout(watchdog);
       cancelCurrent = null;
-      resolve(ok);
+      resolve(pausedTTS ? 'paused' : ok);
     };
     cancelCurrent = () => done(false);
     // Safety net in case the browser never reports that speaking ended.
@@ -81,6 +91,7 @@ function speakTTS(text, my) {
     synth.cancel();
     // A tiny delay avoids a Chrome bug where speak() right after cancel() is ignored.
     setTimeout(() => {
+      if (settled) return; // paused or stopped in the meantime
       if (my !== token) return done(false);
       parts.forEach((p, i) => {
         const u = new SpeechSynthesisUtterance(p);
@@ -165,6 +176,7 @@ function playFile(url, my) {
       el.onerror = null;
       el.onloadedmetadata = null;
       clearTimeout(safety);
+      if (current && current.el === el) current = null;
     };
     const done = (ok) => {
       if (settled) return;
@@ -184,9 +196,12 @@ function playFile(url, my) {
     // never get stuck if "ended" doesn't arrive
     const arm = () => {
       clearTimeout(safety);
-      const secs = isFinite(el.duration) ? el.duration / el.playbackRate : 30;
+      if (paused) return;
+      const secs = isFinite(el.duration) ? (el.duration - (el.currentTime || 0)) / el.playbackRate : 30;
       safety = setTimeout(() => done(true), secs * 1000 + 3000);
     };
+    const hold = () => clearTimeout(safety);
+    current = { el, arm, hold };
     safety = setTimeout(() => done(true), 35000);
     if (el.readyState >= 1) arm();
     else el.onloadedmetadata = arm;
@@ -213,12 +228,22 @@ export const Speech = {
     Sfx.duckMusic(true);
     return (async () => {
       let ok = true;
+      // browser voice, said again from the start of the sentence if a pause cut it off
+      const tts = async (text) => {
+        for (;;) {
+          await whenResumed();
+          if (my !== token) return false;
+          const r = await speakTTS(text, my);
+          if (r !== 'paused') return r;
+        }
+      };
       if (audio) {
         ok = await playFile(audio, my);
-        if (!ok && my === token) ok = await speakTTS(parts.map((p) => p.text).join(' '), my);
+        if (!ok && my === token) ok = await tts(parts.map((p) => p.text).join(' '));
       } else {
         const files = parts.map((p) => (p.live ? null : recordingFor(p.text)));
         for (let i = 0; i < parts.length; i++) {
+          await whenResumed();
           if (my !== token) return false;
           // start this piece, then quietly load the next one while it plays
           const playing = files[i] ? playFile(files[i], my) : null;
@@ -226,7 +251,7 @@ export const Speech = {
           const played = playing ? await playing : false;
           if (my !== token) return false;
           // live numbers, or a missing/failed recording: use the browser voice for this piece
-          if (!played) ok = (await speakTTS(parts[i].text, my)) && ok;
+          if (!played) ok = (await tts(parts[i].text)) && ok;
         }
       }
       if (my === token) Sfx.duckMusic(false);
@@ -234,8 +259,49 @@ export const Speech = {
     })();
   },
 
+  // Pause and carry on later (the pause button and the pause menu).
+  pause() {
+    if (paused) return;
+    paused = true;
+    if (current) {
+      current.hold();
+      current.el.pause();
+    } else if (cancelCurrent && synth) {
+      // a browser-voice sentence: stop it now and say it again when resumed
+      pausedTTS = true;
+      cancelCurrent();
+      try {
+        synth.cancel();
+      } catch {
+        /* ignore */
+      }
+      pausedTTS = false;
+    }
+  },
+
+  resume() {
+    if (!paused) return;
+    paused = false;
+    if (current) {
+      current.el.play().catch(() => {});
+      current.arm();
+    }
+    const waiters = resumeWaiters;
+    resumeWaiters = [];
+    waiters.forEach((r) => r());
+  },
+
+  get paused() {
+    return paused;
+  },
+
   stop() {
     token++;
+    // anything waiting for a resume just finishes (it sees the new token)
+    paused = false;
+    const waiters = resumeWaiters;
+    resumeWaiters = [];
+    waiters.forEach((r) => r());
     clearTimeout(watchdog);
     if (cancelCurrent) cancelCurrent();
     cancelCurrent = null;

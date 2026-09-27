@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX } from '../../core/constants.js';
+import { H, COLORS, CSS, TEX } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -25,6 +25,9 @@ export class WiringScene extends BaseScene {
 
   create() {
     this.setupStage();
+    // (Phaser reuses this screen when it is played again: start from a clean slate)
+    this.dragFrom = null;
+    this.dragging = false;
     starfield(this, { count: 120 });
     this.nodesCfg = this.T('nodes', []);
     this.links = this.T('links', []);

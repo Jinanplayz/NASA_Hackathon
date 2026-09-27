@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, clamp } from '../../core/constants.js';
+import { W, H, FULL, COLORS, CSS, DEPTH, TEX, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -22,7 +22,7 @@ export class RescueScene extends BaseScene {
     this.t = 0;
     this.nextBeep = 0;
 
-    this.ocean = this.add.tileSprite(W / 2, H / 2, W, H, 'waveTile').setTileScale(1 / TEX);
+    this.ocean = this.add.tileSprite(W / 2, H / 2, FULL.w, FULL.h, 'waveTile').setTileScale(1 / TEX);
     this.ship = img(this, 170, 610, 'hornet', 0.9).setAngle(-8);
 
     // the capsule, hidden somewhere in the fog

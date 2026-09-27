@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, lerpColor, clamp } from '../../core/constants.js';
+import { W, H, FULL, COLORS, CSS, DEPTH, TEX, lerpColor, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -41,6 +41,8 @@ export class AscentScene extends BaseScene {
 
   create() {
     this.setupStage({ bg: SKY[0][1] });
+    // (Phaser reuses this screen when it is played again: start from a clean slate)
+    this.spaceBanner = null;
     this.goal = this.T('goalKm', 100);
     this.layers = this.T('layers', []);
     this.alt = 0;
@@ -55,7 +57,7 @@ export class AscentScene extends BaseScene {
     this.spawnTimer = 1.2;
 
     // stars (fade in high up)
-    this.stars = this.add.tileSprite(W / 2, H / 2, W, H, 'starsTile').setTileScale(1 / TEX).setAlpha(0);
+    this.stars = this.add.tileSprite(W / 2, H / 2, FULL.w, FULL.h, 'starsTile').setTileScale(1 / TEX).setAlpha(0);
     // Earth's curved edge, rises into view near space
     this.horizon = this.add.graphics().setAlpha(0);
     this.horizon.fillStyle(0x2f7fd8, 1);
@@ -69,9 +71,9 @@ export class AscentScene extends BaseScene {
     this.ground = this.add.container(0, 0);
     const gg = this.add.graphics();
     gg.fillStyle(0x3f7a4a, 1);
-    gg.fillRect(0, 610, W, 200);
+    gg.fillRect(FULL.x, 610, FULL.w, 300);
     gg.fillStyle(0x7fb069, 1);
-    gg.fillRect(0, 606, W, 10);
+    gg.fillRect(FULL.x, 606, FULL.w, 10);
     gg.fillStyle(0x777b85, 1);
     gg.fillRect(W / 2 - 110, 596, 220, 18);
     gg.lineStyle(3, 0xb8452f, 1);
@@ -79,13 +81,13 @@ export class AscentScene extends BaseScene {
     for (let y = 596; y > 390; y -= 24) gg.lineBetween(W / 2 + 50, y, W / 2 + 80, y - 24);
     // the sea next to Cape Canaveral
     gg.fillStyle(0x2a6fc0, 1);
-    gg.fillRect(900, 612, 380, 200);
+    gg.fillRect(900, 612, FULL.x + FULL.w - 900, 300);
     this.ground.add(gg);
 
     // speed streaks
     this.streaks = [];
     for (let i = 0; i < 26; i++) {
-      const r = this.add.rectangle(Phaser.Math.Between(40, 1160), Phaser.Math.Between(0, H), 2, Phaser.Math.Between(20, 60), 0xffffff, 0);
+      const r = this.add.rectangle(Phaser.Math.Between(FULL.x + 20, FULL.x + FULL.w - 20), Phaser.Math.Between(0, H), 2, Phaser.Math.Between(20, 60), 0xffffff, 0);
       this.streaks.push(r);
     }
 
@@ -198,7 +200,18 @@ export class AscentScene extends BaseScene {
     }
   }
 
-  addObstacle(key, x, y, o = {}) {
+  // Things arrive from just off screen. Wide or tall screens show more than the stage,
+  // so start them past whatever edge is really visible.
+  offscreen(x, y) {
+    const v = this.cameras.main.worldView;
+    if (y < 0) y += Math.min(0, v.y);
+    if (x < 0) x += Math.min(0, v.x);
+    else if (x > W) x += Math.max(0, v.right - W);
+    return { x, y };
+  }
+
+  addObstacle(key, x0, y0, o = {}) {
+    const { x, y } = this.offscreen(x0, y0);
     const s = img(this, x, y, key, o.scale ?? 1).setDepth(DEPTH.world + 2);
     if (o.alpha) s.setAlpha(o.alpha);
     if (o.flip) s.setFlipX(true);
@@ -209,7 +222,7 @@ export class AscentScene extends BaseScene {
 
   addWind() {
     const dir = Math.random() < 0.5 ? -1 : 1;
-    const c = this.add.container(0, -60).setDepth(DEPTH.world + 1);
+    const c = this.add.container(0, this.offscreen(0, -60).y).setDepth(DEPTH.world + 1);
     const g = this.add.graphics();
     c.add(g);
     const label = txt(this, dir > 0 ? 140 : W - 240, 0, dir > 0 ? 'wind →' : '← wind', { size: 20, weight: 800, origin: 0.5, scale: false, color: '#ffffff', stroke: '#1a3a7a', strokeThickness: 5 });
@@ -278,9 +291,9 @@ export class AscentScene extends BaseScene {
     this.streaks.forEach((r) => {
       r.y += scroll * dt * 2.2;
       r.fillAlpha = clamp(0.15 + v * 0.08, 0, 0.45) * (this.alt < 60 ? 1 : 0.4);
-      if (r.y > H + 40) {
-        r.y = -40;
-        r.x = Phaser.Math.Between(40, 1160);
+      if (r.y > FULL.y + FULL.h + 40) {
+        r.y = FULL.y - 40;
+        r.x = Phaser.Math.Between(FULL.x + 20, FULL.x + FULL.w - 20);
       }
     });
     this.rumble && this.rumble.set(clamp(1 - this.alt / 130, 0.25, 1), 320 - this.alt);
@@ -313,7 +326,8 @@ export class AscentScene extends BaseScene {
       s.x += o.vx * dt;
       if (o.sway) s.x += Math.sin(this.t * 2 + o.phase) * 30 * dt;
       if (this.invuln <= 0 && pts.some((p) => Phaser.Math.Distance.Between(p.x, p.y, s.x, s.y) < o.r + 9)) this.onHit(o);
-      if (s.y > H + 120 || s.x < -200 || s.x > W + 200) {
+      const v = this.cameras.main.worldView;
+      if (s.y > Math.max(H, v.bottom) + 120 || s.x < Math.min(0, v.x) - 200 || s.x > Math.max(W, v.right) + 200) {
         s.destroy();
         return false;
       }
@@ -326,10 +340,10 @@ export class AscentScene extends BaseScene {
       w.g.lineStyle(3, 0xffffff, 0.45);
       for (let row = -1; row <= 1; row++) {
         const pts2 = [];
-        for (let x = 0; x <= W; x += 24) pts2.push({ x, y: row * 26 + Math.sin(x / 60 + w.phase * w.dir + row) * 8 });
+        for (let x = FULL.x; x <= FULL.x + FULL.w; x += 24) pts2.push({ x, y: row * 26 + Math.sin(x / 60 + w.phase * w.dir + row) * 8 });
         w.g.strokePoints(pts2, false);
       }
-      if (w.c.y > H + 80) {
+      if (w.c.y > Math.max(H, this.cameras.main.worldView.bottom) + 80) {
         w.c.destroy();
         return false;
       }

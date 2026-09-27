@@ -3,7 +3,7 @@
 
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { W, clamp } from '../core/constants.js';
+import { RES, clamp } from '../core/constants.js';
 import { buildModel } from './models.js';
 
 let renderer = null;
@@ -87,6 +87,9 @@ export class ThreeView {
     div.appendChild(this.renderer.domElement);
     this.div = div;
     this.dom = phaserScene.addDom(x, y, div);
+    // Phaser sets pointer-events on every overlay each frame, so a CSS rule is not enough:
+    // let drags, pinches and the mouse wheel pass through to the game underneath.
+    this.dom.pointerEvents = 'none';
 
     this.onResize = () => this.resize();
     phaserScene.scale.on('resize', this.onResize);
@@ -95,9 +98,8 @@ export class ThreeView {
 
   resize() {
     if (!this.ok) return;
-    const scale = this.scene.scale.displaySize.width / W;
-    const pr = Math.min(3, Math.max(1, scale * (window.devicePixelRatio || 1)));
-    this.renderer.setPixelRatio(pr);
+    // as sharp as the game itself: RES canvas pixels for every layout pixel
+    this.renderer.setPixelRatio(Math.min(3, Math.max(1, RES)));
     this.renderer.setSize(this.w, this.h, true);
     this.camera.aspect = this.w / this.h;
     this.camera.updateProjectionMatrix();

@@ -19,7 +19,16 @@ function fullScreenPixels() {
 // (see art/core.js): 3x on big high-resolution screens (4K monitors, retina laptops), otherwise 2x.
 export const TEX = Settings.get('sharp') !== false && fullScreenPixels() > 2.25 ? 3 : 2;
 
+// Screens wider than 16:9 (phones) or taller (tablets) show extra background around the
+// 1280 x 720 stage instead of black bars. Buttons and text stay on the stage; backgrounds are
+// drawn this much bigger on every side (enough for screens from about 1.2:1 to 2.4:1).
+export const BLEED_X = 240;
+export const BLEED_Y = 180;
+export const FULL = { x: -BLEED_X, y: -BLEED_Y, w: W + BLEED_X * 2, h: H + BLEED_Y * 2 };
+
 export let RES = 1;
+// The canvas size in pixels: the stage plus whatever extra background the screen's shape shows.
+export const VIEW = { w: W, h: H };
 
 // Canvas pixels per layout pixel. It matches the screen pixels the game actually covers, so
 // the browser never has to stretch the picture (which makes it blurry). Up to 3x (a 4K
@@ -27,11 +36,22 @@ export let RES = 1;
 export function computeRes() {
   const dpr = window.devicePixelRatio || 1;
   const box = document.getElementById('game');
-  const w = (box && box.clientWidth) || window.innerWidth;
-  const h = (box && box.clientHeight) || window.innerHeight;
+  let w = (box && box.clientWidth) || window.innerWidth;
+  let h = (box && box.clientHeight) || window.innerHeight;
+  // not laid out yet (e.g. opened in a background tab): assume 16:9 until the window has a
+  // real size (the game re-fits itself as soon as it does, see core/Display.js)
+  if (!(w > 0 && h > 0)) {
+    w = W;
+    h = H;
+  }
+  // how much of the world fits the screen's shape: all of the stage, plus extra background
+  const aspect = Math.min(FULL.w / H, Math.max(W / FULL.h, w / h));
+  const viewW = aspect >= W / H ? H * aspect : W;
+  const viewH = aspect >= W / H ? H : W / aspect;
   const max = Settings.get('sharp') === false ? 1.5 : 3;
-  const res = Math.min(max, Math.max(1, Math.min(w / W, h / H) * dpr));
-  RES = Math.round(W * res) / W; // a whole number of canvas pixels
+  RES = Math.min(max, Math.max(1, Math.min(w / viewW, h / viewH) * dpr));
+  VIEW.w = Math.round(viewW * RES);
+  VIEW.h = Math.round(viewH * RES);
   return RES;
 }
 

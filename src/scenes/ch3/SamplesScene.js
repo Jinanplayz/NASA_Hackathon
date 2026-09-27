@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, seeded, shuffle } from '../../core/constants.js';
+import { W, FULL, COLORS, CSS, DEPTH, TEX, seeded, shuffle } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -23,6 +23,8 @@ export class SamplesScene extends BaseScene {
     this.items = this.T('items', []);
     this.bins = this.T('bins', []);
     this.collected = [];
+    // (Phaser reuses this screen when it is played again: start by collecting, not sorting)
+    this.phase = 'collect';
     this.queue = [];
     this.walking = false;
 
@@ -31,13 +33,13 @@ export class SamplesScene extends BaseScene {
     // ground
     const g = this.add.graphics();
     g.fillStyle(0x9d9d9a, 1);
-    g.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+    g.fillRect(FULL.x, GROUND_Y, FULL.w, FULL.y + FULL.h - GROUND_Y);
     g.fillStyle(0xb7b7b3, 1);
-    g.fillRect(0, GROUND_Y, W, 6);
+    g.fillRect(FULL.x, GROUND_Y, FULL.w, 6);
     const rnd = seeded(8);
     for (let i = 0; i < 26; i++) {
       g.fillStyle(0x858582, 0.8);
-      g.fillEllipse(rnd() * W, GROUND_Y + 30 + rnd() * 290, 40 + rnd() * 90, 10 + rnd() * 16);
+      g.fillEllipse(FULL.x + rnd() * FULL.w, GROUND_Y + 30 + rnd() * 400, 40 + rnd() * 90, 10 + rnd() * 16);
     }
     this.ground = g;
     this.lm = img(this, 150, GROUND_Y + 60, 'lm', 1.7).setOrigin(0.5, 1);
@@ -168,9 +170,9 @@ export class SamplesScene extends BaseScene {
     this.astro.setVisible(false);
     const lab = this.add.graphics().setDepth(700);
     lab.fillStyle(0x0b1230, 0.96);
-    lab.fillRect(0, 160, W, H - 160);
+    lab.fillRect(FULL.x, 160, FULL.w, FULL.y + FULL.h - 160);
     lab.lineStyle(2, COLORS.stroke, 1);
-    lab.lineBetween(0, 160, W, 160);
+    lab.lineBetween(FULL.x, 160, FULL.x + FULL.w, 160);
     this.binObjs = this.bins.map((b, i) => {
       const x = 22 + BIN_W / 2 + i * (BIN_W + 22);
       const c = this.add.container(x, BIN_Y).setDepth(701);

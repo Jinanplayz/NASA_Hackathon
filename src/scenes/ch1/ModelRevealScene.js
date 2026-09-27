@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX } from '../../core/constants.js';
+import { COLORS, CSS } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Speech } from '../../core/Speech.js';
 import { Sfx } from '../../core/Sfx.js';
@@ -23,6 +23,8 @@ export class ModelRevealScene extends BaseScene {
 
   create() {
     this.setupStage();
+    // (Phaser reuses this screen when it is played again: start from a clean slate)
+    this.dragging = false;
     starfield(this, { count: 150 });
     const vg = this.add.graphics();
     drawPanel(vg, VX, VY, VW, VH, { fill: 0x0b1230, radius: 22 });

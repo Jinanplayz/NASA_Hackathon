@@ -1,12 +1,13 @@
-// Keeps the picture sharp on every screen.
-//  - The canvas always has as many pixels as the part of the screen it covers (see computeRes),
-//    and is resized when the window changes size, goes full screen, or moves to a screen with a
-//    different pixel density (or the browser zoom changes).
+// Keeps the picture sharp and filling the screen.
+//  - The canvas takes the screen's shape (extra background shows around the 1280 x 720 stage on
+//    wider or taller screens) and has as many pixels as the part of the screen it covers (see
+//    computeRes). It is resized when the window changes size, goes full screen, or moves to a
+//    screen with a different pixel density (or the browser zoom changes).
 //  - Text is drawn on whole screen pixels. Phaser only does this when the zoom is a whole
 //    number, and a text that sits half a pixel off looks slightly blurry.
 
 import Phaser from 'phaser';
-import { W, H, RES, computeRes } from './constants.js';
+import { W, H, RES, VIEW, computeRes } from './constants.js';
 import { Settings } from './Settings.js';
 
 const Text = Phaser.GameObjects.Text;
@@ -30,10 +31,10 @@ export function keepSharp(game) {
   let timer = null;
 
   const apply = () => {
-    const before = RES;
+    const before = [VIEW.w, VIEW.h, RES];
     computeRes();
-    if (Math.abs(RES - before) < 0.005) return;
-    game.scale.setGameSize(Math.round(W * RES), Math.round(H * RES));
+    if (VIEW.w === before[0] && VIEW.h === before[1] && Math.abs(RES - before[2]) < 0.005) return;
+    game.scale.setGameSize(VIEW.w, VIEW.h);
     const { RUNNING, PAUSED, SLEEPING } = Phaser.Scenes;
     for (const scene of game.scene.scenes) {
       const status = scene.sys.settings.status;

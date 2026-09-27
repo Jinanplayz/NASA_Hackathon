@@ -111,6 +111,16 @@ export function drawIcon(g, name, cx, cy, s, color = 0xffffff, alpha = 1) {
         g.fillCircle(cx + [-0.35, 0.3, -0.05][i + 1] * r * 1.6, cy + i * r * 0.55, r * 0.2);
       }
       break;
+    case 'gear': {
+      // eight teeth around a thick ring (the hole in the middle shows the button)
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2;
+        g.fillCircle(cx + Math.cos(a) * r * 0.74, cy + Math.sin(a) * r * 0.74, r * 0.2);
+      }
+      g.lineStyle(r * 0.36, color, alpha);
+      g.strokeCircle(cx, cy, r * 0.46);
+      break;
+    }
     case 'restart':
       g.beginPath();
       g.arc(cx, cy, r * 0.6, Math.PI * 0.2, Math.PI * 1.9);

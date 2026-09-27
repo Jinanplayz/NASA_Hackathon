@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, RES, COLORS, CSS } from '../core/constants.js';
+import { W, H, FULL, RES, COLORS, CSS } from '../core/constants.js';
 import { Content } from '../core/Content.js';
 import { Settings } from '../core/Settings.js';
 import { Progress } from '../core/Progress.js';
@@ -27,7 +27,7 @@ export class SettingsScene extends Phaser.Scene {
     this.focus = new FocusManager(this);
     const L = (k, f) => Content.ui(k, f);
 
-    this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.7).setInteractive();
+    this.add.rectangle(W / 2, H / 2, FULL.w, FULL.h, 0x000000, 0.7).setInteractive();
     const pw = 1000, ph = 640;
     const x0 = W / 2 - pw / 2, y0 = H / 2 - ph / 2;
     panel(this, x0, y0, pw, ph, { stroke: COLORS.cyan, strokeWidth: 3, radius: 28 });

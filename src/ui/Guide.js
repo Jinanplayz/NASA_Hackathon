@@ -1,4 +1,4 @@
-import { W, H, COLORS, CSS, DEPTH, TEX } from '../core/constants.js';
+import { W, H, FULL, COLORS, CSS, DEPTH, TEX } from '../core/constants.js';
 import { Content, lineText, lineAudio, lineSpeak } from '../core/Content.js';
 import { Settings } from '../core/Settings.js';
 import { Speech, estimateMs } from '../core/Speech.js';
@@ -14,7 +14,7 @@ export class Guide {
     this.scene = scene;
     this.name = o.name || (Content.game && Content.game.guide && Content.game.guide.name) || 'Captain Nova';
     this.root = scene.add.container(0, 0).setDepth(DEPTH.guide).setVisible(false);
-    this.dim = scene.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.5).setInteractive();
+    this.dim = scene.add.rectangle(W / 2, H / 2, FULL.w, FULL.h, 0x000000, 0.5).setInteractive();
     this.dim.on('pointerup', () => this.skipTyping());
     this.root.add(this.dim);
 

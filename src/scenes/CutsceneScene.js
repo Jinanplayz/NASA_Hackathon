@@ -1,4 +1,4 @@
-import { W, H, RES, COLORS, CSS, DEPTH } from '../core/constants.js';
+import { RES, COLORS, CSS, DEPTH } from '../core/constants.js';
 import { Content, lineText, lineSpeak } from '../core/Content.js';
 import { Speech, estimateMs } from '../core/Speech.js';
 import { Settings } from '../core/Settings.js';
@@ -37,6 +37,7 @@ export class CutsceneScene extends BaseScene {
     this.slides = this.cfg.slides || [];
     this.index = -1;
     this.playing = true;
+    this.time.paused = false; // this screen is reused: never start with a clock paused last time
     this.token = 0;
 
     // frame
@@ -85,16 +86,46 @@ export class CutsceneScene extends BaseScene {
   }
 
   togglePlay() {
-    this.playing = !this.playing;
-    this.playBtn.setIcon(this.playing ? 'pause' : 'play');
-    if (this.video) {
-      if (this.playing) this.video.play().catch(() => {});
+    this.setPlaying(!this.playing);
+  }
+
+  // Pauses (or carries on) everything on the slide: the voice, the animation, the photo's
+  // slow zoom, the film and the timeline.
+  setPlaying(on) {
+    if (on === this.playing) return;
+    this.playing = on;
+    this.playBtn.setIcon(on ? 'pause' : 'play');
+    if (on) Speech.resume();
+    else Speech.pause();
+    this.freeze(!on);
+    if (this.video && this.filmStarted) {
+      if (on) this.video.play().catch(() => {});
       else this.video.pause();
     }
-    if (this.playing && this.waitingForPlay) {
+    if (on && this.waitingForPlay) {
       this.waitingForPlay = false;
       this.scheduleAdvance(800);
     }
+  }
+
+  freeze(p) {
+    if (p) this.tweens.pauseAll();
+    else this.tweens.resumeAll();
+    this.time.paused = p;
+    const emitters = (o) => {
+      if (o.type === 'ParticleEmitter') {
+        if (p) o.pause();
+        else o.resume();
+      }
+      if (o.list) o.list.forEach(emitters);
+    };
+    if (this.visual) emitters(this.visual);
+    if (this.mediaDom) this.mediaDom.node.classList.toggle('paused', p);
+  }
+
+  // the pause menu must not restart a narration the player paused themselves
+  holdSpeech() {
+    return !this.playing;
   }
 
   advance(manual = false) {
@@ -122,14 +153,19 @@ export class CutsceneScene extends BaseScene {
       this.visual = null;
     }
     this.clearDomOnly();
-    if (this.statusText) {
-      this.statusText.destroy();
-      this.statusText = null;
-    }
+    this.hideStatus();
+    this.filmStarted = false;
   }
 
   go(i) {
     if (i < 0 || i >= this.slides.length) return;
+    if (!this.playing) {
+      // Back / Next / Replay play the slide (the old narration is stopped just below)
+      this.playing = true;
+      this.playBtn.setIcon('pause');
+      this.freeze(false);
+    }
+    this.waitingForPlay = false;
     this.clearSlide();
     this.index = i;
     const s = this.slides[i];
@@ -221,11 +257,12 @@ export class CutsceneScene extends BaseScene {
     const normal = Content.media(this.chapterId, image.src);
     let hd = sharperNasa(normal, 'image');
     im.src = hd || normal;
-    im.style.transition = 'transform 9s ease-out';
-    im.style.transform = 'scale(1)';
     el.appendChild(im);
     this.mediaDom = this.addDom(FX, FY, el);
-    im.onload = () => requestAnimationFrame(() => (im.style.transform = Settings.get('reducedMotion') ? 'scale(1)' : 'scale(1.08)'));
+    // taps and drags go to the game underneath
+    this.mediaDom.pointerEvents = 'none';
+    // a slow zoom on the photo (a CSS animation, so the pause button can freeze it)
+    im.onload = () => !Settings.get('reducedMotion') && im.classList.add('kenburns');
     im.onerror = () => {
       // no sharper copy of this photo: use the standard one
       if (hd) {
@@ -262,6 +299,9 @@ export class CutsceneScene extends BaseScene {
     this.setDomVisible(this.mediaDom, false);
     v.addEventListener('play', () => {
       if (my !== this.token || !this.mediaDom) return;
+      this.filmStarted = true;
+      if (!this.playing) this.setPlaying(true); // started with the film's own play button
+      this.hideStatus();
       this.setDomVisible(this.mediaDom, true);
       // the film has its own sound: silence the music and the animation behind it
       Sfx.hushMusic(true);
@@ -269,7 +309,7 @@ export class CutsceneScene extends BaseScene {
     });
     if (!s.credit) this.credit.setText(video.credit || Content.ui('videoCredit', 'Video: NASA'));
 
-    this.statusText = txt(this, FX + FW / 2, FY + FH - 28, Content.ui('filmNext', 'NASA film coming up…'), { size: 20, weight: 700, origin: 0.5, color: CSS.yellow, scale: false, stroke: '#070b1d', strokeThickness: 5 }).setDepth(DEPTH.ui);
+    this.showStatus(Content.ui('filmNext', 'NASA film coming up…'));
     let ready = false;
     let failed = false;
     const fail = () => {
@@ -278,7 +318,7 @@ export class CutsceneScene extends BaseScene {
       this.clearDomOnly();
       Sfx.hushMusic(false);
       if (this.visual) this.visual.setData('quiet', false).setVisible(true).setAlpha(1);
-      if (this.statusText) this.statusText.setText('');
+      this.hideStatus();
       this.credit.setText(Content.ui('videoFailed', 'The video could not load, so here is an animation instead.'));
       this.narrateThenAdvance(s, my);
     };
@@ -316,6 +356,11 @@ export class CutsceneScene extends BaseScene {
       this.scheduleAdvance(1200);
     };
     v.addEventListener('ended', onEnd);
+    // paused with the film's own controls: pause the slide too (not when the game pauses it)
+    v.addEventListener('pause', () => {
+      if (my !== this.token || ended || !this.filmStarted || this.scene.isPaused()) return;
+      if (this.playing) this.setPlaying(false);
+    });
 
     // Read the slide text first, then roll the film.
     const playFilm = () => {
@@ -329,7 +374,11 @@ export class CutsceneScene extends BaseScene {
     };
     const text = s.speak || [s.heading, lineSpeak(s.text)];
     const audio = s.audio ? Content.media(this.chapterId, s.audio) : null;
-    Speech.say(text, { audio }).then(playFilm);
+    // roll the film once the narration AND the picture's own animation have both finished
+    // (the timer uses the game clock, so the pause button holds it too)
+    const wait = (this.visual && this.visual.getData('filmAfter')) || 0;
+    const shown = new Promise((r) => (wait ? this.time.delayedCall(wait, r) : r()));
+    Promise.all([Speech.say(text, { audio }), shown]).then(playFilm);
     v.addEventListener('play', () => Speech.stop());
   }
 
@@ -347,12 +396,44 @@ export class CutsceneScene extends BaseScene {
     }
   }
 
+  // "NASA film coming up...": a badge at the bottom of the picture. The picture's own captions
+  // down there are hidden meanwhile so the two never overlap.
+  showStatus(message) {
+    this.hideStatus();
+    const t = txt(this, 0, 0, message, { size: 19, weight: 800, origin: 0.5, color: CSS.yellow, scale: false });
+    const w = t.width + 40, h = t.height + 16;
+    const bg = this.add.graphics();
+    bg.fillStyle(0x070b1d, 0.92);
+    bg.fillRoundedRect(-w / 2, -h / 2, w, h, h / 2);
+    bg.lineStyle(2, COLORS.yellow, 0.9);
+    bg.strokeRoundedRect(-w / 2, -h / 2, w, h, h / 2);
+    this.statusText = this.add.container(FX + FW / 2, FY + FH - 30, [bg, t]).setDepth(DEPTH.ui);
+    this.hiddenCaptions = [];
+    const walk = (o) => {
+      if (o.type === 'Text' && o.visible && o.y > FH - 100) {
+        o.setVisible(false);
+        this.hiddenCaptions.push(o);
+      }
+      if (o.list) o.list.forEach(walk);
+    };
+    if (this.visual) walk(this.visual);
+  }
+
+  hideStatus() {
+    if (this.statusText) {
+      this.statusText.destroy();
+      this.statusText = null;
+    }
+    (this.hiddenCaptions || []).forEach((o) => o.active && o.setVisible(true));
+    this.hiddenCaptions = [];
+  }
+
   onPause() {
     if (this.video) this.video.pause();
   }
 
   onResume() {
-    if (this.video && this.playing) this.video.play().catch(() => {});
+    if (this.video && this.playing && this.filmStarted) this.video.play().catch(() => {});
   }
 
   onShutdown() {

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX, clamp } from '../../core/constants.js';
+import { W, FULL, COLORS, CSS, DEPTH, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
@@ -7,7 +7,7 @@ import { starfield } from '../common/bg.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { dialog, floatText, ProgressBar, drawPanel } from '../../ui/widgets.js';
+import { dialog, ProgressBar, drawPanel } from '../../ui/widgets.js';
 
 // Timing game: a marker slides along a bar. Tap when it is inside the green zone to
 // fire a tiny thruster puff that pushes the drifting satellite back onto its orbit.
@@ -46,14 +46,14 @@ export class BalanceScene extends BaseScene {
     g.fillEllipse(420, 560, 300, 50);
     g.fillEllipse(980, 575, 260, 40);
     g.lineStyle(3, COLORS.green, 0.7);
-    for (let x = 40; x < W - 180; x += 26) g.lineBetween(x, ORBIT_Y, x + 14, ORBIT_Y);
+    for (let x = FULL.x + 4; x < W - 180; x += 26) g.lineBetween(x, ORBIT_Y, x + 14, ORBIT_Y);
     txt(this, 60, ORBIT_Y - 26, this.T('orbitLabel', 'Correct orbit'), { size: 16, weight: 700, color: CSS.green, scale: false });
 
     // danger zones
     const dz = this.add.graphics();
     dz.fillStyle(COLORS.red, 0.08);
-    dz.fillRect(0, ORBIT_Y - MAX_DRIFT - 40, W - 170, 40);
-    dz.fillRect(0, ORBIT_Y + MAX_DRIFT, W - 170, 40);
+    dz.fillRect(FULL.x, ORBIT_Y - MAX_DRIFT - 40, W - 170 - FULL.x, 40);
+    dz.fillRect(FULL.x, ORBIT_Y + MAX_DRIFT, W - 170 - FULL.x, 40);
 
     this.sat = img(this, SAT_X, ORBIT_Y, 'explorer1', 0.55).setAngle(90).setDepth(DEPTH.world + 2);
     this.puffs = this.add.particles(0, 0, 'softDot', {

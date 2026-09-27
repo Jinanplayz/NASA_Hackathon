@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX } from '../../core/constants.js';
+import { W, FULL, COLORS, CSS, DEPTH } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -31,10 +31,10 @@ export class LaunchSequenceScene extends BaseScene {
     // dawn sky + launch pad
     const sky = this.add.graphics();
     sky.fillGradientStyle(0x0f1c4a, 0x0f1c4a, 0xf4a261, 0xf4a261, 1);
-    sky.fillRect(0, 0, W, H);
+    sky.fillRect(FULL.x, FULL.y, FULL.w, FULL.h);
     const ground = this.add.graphics();
     ground.fillStyle(0x1b2a1f, 1);
-    ground.fillRect(0, PAD_Y, W, H - PAD_Y);
+    ground.fillRect(FULL.x, PAD_Y, FULL.w, FULL.y + FULL.h - PAD_Y);
     ground.fillStyle(0x5d6676, 1);
     ground.fillRect(70, PAD_Y - 10, 280, 14);
     // umbilical tower

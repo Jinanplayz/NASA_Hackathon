@@ -122,6 +122,12 @@ lines are read by the browser's built-in voice instead. The voice and model are 
 Lines containing `{placeholders}` (like `{hits}` or `{pct}`) change every game, so they
 can't be recorded ahead of time. They are read by the browser's built-in voice instead.
 
+Lines with years, speeds, distances, temperatures or measurements (like `1969`, `8,262 km/h`,
+`2,760 °C` or `108 minutes`) are recorded with the numbers written out in words
+("nineteen sixty-nine", "eight thousand two hundred sixty-two kilometers per hour"), because
+the voice sometimes garbles them otherwise. This happens automatically; the text on screen
+keeps the numbers.
+
 ## Adding your own voice-over recordings
 
 To use a human recording for a particular line instead:
@@ -153,6 +159,9 @@ ones (for example to spell out a tricky name).
 - **Mission Control links**: `scene3/scene.json` → `wiring.nodes` (team boxes and their x/y position) and `wiring.links` (correct connections with their clue)
 - **TV milestones**: `scene2/scene.json` → `orbit.tvs` (`color: false` shows black & white)
 - **Mini-game length**: `ascent.goalKm`, `balance.goal`, `dodge.duration`
+- **Title screen**: `game.json` → `title` (the last word goes on the second, bigger line),
+  `subtitle`, and `subtitleHighlight` (the words of the subtitle shown in blue).
+- **Orbit TVs label**: `scene2/scene.json` → `orbit.tvsTitle`
 - **Background music**: each screen picks a mood automatically. To change it, add `"music": "space"` to an activity's block.
   Moods: `menu`, `story`, `lab`, `sky`, `space`, `tension`, `moon`, `ocean`, `triumph`.
 

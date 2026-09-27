@@ -1,5 +1,4 @@
-import Phaser from 'phaser';
-import { W, H, COLORS, CSS, DEPTH, TEX } from '../../core/constants.js';
+import { W, H, COLORS, CSS, TEX } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -21,6 +20,9 @@ export class ResearchScene extends BaseScene {
 
   create() {
     this.setupStage();
+    // (Phaser reuses this screen when it is played again: start from a clean slate)
+    this.busy = false;
+    this.current = null;
     blueprint(this);
     this.items = this.T('items', []);
     this.cats = this.T('categories', []);
