@@ -62,18 +62,32 @@ export class ChapterCompleteScene extends BaseScene {
     const pg = this.add.graphics();
     drawPanel(pg, px, py, pw, ph, { fill: COLORS.panel, stroke: COLORS.green, strokeWidth: 3, radius: 24 });
     txt(this, px + 32, py + 28, this.T('title', Content.ui('chapterComplete', 'Chapter complete!')), { size: 38, weight: 800, color: CSS.yellow, scale: false });
-    let y = py + 100;
-    this.T('lines', []).forEach((line, i) => {
+    // the achievements, sized so they always fit between the title and the buttons
+    // (long lists, or "Bigger text", get a slightly smaller font instead of running into the buttons)
+    const lines = this.T('lines', []);
+    const top = py + 96, bottom = py + ph - 100;
+    let size = 22, gap = 14, items = [];
+    for (;;) {
+      items = lines.map((line) => txt(this, px + 80, 0, line, { size, wrap: pw - 120 }));
+      gap = size < 20 ? 10 : 14;
+      const total = items.reduce((h, t) => h + Math.max(34, t.height) + gap, 0) - gap;
+      if (total <= bottom - top || size <= 14) break;
+      items.forEach((t) => t.destroy());
+      size -= 1;
+    }
+    let y = top;
+    items.forEach((t, i) => {
+      t.setY(y);
+      const iy = y + Math.min(16, t.height / 2);
       const ic = this.add.graphics();
       ic.fillStyle(COLORS.green, 1);
-      ic.fillCircle(px + 50, y + 16, 16);
-      drawIcon(ic, 'check', px + 50, y + 16, 20, COLORS.bg);
-      const t = txt(this, px + 80, y, line, { size: 22, wrap: pw - 120 });
+      ic.fillCircle(px + 50, iy, 16);
+      drawIcon(ic, 'check', px + 50, iy, 20, COLORS.bg);
       [ic, t].forEach((o) => {
         o.setAlpha(0);
         this.tweens.add({ targets: o, alpha: 1, duration: 300, delay: 700 + i * 350 });
       });
-      y += Math.max(44, t.height + 16);
+      y += Math.max(34, t.height) + gap;
     });
 
     const next = Flow.nextChapterId(this.chapterId);
