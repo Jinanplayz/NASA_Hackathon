@@ -26,7 +26,7 @@ export class TitleScene extends BaseScene {
     const g = Content.game;
     const calm = this.reducedMotion;
     this.buildSky(calm);
-    this.buildEarth();
+    this.buildEarth(calm);
     this.buildRocket(calm);
     this.buildClouds(calm);
     this.buildAstronaut(calm);
@@ -87,7 +87,7 @@ export class TitleScene extends BaseScene {
   }
 
   // ---------- the Earth's curved edge along the bottom, with a glowing atmosphere ----------
-  buildEarth() {
+  buildEarth(calm) {
     const R = 1150, cx = 640, cy = 580 + R;
     const g = this.add.graphics().setDepth(1);
     // the atmosphere's glow: stacked see-through discs (smooth, no seams)
@@ -100,18 +100,44 @@ export class TitleScene extends BaseScene {
       g.fillStyle(lerpColor(0x3f8cf2, 0x1c55c4, i / 10), 1);
       g.fillCircle(cx, cy, R - i * 7);
     }
-    // land and clouds, kept inside the planet by a mask
-    const land = this.add.graphics().setDepth(1);
+    // land and clouds all the way round the planet, so it can turn very slowly
+    // (both sit on the planet's centre and are kept inside it by a mask)
+    const land = this.add.graphics().setDepth(1).setPosition(cx, cy);
+    const clouds = this.add.graphics().setDepth(1).setPosition(cx, cy);
+    // a patch that follows the curve: centred `a` radians from the top, `d` below the rim
+    const patch = (gr, a, d, w, h) => {
+      const pts = [];
+      for (let k = 0; k < 24; k++) {
+        const t = (k / 24) * Math.PI * 2;
+        const ang = a + (Math.cos(t) * w) / 2 / R;
+        const r = R - d - (Math.sin(t) * h) / 2;
+        pts.push({ x: Math.sin(ang) * r, y: -Math.cos(ang) * r });
+      }
+      gr.fillPoints(pts, true);
+    };
+    const rnd = seeded(31);
+    const hills = [];
     land.fillStyle(0x2f9a57, 1);
-    [[80, 650, 300, 110], [400, 612, 230, 60], [520, 640, 140, 80], [880, 648, 360, 120], [1200, 628, 220, 76], [1440, 660, 260, 110]].forEach(([x, y, w, h]) => land.fillEllipse(x, y, w, h));
+    for (let a = 0.05; a < Math.PI * 2 - 0.2; a += 0.36 + rnd() * 0.2) {
+      const d = 34 + rnd() * 64, w = 170 + rnd() * 200, h = 56 + rnd() * 56;
+      patch(land, a, d, w, h);
+      patch(land, a + (rnd() - 0.5) * (w / R) * 0.9, d + (rnd() - 0.2) * h * 0.5, w * (0.4 + rnd() * 0.3), h * (0.7 + rnd() * 0.4));
+      if (rnd() < 0.6) hills.push([a + (rnd() - 0.5) * (w / R) * 0.4, d - h * 0.18, w * 0.34, h * 0.3]);
+    }
+    // a few deeper ones, seen on taller screens
+    for (let a = 0.25; a < Math.PI * 2 - 0.3; a += 0.5 + rnd() * 0.3) patch(land, a, 190 + rnd() * 110, 220 + rnd() * 220, 80 + rnd() * 70);
     land.fillStyle(0x6fbf73, 1);
-    [[430, 608, 90, 24], [860, 630, 120, 30]].forEach(([x, y, w, h]) => land.fillEllipse(x, y, w, h));
-    land.fillStyle(0xf2f8ff, 0.55);
-    [[250, 598, 260, 16], [700, 596, 300, 14], [1050, 604, 240, 18], [-60, 620, 200, 16], [1320, 612, 220, 16]].forEach(([x, y, w, h]) => land.fillEllipse(x, y, w, h));
+    hills.forEach(([a, d, w, h]) => patch(land, a, d, w, h));
+    clouds.fillStyle(0xf2f8ff, 0.55);
+    for (let a = 0; a < Math.PI * 2 - 0.15; a += 0.24 + rnd() * 0.16) patch(clouds, a, 14 + rnd() * 40, 180 + rnd() * 140, 13 + rnd() * 6);
     const mask = this.make.graphics({ add: false });
     mask.fillStyle(0xffffff, 1);
     mask.fillCircle(cx, cy, R);
-    land.setMask(mask.createGeometryMask());
+    const m = mask.createGeometryMask();
+    land.setMask(m);
+    clouds.setMask(m);
+    // it turns towards the left, the clouds a little faster than the land (radians per second)
+    this.earthSpin = calm ? [] : [[land, -0.0066], [clouds, -0.0088]];
     // the thin bright rim
     const rim = this.add.graphics().setDepth(1);
     rim.lineStyle(4, 0xc8efff, 1);
@@ -157,6 +183,7 @@ export class TitleScene extends BaseScene {
     this.rocketHalf = half;
     this.nozzle = { x: 0, y: 0 };
     const ex = Phaser.Math.RadToDeg(Math.atan2(Math.cos(a), -Math.sin(a)));
+    // the plume starts a warm, pale yellow-orange by the engine and cools to white smoke further back
     this.add
       .particles(0, 0, 'smoke', {
         follow: this.nozzle,
@@ -165,10 +192,12 @@ export class TitleScene extends BaseScene {
         lifespan: 2800,
         scale: { start: 0.35, end: 2.7 },
         alpha: { start: 0.75, end: 0 },
-        tint: [0xffffff, 0xe3ecff, 0xcad9f4],
+        color: [0xffd9a0, 0xffe9c4, 0xfff6e8, 0xeef3fc, 0xd4e0f6],
         frequency: calm ? 60 : 20
       })
       .setDepth(2);
+    // a soft warm glow around the engine
+    this.nozzleGlow = this.add.image(0, 0, 'softDot').setDisplaySize(150, 150).setTint(0xffb454).setAlpha(0.4).setBlendMode(Phaser.BlendModes.ADD).setDepth(2);
     this.add
       .particles(0, 0, 'softDot', {
         follow: this.nozzle,
@@ -185,9 +214,18 @@ export class TitleScene extends BaseScene {
     if (!calm) {
       this.tweens.add({ targets: this.rocket, x: home.x + Math.sin(a) * 34, y: home.y - Math.cos(a) * 34, duration: 2800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
+    this.placeNozzle();
     // a deep, quiet engine rumble
     this.rumble = Sfx.rumble({ freq: 75, vol: 0.12 });
     this.rumble.set(0.7);
+  }
+
+  // keep the exhaust (and its glow) coming out of the moving rocket's nozzle
+  placeNozzle() {
+    const a = this.rocket.rotation;
+    this.nozzle.x = this.rocket.x - Math.sin(a) * (this.rocketHalf + 8);
+    this.nozzle.y = this.rocket.y + Math.cos(a) * (this.rocketHalf + 8);
+    this.nozzleGlow.setPosition(this.nozzle.x - Math.sin(a) * 30, this.nozzle.y + Math.cos(a) * 30);
   }
 
   // ---------- Captain Nova floating in low gravity: bobbing, waving and kicking ----------
@@ -236,17 +274,17 @@ export class TitleScene extends BaseScene {
       // the blue "3D" edge under the letters
       shadow: { offsetX: 0, offsetY: 8, color: '#3d6ee8', blur: 0, stroke: true, fill: true }
     };
-    // a soft cyan glow behind the letters
+    // a soft cyan glow behind the letters (kept gentle so the name isn't glaring)
     const glow = this.add
-      .text(x, y, text, { ...style, color: '#7fe3ff', stroke: '#7fe3ff', padding: { x: 34, y: 34 }, shadow: { offsetX: 0, offsetY: 0, color: '#4fd1ff', blur: 26, stroke: true, fill: true } })
+      .text(x, y, text, { ...style, color: '#7fe3ff', stroke: '#7fe3ff', padding: { x: 34, y: 34 }, shadow: { offsetX: 0, offsetY: 0, color: '#4fd1ff', blur: 22, stroke: true, fill: true } })
       .setOrigin(0.5)
-      .setAlpha(0.45);
+      .setAlpha(0.28);
     const t = this.add.text(x, y, text, style).setOrigin(0.5).setDepth(DEPTH.ui);
-    // white at the top, fading to icy blue at the bottom
+    // soft white at the top, fading to icy blue at the bottom
     const grad = t.context.createLinearGradient(0, 0, 0, t.height);
-    grad.addColorStop(0, '#ffffff');
-    grad.addColorStop(0.55, '#f1f7ff');
-    grad.addColorStop(1, '#9fcfff');
+    grad.addColorStop(0, '#f2f7ff');
+    grad.addColorStop(0.55, '#e0ebfd');
+    grad.addColorStop(1, '#8fbdf5');
     t.setFill(grad);
     glow.setDepth(DEPTH.ui - 1);
     return t;
@@ -291,16 +329,19 @@ export class TitleScene extends BaseScene {
     const star = this.add.image(end.x, end.y, 'sparkle').setScale(0.75).setTint(0xffd166).setDepth(DEPTH.ui + 1);
     if (!calm) this.tweens.add({ targets: star, scale: 0.5, angle: 45, duration: 1300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     if (calm) return;
-    // a little light orbiting along the ring
+    // a little light orbiting all the way round: it fades out as it reaches the star, passes
+    // behind the name through the ring's open gap, and fades back in (so it never jumps)
     const dot = this.add.image(0, 0, 'softDot').setScale(0.3).setTint(0xcff6ff).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.ui - 1);
+    const fade = Math.PI * 0.16;
     this.tweens.addCounter({
       from,
-      to,
-      duration: 5200,
+      to: from + Math.PI * 2,
+      duration: 6600,
       repeat: -1,
       onUpdate: (tw) => {
-        const p = at(tw.getValue());
-        dot.setPosition(p.x, p.y);
+        const t = tw.getValue();
+        const p = at(t);
+        dot.setPosition(p.x, p.y).setAlpha(Phaser.Math.Clamp(Math.min((t - from) / fade, (to - t) / fade), 0, 1));
       }
     });
   }
@@ -363,7 +404,6 @@ export class TitleScene extends BaseScene {
 
   buildFooter(credit) {
     if (!credit) return;
-    img(this, W / 2, 640, 'ringPlanet', 0.17).setDepth(DEPTH.ui);
     txt(this, W / 2, 672, `—   ${credit.replace(/\s·\s/g, '  •  ')}   —`, { size: 14, origin: 0.5, color: '#dfe6ff', scale: false, stroke: '#070b1d', strokeThickness: 4 }).setDepth(DEPTH.ui);
   }
 
@@ -381,10 +421,9 @@ export class TitleScene extends BaseScene {
         r.y = Phaser.Math.Between(60, 400);
       }
     });
-    // keep the exhaust coming out of the moving rocket's nozzle
-    const a = this.rocket.rotation;
-    this.nozzle.x = this.rocket.x - Math.sin(a) * (this.rocketHalf + 8);
-    this.nozzle.y = this.rocket.y + Math.cos(a) * (this.rocketHalf + 8);
+    // the Earth turning, very slowly
+    this.earthSpin.forEach(([layer, speed]) => (layer.rotation += speed * dt));
+    this.placeNozzle();
   }
 
   openSettings() {
