@@ -1,0 +1,857 @@
+{
+  "title": "James Webb Space Telescope",
+  "steps": [
+    { "type": "cutscene", "data": "intro", "name": "Eyes on the universe" },
+    { "type": "lightTravel", "data": "lightTravel", "name": "Looking back in time" },
+    { "type": "infraredLens", "data": "infraredLens", "name": "See through the dust" },
+    { "type": "cutscene", "data": "building", "name": "Gold and a giant sunshade" },
+    { "type": "mirrorPuzzle", "data": "mirrorPuzzle", "name": "Build the golden mirror" },
+    { "type": "modelReveal", "data": "jwstReveal", "name": "Meet Webb" },
+    { "type": "fairingFold", "data": "fairingFold", "name": "Fold it up!" },
+    { "type": "cutscene", "data": "launch", "name": "Christmas Day launch" },
+    { "type": "deployParts", "data": "deployParts", "name": "Unfold in space" },
+    { "type": "lagrange", "data": "lagrange", "name": "Coast to L2" },
+    { "type": "cutscene", "data": "arrival", "name": "A new home at L2" },
+    { "type": "mirrorAlign", "data": "mirrorAlign", "name": "Line up the mirrors" },
+    { "type": "sunshieldGuard", "data": "sunshieldGuard", "name": "Keep cool" },
+    { "type": "cutscene", "data": "firstImages", "name": "The first pictures" },
+    { "type": "deepField", "data": "deepField", "name": "Explore the Deep Field" },
+    { "type": "spectrum", "data": "spectrum", "name": "Read a planet's air" },
+    { "type": "cutscene", "data": "whatNext", "name": "What came next" },
+    { "type": "summary", "data": "summary", "name": "Mission summary" },
+    { "type": "chapterComplete", "data": "complete", "name": "Chapter complete" }
+  ],
+
+  "intro": {
+    "slides": [
+      {
+        "year": "1990",
+        "heading": "Hubble",
+        "text": "In 1990, a Space Shuttle carried the Hubble Space Telescope into orbit. Floating above Earth's blurry air, it took the sharpest pictures of space anyone had ever seen.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e002151/GSFC_20171208_Archive_e002151~medium.jpg",
+          "alt": "The Hubble Space Telescope above Earth"
+        },
+        "credit": "Photo: NASA · Hubble, seen from the Space Shuttle in 2009",
+        "visual": "hubbleOrbit"
+      },
+      {
+        "heading": "Looking deeper",
+        "text": "Hubble photographed galaxies so far away that their light took billions of years to reach us. But the very first galaxies were still out of sight...",
+        "visual": "deepSky"
+      },
+      {
+        "heading": "Light you can't see",
+        "text": "Light from the most distant galaxies gets stretched into infrared light. Our eyes can't see it, but we can feel it, like the warmth of a campfire. Seeing it needs a special telescope!",
+        "visual": "infraredStretch"
+      },
+      {
+        "year": "2021",
+        "heading": "The James Webb Space Telescope",
+        "text": "So NASA, together with Europe and Canada, built the biggest telescope ever sent into space. It's named after James Webb, who led NASA in the 1960s, during the race to the Moon.",
+        "visual": "webbSpin"
+      },
+      {
+        "heading": "Your mission",
+        "text": "Find out how light travels, build Webb's golden mirror, fold it into a rocket, unfold it in space, and find galaxies that nobody had ever seen before!",
+        "visual": "webbSpin"
+      }
+    ],
+    "endLabel": "Let's go!"
+  },
+
+  "lightTravel": {
+    "intro": [
+      "Light is the fastest thing there is, but it still takes time to travel. The farther away something is, the longer its light takes to reach us.",
+      "Drag each object onto the timeline to show how long its light takes to get here."
+    ],
+    "objects": [
+      {
+        "name": "The Moon",
+        "art": "moonSmall",
+        "scale": 0.7,
+        "time": "about 1 second",
+        "fact": "Moonlight takes just over one second to reach us."
+      },
+      {
+        "name": "The Sun",
+        "art": "sun",
+        "scale": 0.42,
+        "time": "about 8 minutes",
+        "fact": "Sunlight takes about 8 minutes to reach Earth. You always see the Sun as it was 8 minutes ago!"
+      },
+      {
+        "name": "The nearest stars",
+        "art": "starYellow",
+        "scale": 0.9,
+        "time": "about 4 years",
+        "fact": "Light from Alpha Centauri, the nearest stars to the Sun, has travelled for more than 4 years."
+      },
+      {
+        "name": "The Andromeda galaxy",
+        "art": "galaxySpiral",
+        "scale": 0.6,
+        "time": "about 2.5 million years",
+        "fact": "Andromeda's light set off 2.5 million years ago, long before there were any modern humans!"
+      },
+      {
+        "name": "The first galaxies",
+        "art": "galaxyRed",
+        "scale": 0.85,
+        "time": "more than 13 billion years",
+        "fact": "Webb sees galaxies whose light set off more than 13 billion years ago, not long after the universe began!"
+      }
+    ],
+    "fartherLabel": "Farther away = older light",
+    "wrong": "Not quite! Think about how far away it is.",
+    "stretchIntro": "So looking far away means looking back in time! But there's a catch: as the universe grows, light from the most distant galaxies gets stretched on its journey.",
+    "stretchHint": "Drag the slider to stretch the light from this faraway galaxy, and watch what happens to its colour.",
+    "stretchLabel": "Stretch the light",
+    "bands": [
+      "Blue light",
+      "Green light",
+      "Red light",
+      "Infrared!"
+    ],
+    "eyes": [
+      "Our eyes can see blue light.",
+      "Our eyes can see green light.",
+      "Red is the last colour our eyes can see...",
+      "Now it's infrared: invisible to our eyes, but Webb can see it!"
+    ],
+    "doneLine": "That's why Webb looks in infrared: to catch the light of the very first galaxies, stretched on its journey of more than 13 billion years.",
+    "resultTitle": "Light detective!",
+    "resultText": "Sunlight takes 8 minutes to reach us. Light from Webb's most distant galaxies took more than 13 billion years!"
+  },
+
+  "infraredLens": {
+    "intro": [
+      "Infrared light has another superpower: it shines right through clouds of dust. Webb can see baby stars hiding inside them!",
+      "Move the gold infrared lens over the dusty pillars, and tap each hidden baby star you find."
+    ],
+    "frameLabel": "Ordinary light · inside the gold lens: infrared",
+    "panelTitle": "Infrared eyes",
+    "panelText": "In ordinary light, these pillars of gas and dust are dark and thick. Through Webb's infrared eyes, you can see right inside them.",
+    "foundLabel": "Baby stars found",
+    "nothing": "Nothing there. Look for a bright orange glow inside the dust!",
+    "facts": [
+      "Baby stars form inside clouds of gas and dust, where gravity pulls the gas together.",
+      "Young stars blast out jets of gas that shape the clouds around them.",
+      "Infrared is a kind of light our eyes can't see. We feel it as warmth!",
+      "Webb's cameras must be super cold, colder than -230 °C, so their own warmth doesn't drown out the faint infrared light.",
+      "Some of these stars are so young that they're still growing!",
+      "You found them all! That's how Webb discovers stars that other telescopes can't see."
+    ],
+    "photo": {
+      "src": "https://images-assets.nasa.gov/image/carina_nebula/carina_nebula~medium.jpg",
+      "alt": "Webb's picture of the Cosmic Cliffs in the Carina Nebula",
+      "credit": "Image: NASA, ESA, CSA, STScI · The 'Cosmic Cliffs' in the Carina Nebula, seen by Webb"
+    },
+    "photoLine": "Here's a real Webb picture of a cloud like this one: the 'Cosmic Cliffs' in the Carina Nebula, full of baby stars that were hidden before.",
+    "resultTitle": "Dust detective!",
+    "resultText": "Infrared light lets Webb see stars being born inside clouds of dust."
+  },
+
+  "building": {
+    "slides": [
+      {
+        "heading": "A golden mirror",
+        "text": "Webb's main mirror is 6.5 metres (21 feet) across, almost three times as wide as Hubble's. It's made of 18 hexagons covered in a thin layer of real gold, because gold reflects infrared light really well.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e000368/GSFC_20171208_Archive_e000368~medium.jpg",
+          "alt": "Webb's golden mirror in a clean room"
+        },
+        "credit": "Photo: NASA · Webb's golden mirror",
+        "visual": "goldMirror"
+      },
+      {
+        "heading": "Shiny!",
+        "text": "Watch NASA's film of Webb's mirrors, being built and tested.",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/Webb Mirrors Glamour Trailer-h264/Webb Mirrors Glamour Trailer-h264~mobile.mp4",
+          "start": 0,
+          "end": 78,
+          "credit": "Video: NASA Goddard · Webb's mirrors"
+        },
+        "visual": "goldMirror"
+      },
+      {
+        "heading": "A sunshade as big as a tennis court",
+        "text": "To keep its cameras super cold, Webb has a sunshield as big as a tennis court, made of five layers as thin as a human hair. Here it is being opened in a test on Earth!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/Webb_Beauty_Last Sunshield Deploy on Earth/Webb_Beauty_Last Sunshield Deploy on Earth~mobile.mp4",
+          "start": 0,
+          "end": 75,
+          "credit": "Video: NASA Goddard · The last sunshield test on Earth"
+        },
+        "visual": "sunshieldCool"
+      },
+      {
+        "heading": "Hot and cold",
+        "text": "The side facing the Sun gets very hot, while the shady side is about -230 °C, colder than anywhere on Earth. It's like a giant parasol in space!",
+        "visual": "sunshieldCool"
+      }
+    ],
+    "endLabel": "Build the mirror!"
+  },
+
+  "mirrorPuzzle": {
+    "intro": [
+      "Time to build Webb's mirror! It has 18 gold segments. Because the mirror is curved, there are three slightly different shapes, called A, B and C.",
+      "Drag each segment to a place with the same letter. A segments go in the middle ring; B and C take turns around the outside."
+    ],
+    "mirrorLabel": "Webb's main mirror",
+    "panelTitle": "18 golden segments",
+    "panelText": "Each segment is made of a light, strong metal called beryllium, and coated with a thin layer of gold.",
+    "placedLabel": "Segments in place",
+    "wrongType": "That's an {a} segment. It only fits where you see {a}.",
+    "facts": [
+      "Each segment is about 1.3 metres across: taller than most kids!",
+      "Behind each segment are tiny motors that can move it by much less than the width of a hair.",
+      "All the gold on the mirror weighs only about 48 grams, about as much as a golf ball!"
+    ],
+    "doneLine": "Beautiful! Together, the 18 segments work like one giant mirror, 6.5 metres across.",
+    "resultTitle": "Mirror maker!",
+    "resultText": "Webb's mirror collects more than six times as much light as Hubble's."
+  },
+
+  "fairingFold": {
+    "intro": [
+      "Webb is far too big for a rocket. Its sunshield is as big as a tennis court, but the rocket's nose cone is only 5.4 metres wide!",
+      "So Webb was designed to fold up like origami. Tap each part to fold it. Careful: some parts have to fold before others!"
+    ],
+    "fairingLabel": "The rocket's nose cone: 5.4 m wide",
+    "panelTitle": "Fold it up!",
+    "panelText": "Fold everything until Webb fits inside the dashed outline of the nose cone.",
+    "parts": {
+      "wings": "Mirror wings",
+      "secondary": "Secondary mirror",
+      "shield": "Sunshield layers",
+      "tower": "Tower",
+      "pallets": "Sunshield pallets",
+      "antenna": "Antenna",
+      "solar": "Solar panel",
+      "sunshield": "sunshield"
+    },
+    "blocked": {
+      "tower": "Fold away the sunshield layers first, then the tower can come down.",
+      "pallets": "First fold the sunshield layers and lower the tower. Then the pallets can fold up."
+    },
+    "facts": {
+      "wings": "The two side wings of the mirror fold back, like the flaps of a folding table.",
+      "secondary": "The small round secondary mirror folds down on its three long legs.",
+      "shield": "The five thin sunshield layers fold up like a fan.",
+      "tower": "The tower lowers, so the telescope sits close to the sunshield.",
+      "pallets": "The pallets fold up, wrapping the sunshield around the telescope.",
+      "antenna": "The antenna tucks in against the spacecraft.",
+      "solar": "The solar panel folds flat."
+    },
+    "tooWide": "Too wide for the rocket!",
+    "tooTall": "Too tall: lower the tower!",
+    "fits": "It fits!",
+    "doneLine": "It fits! Folding and unfolding Webb was so tricky that engineers practised it many times on Earth before the launch.",
+    "resultTitle": "Origami expert!",
+    "resultText": "Webb was the biggest, most complicated telescope ever folded into a rocket."
+  },
+
+  "launch": {
+    "slides": [
+      {
+        "year": "December 25, 2021",
+        "heading": "Liftoff on Christmas Day",
+        "text": "Webb launched on a European Ariane 5 rocket from Kourou, in French Guiana in South America. Watch the launch!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/Coverage of the launch of the James Webb Space Telescope on an Ariane 5 rocket from the Guiana Space Center in Kourou, French Guiana/Coverage of the launch of the James Webb Space Telescope on an Ariane 5 rocket from the Guiana Space Center in Kourou, French Guiana~mobile.mp4",
+          "start": 4795,
+          "end": 4880,
+          "credit": "Video: NASA · Webb's launch on an Ariane 5"
+        },
+        "visual": "arianeLaunch"
+      },
+      {
+        "heading": "Goodbye, rocket!",
+        "text": "About half an hour later, a camera on the rocket filmed Webb drifting away, with Earth behind it. Soon after, its solar panel unfolded.",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/Coverage of the launch of the James Webb Space Telescope on an Ariane 5 rocket from the Guiana Space Center in Kourou, French Guiana/Coverage of the launch of the James Webb Space Telescope on an Ariane 5 rocket from the Guiana Space Center in Kourou, French Guiana~mobile.mp4",
+          "start": 6495,
+          "end": 6575,
+          "credit": "Video: NASA · Webb separates from its rocket"
+        },
+        "visual": "webbSpin"
+      },
+      {
+        "heading": "A perfect launch",
+        "text": "The launch was so accurate that Webb saved lots of fuel. That fuel could keep it working for about 20 years!",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/NHQ202112250029/NHQ202112250029~medium.jpg",
+          "alt": "The Ariane 5 rocket lifting off with Webb"
+        },
+        "credit": "Photo: NASA · Ariane 5 lifts off with Webb",
+        "visual": "arianeLaunch"
+      }
+    ],
+    "endLabel": "Unfold Webb!"
+  },
+
+  "deployParts": {
+    "intro": [
+      "Now Webb has to unfold all by itself, far from Earth. It took about two weeks, and hundreds of parts all had to work!",
+      "Follow the checklist: each time, tap the part of Webb that unfolds next."
+    ],
+    "checklistTitle": "Unfolding checklist",
+    "parts": {
+      "solar": "solar panel",
+      "antenna": "antenna",
+      "sunshield": "sunshield",
+      "tower": "tower",
+      "secondary": "secondary mirror",
+      "wings": "mirror wings"
+    },
+    "steps": [
+      {
+        "day": "Launch day",
+        "task": "Open the solar panel",
+        "fact": "About half an hour after launch, the solar panel opened to power Webb with sunlight."
+      },
+      {
+        "day": "Day 1",
+        "task": "Swing out the antenna",
+        "fact": "The antenna sends Webb's pictures home to Earth."
+      },
+      {
+        "day": "Days 3–4",
+        "task": "Lower the sunshield pallets",
+        "fact": "The two pallets folded down, carrying the folded-up sunshield."
+      },
+      {
+        "day": "Day 5",
+        "task": "Raise the tower",
+        "fact": "The tower lifted the telescope away from the warm spacecraft."
+      },
+      {
+        "day": "Days 6–10",
+        "task": "Stretch out the sunshield layers",
+        "fact": "Cables pulled the five layers out tight, one by one. Now the shady side could start to cool down."
+      },
+      {
+        "day": "Day 11",
+        "task": "Unfold the secondary mirror",
+        "fact": "The secondary mirror swung out on its three legs and locked into place."
+      },
+      {
+        "day": "Days 13–14",
+        "task": "Open the mirror wings",
+        "fact": "The two wings of the main mirror swung open and locked. Webb was fully unfolded!"
+      }
+    ],
+    "wrong": "That's the {part}. Read the checklist again!",
+    "doneLine": "Webb is fully unfolded! On January 8, 2022, the team cheered as the last mirror wing locked into place.",
+    "resultTitle": "Unfolding complete!",
+    "resultText": "Webb had hundreds of steps that all had to work perfectly, and every single one did."
+  },
+
+  "jwstReveal": {
+    "model": "jwst",
+    "title": "James Webb Space Telescope",
+    "subtitle": "The biggest telescope ever sent into space",
+    "stats": [
+      {
+        "label": "Mirror",
+        "value": "6.5 m (21 feet) across: 18 gold hexagons"
+      },
+      {
+        "label": "Sunshield",
+        "value": "About the size of a tennis court, with 5 layers"
+      },
+      {
+        "label": "Cold side",
+        "value": "About -230 °C (-380 °F)"
+      },
+      {
+        "label": "Launched",
+        "value": "December 25, 2021 · Ariane 5 rocket"
+      }
+    ],
+    "line": "Meet Webb! The gold mirror collects faint infrared light, and the giant sunshield keeps it cold. Drag to spin it around. Now, how do we fit it into a rocket?",
+    "continue": "Fold it up!"
+  },
+
+  "lagrange": {
+    "intro": [
+      "Webb's new home is a spot called L2, 1.5 million kilometres from Earth. There, Webb can keep the Sun, Earth and Moon all behind its sunshield.",
+      "Earth's gravity slows Webb down all the way. Webb can only push itself away from the Sun, never back, so it can't brake! It launched a little too slow on purpose.",
+      "Give it pushes to keep its speed near the green line, so it slows to a stop just as it reaches L2. Too fast, and it sails right past!"
+    ],
+    "distLabel": "1.5 million km: about 4 times as far as the Moon",
+    "sunLabel": "← The Sun",
+    "speedLabel": "Speed",
+    "idealLabel": "Green line: just right to stop at L2",
+    "tooFast": "Too fast! Webb will shoot past L2...",
+    "tooSlow": "Too slow: give it a push!",
+    "justRight": "Just right!",
+    "dayLabel": "Day",
+    "fuelLabel": "Fuel",
+    "smallLabel": "Small push",
+    "bigLabel": "Big push",
+    "noFuel": "Not enough fuel for that push!",
+    "overshoot": "Too fast! Webb shot past L2, and it can't brake. Let's try that again.",
+    "fellBack": "Too slow! Webb fell back towards Earth. Give it more pushes.",
+    "doneLine": "You made it! On January 24, 2022, Webb arrived at L2 and began a big loop around it, called a halo orbit.",
+    "resultTitle": "Arrived at L2!",
+    "resultText": "Webb was launched a little slow on purpose, and its gentle pushes saved lots of fuel."
+  },
+
+  "arrival": {
+    "slides": [
+      {
+        "heading": "Unfolding in space",
+        "text": "Here's NASA's animation of how Webb unfolded, one careful step at a time, during its trip to L2.",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/1511201_JWST_L-D_Apvd_Final/1511201_JWST_L-D_Apvd_Final~mobile.mp4",
+          "start": 345,
+          "end": 440,
+          "credit": "Animation: NASA Goddard · Webb's launch and unfolding"
+        },
+        "visual": "webbUnfold"
+      },
+      {
+        "year": "January 24, 2022",
+        "heading": "Arriving at L2",
+        "text": "A month after launch, Webb fired its thrusters one last time and settled into its loop around L2, 1.5 million kilometres from Earth.",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/1511201_JWST_L-D_Apvd_Final/1511201_JWST_L-D_Apvd_Final~mobile.mp4",
+          "start": 540,
+          "end": 590,
+          "credit": "Animation: NASA Goddard · Webb's orbit around L2"
+        },
+        "visual": "l2Orbit"
+      },
+      {
+        "heading": "Cooling down",
+        "text": "Then Webb waited weeks for its cameras to cool down in the shade. Its coldest camera works at about -266 °C: just 7 degrees above the coldest temperature possible!",
+        "visual": "sunshieldCool"
+      },
+      {
+        "heading": "18 blurry stars",
+        "text": "When Webb first looked at a star, each of its 18 mirror segments made its own blurry copy: 18 dots! Engineers had to line them all up.",
+        "visual": "firstLight"
+      }
+    ],
+    "endLabel": "Line them up!"
+  },
+
+  "mirrorAlign": {
+    "intro": [
+      "All 18 mirror segments see the same star, but they aren't lined up yet. Drag each copy of the star into the middle, or tap it.",
+      "Then turn the focus until the star is super sharp!"
+    ],
+    "cameraLabel": "Webb's camera",
+    "panelTitle": "Line up the mirrors",
+    "panelText": "Tiny motors behind each segment can move it by about one ten-thousandth of the width of a hair!",
+    "stackedLabel": "Copies lined up",
+    "facts": [
+      "The real engineers spent about three months lining up Webb's mirrors.",
+      "In the end, the 18 segments worked together like one giant, perfect mirror."
+    ],
+    "focusTitle": "Now focus!",
+    "focusText": "All 18 copies are stacked, but the star is still blurry. Move the focus slider until it's as sharp as possible.",
+    "focusLabel": "Focus",
+    "sharpYes": "Super sharp! Hold it there...",
+    "sharpClose": "Getting closer!",
+    "sharpNo": "Still blurry...",
+    "doneLine": "Perfect! The star is sharp, with the six big spikes that make Webb's pictures easy to recognise. Webb is ready for science!",
+    "resultTitle": "Sharp eyes!",
+    "resultText": "Webb's pictures turned out even sharper than the engineers had hoped."
+  },
+
+  "sunshieldGuard": {
+    "intro": [
+      "Webb must always keep its sunshield between the Sun and the telescope. So it can only look at the parts of the sky that are well away from the Sun: the green zones.",
+      "As Webb travels around the Sun during the year, the green zones move. Tap each target when it's inside a green zone, and keep watching until it's done!"
+    ],
+    "panelTitle": "Keep cool!",
+    "panelText": "Webb can look at things between about 85 and 135 degrees away from the Sun. Over a whole year, it can see the entire sky.",
+    "observedLabel": "Targets observed",
+    "yearLabel": "Time of year",
+    "observingLabel": "Observing",
+    "tooNearSun": "Not now! Sunlight would hit the telescope. Wait until it moves into a green zone.",
+    "tooFarSun": "Webb can't tip back that far. Wait until it moves into a green zone.",
+    "lostTarget": "It moved out of the green zone. Try again later!",
+    "targets": [
+      {
+        "name": "Jupiter",
+        "art": "jupiter",
+        "scale": 0.25,
+        "fact": "Webb photographed glowing auroras at Jupiter's north and south poles."
+      },
+      {
+        "name": "A spiral galaxy",
+        "art": "galaxySpiral",
+        "scale": 0.45,
+        "fact": "Webb's infrared eyes show the dusty arms of spiral galaxies, like the Phantom Galaxy."
+      },
+      {
+        "name": "Neptune",
+        "art": "neptune",
+        "scale": 0.5,
+        "fact": "Webb took the clearest picture of Neptune's thin rings in more than 30 years."
+      },
+      {
+        "name": "A faraway galaxy",
+        "art": "galaxyRed",
+        "scale": 0.6,
+        "fact": "Webb found galaxies from when the universe was less than 300 million years old."
+      },
+      {
+        "name": "Saturn",
+        "art": "saturn",
+        "scale": 0.22,
+        "fact": "Webb looked at Saturn and its rings in infrared light."
+      },
+      {
+        "name": "TRAPPIST-1",
+        "art": "starYellow",
+        "scale": 0.6,
+        "fact": "Webb measured the temperature of a rocky planet going around the star TRAPPIST-1."
+      },
+      {
+        "name": "Mars",
+        "art": "mars",
+        "scale": 0.2,
+        "fact": "Webb can even look at Mars! It studied the gases in its thin air."
+      },
+      {
+        "name": "Uranus",
+        "art": "uranus",
+        "scale": 0.5,
+        "fact": "Webb's picture of Uranus shows its faint rings and a bright cap of clouds."
+      }
+    ],
+    "doneLine": "Great work! Webb plans its year carefully, so every part of the sky gets its turn.",
+    "resultTitle": "Cool and clever!",
+    "resultText": "Webb's sunshield keeps the telescope in the shade, so its faint infrared light isn't drowned out by heat."
+  },
+
+  "firstImages": {
+    "slides": [
+      {
+        "year": "July 12, 2022",
+        "heading": "Webb's first pictures",
+        "text": "The whole world waited for Webb's first full-colour pictures. Here's NASA's film of the big day!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/First Images from the James Webb Space Telescope (Official NASA Highlights)/First Images from the James Webb Space Telescope (Official NASA Highlights)~mobile.mp4",
+          "start": 64,
+          "end": 128,
+          "credit": "Video: NASA · Webb's first images"
+        },
+        "visual": "galaxyZoom"
+      },
+      {
+        "heading": "Webb's First Deep Field",
+        "text": "Thousands of galaxies, in a patch of sky as small as a grain of sand held at arm's length!",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/webb_first_deep_field/webb_first_deep_field~medium.jpg",
+          "alt": "Webb's First Deep Field: thousands of galaxies"
+        },
+        "credit": "Image: NASA, ESA, CSA, STScI · Webb's First Deep Field",
+        "visual": "galaxyZoom"
+      },
+      {
+        "heading": "The Southern Ring Nebula",
+        "text": "A dying star puffing out shells of gas and dust. Here are pictures from two of Webb's cameras, side by side.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/southern_ring_nebula/southern_ring_nebula~medium.jpg",
+          "alt": "The Southern Ring Nebula, in two of Webb's cameras"
+        },
+        "credit": "Image: NASA, ESA, CSA, STScI · The Southern Ring Nebula",
+        "visual": "galaxyZoom"
+      },
+      {
+        "heading": "Water on another world",
+        "text": "Webb even read the 'barcode' of light from a giant planet called WASP-96 b, and found water in its air!",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/wasp-96_b_transmission_spectrum/wasp-96_b_transmission_spectrum~medium.jpg",
+          "alt": "A chart of the light blocked by WASP-96 b's atmosphere, showing water"
+        },
+        "credit": "Image: NASA, ESA, CSA, STScI · WASP-96 b's air",
+        "visual": "galaxyZoom"
+      }
+    ],
+    "endLabel": "Explore the Deep Field!"
+  },
+
+  "deepField": {
+    "intro": [
+      "This is Webb's First Deep Field: the real picture! Almost every dot in it is a galaxy, full of billions of stars.",
+      "Find the things on the list, and tap them in the picture."
+    ],
+    "image": "https://images-assets.nasa.gov/image/webb_first_deep_field/webb_first_deep_field~medium.jpg",
+    "imageAlt": "Webb's First Deep Field",
+    "credit": "Image: NASA, ESA, CSA, STScI · Webb's First Deep Field",
+    "panelTitle": "Webb's First Deep Field",
+    "panelText": "Look carefully: stars have spikes, and the galaxies come in all shapes and colours.",
+    "foundLabel": "Found",
+    "notThis": "Look closer! Check the list for what to find.",
+    "noImage": "The picture couldn't load. Check your internet connection.",
+    "targets": [
+      {
+        "name": "A bright star with six big spikes",
+        "x": 538,
+        "y": 488,
+        "r": 45,
+        "fact": "This is a star in our own galaxy. Its six big spikes come from the shape of Webb's hexagon mirrors."
+      },
+      {
+        "name": "A galaxy stretched into an arc",
+        "x": 640,
+        "y": 572,
+        "r": 40,
+        "fact": "The huge cluster of galaxies in the middle bends light like a magnifying glass, stretching faraway galaxies into arcs. It's called gravitational lensing."
+      },
+      {
+        "name": "A spiral galaxy",
+        "x": 1072,
+        "y": 490,
+        "r": 45,
+        "fact": "A spiral galaxy, a bit like our own Milky Way. Its light set off billions of years ago."
+      },
+      {
+        "name": "The big cluster of galaxies",
+        "x": 648,
+        "y": 655,
+        "r": 60,
+        "fact": "This bright group is a huge cluster of galaxies called SMACS 0723. We see it as it was 4.6 billion years ago."
+      },
+      {
+        "name": "A red smudge of a galaxy",
+        "x": 1022,
+        "y": 372,
+        "r": 40,
+        "fact": "Many galaxies in this picture look red because they're very far away: their light has been stretched on its long journey."
+      }
+    ],
+    "doneLine": "You found them all! Scientists study pictures like this to learn how the very first galaxies grew.",
+    "resultTitle": "Galaxy hunter!",
+    "resultText": "This picture was Webb's very first full-colour image, shown to the world on July 11, 2022."
+  },
+
+  "spectrum": {
+    "intro": [
+      "When a planet passes in front of its star, a little starlight shines through the planet's air. Each gas blocks its own colours of light, leaving bumps like a barcode.",
+      "Tap a gas to see its lines on the chart. Pick the gas whose lines sit on the bumps, then press \"That's it!\"."
+    ],
+    "yLabel": "Light blocked",
+    "xLabel": "Colour of light (wavelength, in microns)",
+    "checkLabel": "That's it!",
+    "molecules": {
+      "water": "Water (H₂O)",
+      "co2": "Carbon dioxide (CO₂)",
+      "methane": "Methane (CH₄)",
+      "sodium": "Sodium (Na)"
+    },
+    "tooFew": "Some bumps still have no gas to explain them.",
+    "notMatch": "Look again: a gas's lines must sit on bumps, and every bump needs a gas.",
+    "rounds": [
+      {
+        "title": "WASP-96 b (2022)",
+        "range": [
+          0.6,
+          2.8
+        ],
+        "gases": [
+          "water"
+        ],
+        "intro": "WASP-96 b is a giant, puffy, very hot planet. Which gas made these bumps?",
+        "result": "Water! In 2022, Webb found the clear signature of water in WASP-96 b's air."
+      },
+      {
+        "title": "WASP-39 b (2022)",
+        "range": [
+          3.0,
+          5.5
+        ],
+        "gases": [
+          "co2"
+        ],
+        "intro": "WASP-39 b is another hot giant planet. What made this big bump?",
+        "result": "Carbon dioxide! It was the first time anyone had clearly seen carbon dioxide in the air of a planet outside our solar system."
+      },
+      {
+        "title": "K2-18 b (2023)",
+        "range": [
+          1.0,
+          5.0
+        ],
+        "gases": [
+          "methane",
+          "co2"
+        ],
+        "intro": "K2-18 b is bigger than Earth but smaller than Neptune. This time TWO gases made the bumps. Pick both!",
+        "result": "Methane and carbon dioxide! Scientists are still studying what kind of world K2-18 b is."
+      }
+    ],
+    "doneLine": "Webb can read the air of planets around other stars. One day, telescopes like it might help us find a world with air like Earth's!",
+    "resultTitle": "Planet chemist!",
+    "resultText": "Every gas leaves its own barcode in starlight. That's how we can tell what a planet's air is made of without ever going there."
+  },
+
+  "whatNext": {
+    "slides": [
+      {
+        "heading": "Webb's discoveries",
+        "text": "Since then, Webb has found some of the most distant galaxies ever seen, from when the universe was less than 300 million years old, and studied the air of planets around other stars.",
+        "visual": "galaxyZoom"
+      },
+      {
+        "year": "September 24, 2023",
+        "heading": "A piece of an asteroid",
+        "text": "Meanwhile, NASA's OSIRIS-REx spacecraft collected rocks and dust from the asteroid Bennu and sent them back to Earth in a capsule. It landed in the Utah desert!",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/NHQ202309240006/NHQ202309240006~medium.jpg",
+          "alt": "Scientists next to the OSIRIS-REx capsule in the desert"
+        },
+        "credit": "Photo: NASA · The OSIRIS-REx capsule, just after landing",
+        "visual": "bennuSample"
+      },
+      {
+        "heading": "Bennu up close",
+        "text": "Scientists found that Bennu's rocks hold water-bearing minerals and some of the chemical building blocks of life. They're still studying them today.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/jsc2024e023025/jsc2024e023025~medium.jpg",
+          "alt": "Dark rocks and dust from asteroid Bennu"
+        },
+        "credit": "Photo: NASA · Rocks and dust from asteroid Bennu",
+        "visual": "bennuSample"
+      },
+      {
+        "heading": "Your journey",
+        "text": "From the first satellites to rovers on Mars and a golden eye looking back in time, you've explored the story of space. Keep looking up, star sailor!",
+        "visual": "journeyEnd"
+      }
+    ],
+    "endLabel": "Mission summary"
+  },
+
+  "summary": {
+    "pages": [
+      {
+        "title": "Mission report: James Webb",
+        "kind": "stats",
+        "stats": [
+          {
+            "label": "Launched",
+            "value": "December 25, 2021 · Ariane 5"
+          },
+          {
+            "label": "Home",
+            "value": "L2, 1.5 million km from Earth"
+          },
+          {
+            "label": "Mirror",
+            "value": "6.5 m across: 18 gold segments"
+          },
+          {
+            "label": "Sunshield",
+            "value": "5 layers, the size of a tennis court"
+          },
+          {
+            "label": "First images",
+            "value": "July 12, 2022"
+          },
+          {
+            "label": "Coldest camera",
+            "value": "About -266 °C"
+          }
+        ],
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/webb_first_deep_field/webb_first_deep_field~medium.jpg",
+          "alt": "Webb's First Deep Field",
+          "credit": "Image: NASA, ESA, CSA, STScI · Webb's First Deep Field"
+        },
+        "fallback": "jwst",
+        "say": "Webb launched on Christmas Day 2021, unfolded on its way to L2, and showed the world its first pictures in July 2022."
+      },
+      {
+        "title": "Webb through the years",
+        "kind": "timeline",
+        "items": [
+          {
+            "year": "1990",
+            "name": "Hubble",
+            "text": "Sharp pictures from space."
+          },
+          {
+            "year": "1996",
+            "name": "Planning",
+            "text": "Work on Webb begins."
+          },
+          {
+            "year": "2002",
+            "name": "A name",
+            "text": "Named after James Webb."
+          },
+          {
+            "year": "2021",
+            "name": "Launch",
+            "text": "Christmas Day liftoff."
+          },
+          {
+            "year": "2022",
+            "name": "First images",
+            "text": "Galaxies and water."
+          },
+          {
+            "year": "2023",
+            "name": "Bennu",
+            "text": "Asteroid sample lands."
+          },
+          {
+            "year": "2024",
+            "name": "Record",
+            "text": "Farthest galaxy yet."
+          }
+        ],
+        "say": "From Hubble's first pictures to galaxies at the edge of time, telescopes keep showing us more of the universe."
+      },
+      {
+        "title": "What Webb taught us",
+        "kind": "tech",
+        "items": [
+          {
+            "name": "Looking back in time",
+            "art": "galaxyRed",
+            "text": "Far-away light is old light: Webb sees galaxies as they were over 13 billion years ago."
+          },
+          {
+            "name": "Seeing through dust",
+            "art": "starYellow",
+            "text": "Infrared light reveals baby stars hidden inside clouds of dust."
+          },
+          {
+            "name": "Reading other worlds",
+            "art": "neptune",
+            "text": "Starlight passing through a planet's air shows which gases are there."
+          },
+          {
+            "name": "Space origami",
+            "art": "jwst",
+            "text": "Big telescopes can fold up to fit inside a rocket, then unfold in space."
+          }
+        ],
+        "say": "Webb looks back in time, sees through dust, reads the air of distant planets, and showed that a giant telescope can fold into a rocket."
+      }
+    ]
+  },
+
+  "complete": {
+    "title": "Chapter 7 complete!",
+    "badge": "Galaxy Explorer",
+    "lines": [
+      "You learned how light travels and saw through dust with infrared.",
+      "You built the golden mirror and folded Webb into its rocket.",
+      "You unfolded Webb, flew it to L2 and lined up its mirrors.",
+      "You explored the Deep Field and read the air of faraway planets!"
+    ],
+    "guide": "You did it, star sailor! You've finished every chapter, from the very first satellites all the way to the edge of the universe. Keep looking up!"
+  }
+}

@@ -818,7 +818,325 @@ function saturnV() {
   return g;
 }
 
-const BUILDERS = { engine, gyroscope, thrusters, power, antenna, lifeSupport, heatShield, parachute, mercuryRedstone, explorer1, saturnV };
+// ---------- Apollo 13: Odyssey (command + service module) docked with Aquarius ----------
+// Shown after the explosion: one panel of the service module is missing, with torn
+// insulation and the damaged oxygen tank bay showing inside.
+function goldFoilTexture() {
+  return canvasTex(256, 256, (c, w, h) => {
+    c.fillStyle = '#c99a3a';
+    c.fillRect(0, 0, w, h);
+    for (let i = 0; i < 140; i++) {
+      const x = Math.random() * w, y = Math.random() * h;
+      c.fillStyle = Math.random() < 0.5 ? 'rgba(255,230,150,0.35)' : 'rgba(90,60,10,0.3)';
+      c.beginPath();
+      c.moveTo(x, y);
+      c.lineTo(x + 10 + Math.random() * 30, y + (Math.random() - 0.5) * 20);
+      c.lineTo(x + Math.random() * 20, y + 10 + Math.random() * 20);
+      c.closePath();
+      c.fill();
+    }
+  });
+}
+
+function apollo13() {
+  const g = new THREE.Group();
+  const silver = new THREE.MeshStandardMaterial({ color: 0xe3e7ee, metalness: 0.85, roughness: 0.22 });
+  const white = mat.paint(0xe8ebf1, 0.45);
+  // service module: a cylinder with one sector (panel 4) blown away
+  const gap = Math.PI / 3, start = Math.PI * 0.15;
+  const skin = mesh(new THREE.CylinderGeometry(1.95, 1.95, 7.4, 64, 1, true, start + gap, Math.PI * 2 - gap), new THREE.MeshStandardMaterial({ color: 0xd7dbe3, metalness: 0.6, roughness: 0.35, side: THREE.DoubleSide }), 0, 3.7, 0);
+  g.add(skin);
+  g.add(mesh(new THREE.CylinderGeometry(1.86, 1.86, 7.3, 48), mat.dark(0x1c1914), 0, 3.7, 0));
+  // inside the open bay: tanks and dangling gold insulation
+  const bayA = start + gap / 2;
+  const bayDir = V3(Math.sin(bayA), 0, Math.cos(bayA));
+  [[5.2, 0.62], [3.4, 0.6], [1.9, 0.5]].forEach(([y, r], k) => {
+    const t = mesh(new THREE.SphereGeometry(r, 24, 16), k === 0 ? mat.dark(0x3a332b) : mat.steel(0xb9c0cc, 0.4));
+    t.position.copy(bayDir.clone().multiplyScalar(1.3)).setY(y);
+    g.add(t);
+  });
+  const foil = new THREE.MeshStandardMaterial({ map: goldFoilTexture(), metalness: 0.9, roughness: 0.4, side: THREE.DoubleSide });
+  for (let i = 0; i < 7; i++) {
+    const strip = mesh(new THREE.PlaneGeometry(0.35 + Math.random() * 0.4, 0.9 + Math.random() * 1.4), foil);
+    const a = start + Math.random() * gap;
+    strip.position.set(Math.sin(a) * 1.98, 1.2 + Math.random() * 5.5, Math.cos(a) * 1.98);
+    strip.rotation.y = a + (Math.random() - 0.5);
+    strip.rotation.z = (Math.random() - 0.5) * 0.8;
+    g.add(strip);
+  }
+  g.add(mesh(new THREE.CylinderGeometry(1.97, 1.97, 0.2, 64), mat.steel(0xb9c0cc), 0, 7.4, 0));
+  // main engine
+  g.add(mesh(bell(0.45, 1.2, 2.9, 48), new THREE.MeshStandardMaterial({ color: 0x3a3f4b, metalness: 0.8, roughness: 0.45, side: THREE.DoubleSide }), 0, 0.05, 0));
+  // thruster quads and the high-gain antenna
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    const quad = mesh(new THREE.BoxGeometry(0.35, 0.7, 0.35), white);
+    quad.position.set(Math.sin(a) * 2.05, 5.4, Math.cos(a) * 2.05);
+    g.add(quad);
+  }
+  const boom = mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.6, 8), mat.steel(), 0, 0, 0);
+  boom.position.set(-Math.sin(bayA) * 2.4, 0.6, -Math.cos(bayA) * 2.4);
+  boom.rotation.z = Math.PI / 2;
+  g.add(boom);
+  for (let i = 0; i < 4; i++) {
+    const dish = mesh(new THREE.SphereGeometry(0.32, 20, 10, 0, Math.PI * 2, 0, Math.PI / 3), new THREE.MeshStandardMaterial({ color: 0xeef1f7, metalness: 0.3, roughness: 0.4, side: THREE.DoubleSide }));
+    dish.position.set(-Math.sin(bayA) * 3.1 + (i % 2) * 0.5 - 0.25, 0.4 + Math.floor(i / 2) * 0.55, -Math.cos(bayA) * 3.1);
+    dish.rotation.x = Math.PI / 2;
+    g.add(dish);
+  }
+  // command module Odyssey
+  g.add(mesh(new THREE.CylinderGeometry(2, 2, 0.22, 64), mat.paint(0x6b4a33, 0.7), 0, 7.6, 0));
+  g.add(mesh(new THREE.CylinderGeometry(0.42, 1.98, 3.2, 64), silver, 0, 9.3, 0));
+  [0.8, -0.8].forEach((x) => g.add(mesh(new THREE.BoxGeometry(0.25, 0.25, 0.05), mat.dark(0x1b2a4a), x, 8.9, 1.32)));
+  // docking tunnel into Aquarius
+  g.add(mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.7, 32), mat.steel(0x9aa1ae), 0, 11.2, 0));
+  // lunar module Aquarius (upside down, as it rides docked): ascent stage then descent stage
+  const lm = new THREE.Group();
+  lm.position.y = 11.5;
+  lm.add(mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.5, 24), mat.steel(0x9aa1ae), 0, 0.25, 0));
+  const ascent = mesh(new THREE.DodecahedronGeometry(1.7, 0), new THREE.MeshStandardMaterial({ color: 0x9da3ad, metalness: 0.6, roughness: 0.42, flatShading: true }), 0, 2.0, 0);
+  ascent.scale.set(1.3, 1.0, 1.15);
+  lm.add(ascent);
+  // front hatch, thruster blocks and the small dish antenna
+  lm.add(mesh(new THREE.BoxGeometry(0.8, 0.9, 0.08), mat.dark(0x2b2f38), 0, 2.0, 1.95));
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    const q = mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat.steel(0xd7dbe3, 0.4));
+    q.position.set(Math.sin(a) * 2.3, 2.2, Math.cos(a) * 2.0);
+    lm.add(q);
+  }
+  lm.add(mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.0, 8), mat.steel(), -1.6, 0.6, -0.6));
+  const lmDish = mesh(new THREE.SphereGeometry(0.42, 20, 10, 0, Math.PI * 2, 0, Math.PI / 3), new THREE.MeshStandardMaterial({ color: 0xeef1f7, metalness: 0.3, roughness: 0.4, side: THREE.DoubleSide }), -1.6, 0.1, -0.6);
+  lmDish.rotation.x = Math.PI;
+  lm.add(lmDish);
+  const descent = mesh(new THREE.CylinderGeometry(2.3, 2.3, 2.4, 8), new THREE.MeshStandardMaterial({ map: goldFoilTexture(), metalness: 0.9, roughness: 0.35 }), 0, 4.4, 0);
+  descent.rotation.y = Math.PI / 8;
+  lm.add(descent);
+  lm.add(mesh(bell(0.35, 0.8, 1.1, 32), new THREE.MeshStandardMaterial({ color: 0x5a5f6b, metalness: 0.7, roughness: 0.45, side: THREE.DoubleSide }), 0, 5.6, 0).rotateX(Math.PI));
+  // landing legs, opened out
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2;
+    const p0 = V3(Math.sin(a + Math.PI / 4) * 2.1, 4.4, Math.cos(a + Math.PI / 4) * 2.1), p1 = V3(Math.sin(a + Math.PI / 4) * 4.2, 6.6, Math.cos(a + Math.PI / 4) * 4.2);
+    const leg = tube([p0, p0.clone().lerp(p1, 0.5).add(V3(0, 0.1, 0)), p1], 0.09, mat.steel(0xc9a26b, 0.4), 12);
+    lm.add(leg);
+    const pad = mesh(new THREE.CylinderGeometry(0.45, 0.3, 0.12, 20), mat.steel(0xd8ad52, 0.4));
+    pad.position.copy(p1).add(V3(0, 0.08, 0));
+    lm.add(pad);
+  }
+  g.add(lm);
+  g.add(label('Aquarius', V3(4.6, 15.6, 0), 1.0, '#ffd166'));
+  g.add(label('Odyssey', V3(3.6, 9.4, 0), 1.0, '#4fd1ff'));
+  g.add(label('Damaged panel', V3(bayDir.x * 4.4, 4.6, bayDir.z * 4.4), 0.9, '#ff6b6b'));
+  g.userData.startRotY = -bayA - 0.5;
+  g.userData.startRotX = 0.1;
+  g.userData.distance = 1;
+  return g;
+}
+
+// ---------- Voyager: dish antenna up top, ten-sided body, booms for power and science ----------
+function voyager() {
+  const g = new THREE.Group();
+  const white = mat.paint(0xf2f4f8, 0.45);
+  // body
+  const bus = mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.5, 10), mat.steel(0xb9c0cc, 0.4), 0, 0, 0);
+  g.add(bus);
+  g.add(mesh(new THREE.CylinderGeometry(0.97, 0.97, 0.12, 10), new THREE.MeshStandardMaterial({ color: 0xd8ad52, metalness: 0.9, roughness: 0.35 }), 0, -0.18, 0));
+  // the big dish (3.7 m) facing up, with its feed on struts
+  const pts = [];
+  for (let i = 0; i <= 24; i++) {
+    const r = (i / 24) * 1.85;
+    pts.push(V2(r, 0.35 + (r * r) / 6));
+  }
+  g.add(mesh(new THREE.LatheGeometry(pts, 64), new THREE.MeshStandardMaterial({ color: 0xf4f6fb, metalness: 0.15, roughness: 0.45, side: THREE.DoubleSide })));
+  for (let i = 0; i < 3; i++) {
+    const a = (i / 3) * Math.PI * 2;
+    g.add(tube([V3(Math.cos(a) * 1.1, 0.55, Math.sin(a) * 1.1), V3(0, 1.4, 0)], 0.02, mat.steel(), 4));
+  }
+  g.add(mesh(new THREE.CylinderGeometry(0.12, 0.08, 0.35, 16), white, 0, 1.5, 0));
+  // the Golden Record on the side of the body
+  const rec = mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.02, 32), new THREE.MeshStandardMaterial({ color: 0xe8c27a, metalness: 1, roughness: 0.25 }), 0.97, 0, 0);
+  rec.rotation.z = Math.PI / 2;
+  g.add(rec);
+  // power boom with the three nuclear batteries (RTGs)
+  g.add(tube([V3(-0.8, -0.1, 0.3), V3(-3.2, -0.5, 1.0)], 0.04, mat.steel(0x9aa1ae), 6));
+  for (let k = 0; k < 3; k++) {
+    const t = 0.45 + k * 0.25;
+    const rtg = mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.42, 16), mat.dark(0x3a3f4b), -0.8 - 2.4 * t, -0.1 - 0.4 * t, 0.3 + 0.7 * t);
+    rtg.rotation.z = Math.PI / 2 + 0.15;
+    g.add(rtg);
+    for (let f = 0; f < 6; f++) {
+      const fin = mesh(new THREE.BoxGeometry(0.4, 0.02, 0.12), mat.dark(0x50566a), rtg.position.x, rtg.position.y, rtg.position.z);
+      fin.rotation.set((f / 6) * Math.PI, 0, Math.PI / 2 + 0.15);
+      fin.translateY(0.2);
+      g.add(fin);
+    }
+  }
+  // science boom with the scan platform (cameras) at its end
+  g.add(tube([V3(0.7, -0.1, -0.5), V3(2.6, -0.6, -1.4)], 0.045, mat.steel(0x9aa1ae), 6));
+  const plat = new THREE.Group();
+  plat.position.set(2.75, -0.7, -1.45);
+  plat.add(mesh(new THREE.BoxGeometry(0.45, 0.35, 0.4), mat.paint(0x3b3f4a, 0.5)));
+  plat.add(mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.5, 16), mat.steel(0xd7dbe3, 0.3), 0.12, 0.3, 0).rotateZ(-0.3));
+  plat.add(mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.32, 16), mat.steel(0xd7dbe3, 0.3), -0.12, 0.24, 0.08).rotateZ(-0.3));
+  g.add(plat);
+  // the long, thin magnetometer boom and the two plasma wave antennas
+  g.add(tube([V3(0.2, -0.2, 0.8), V3(1.0, -0.5, 3.1)], 0.018, mat.paint(0xd8d8c8, 0.6), 4));
+  g.add(tube([V3(0, -0.25, 0), V3(-0.8, -2.3, -0.7)], 0.012, mat.steel(), 4));
+  g.add(tube([V3(0, -0.25, 0), V3(0.7, -2.3, -0.8)], 0.012, mat.steel(), 4));
+  g.add(label('Dish antenna', V3(0, 2.15, 0), 0.4, '#4fd1ff'));
+  g.add(label('Nuclear power', V3(-3.0, 0.1, 1.0), 0.36, '#ff9f43'));
+  g.add(label('Cameras', V3(2.9, 0.45, -1.6), 0.36, '#3ddc97'));
+  g.add(label('Golden Record', V3(1.6, -0.75, 0.7), 0.34, '#ffd166'));
+  g.userData.startRotX = 0.35;
+  g.userData.startRotY = -0.7;
+  g.userData.update = (t) => {
+    plat.rotation.y = Math.sin(t * 0.6) * 0.5;
+  };
+  g.userData.distance = 0.85;
+  return g;
+}
+
+// Curiosity: a car-sized rover with six wheels, a camera mast, a robot arm and nuclear power.
+function curiosity() {
+  const g = new THREE.Group();
+  const white = mat.paint(0xeef0f4, 0.45);
+  const grey = mat.steel(0xaab1c0, 0.4);
+  // the body
+  g.add(mesh(new THREE.BoxGeometry(2.1, 0.5, 1.4), white, 0, 1.0, 0));
+  g.add(mesh(new THREE.BoxGeometry(2.14, 0.08, 1.44), mat.dark(0x5d6475), 0, 0.76, 0));
+  // boxes and gold-wrapped parts on the deck
+  g.add(mesh(new THREE.BoxGeometry(0.5, 0.18, 0.5), new THREE.MeshStandardMaterial({ color: 0xd8ad52, metalness: 0.9, roughness: 0.35 }), -0.2, 1.34, 0.25));
+  g.add(mesh(new THREE.BoxGeometry(0.35, 0.14, 0.35), white, 0.4, 1.32, -0.3));
+  // six wheels on the rocker-bogie suspension
+  const wheelGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.26, 28);
+  [-0.9, 0.05, 0.95].forEach((x) => [-0.88, 0.88].forEach((z) => {
+    const w = mesh(wheelGeo, mat.steel(0xc9ced8, 0.5), x, 0.3, z);
+    w.rotation.x = Math.PI / 2;
+    g.add(w);
+    const hub = mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.28, 12), mat.dark(0x5d6475), x, 0.3, z);
+    hub.rotation.x = Math.PI / 2;
+    g.add(hub);
+  }));
+  [-0.72, 0.72].forEach((z) => {
+    g.add(tube([V3(0.1, 0.8, z), V3(0.95, 0.32, z)], 0.04, grey, 6));
+    g.add(tube([V3(0.1, 0.8, z), V3(-0.45, 0.62, z)], 0.04, grey, 6));
+    g.add(tube([V3(-0.45, 0.62, z), V3(-0.9, 0.32, z)], 0.04, grey, 6));
+    g.add(tube([V3(-0.45, 0.62, z), V3(0.05, 0.32, z)], 0.04, grey, 6));
+  });
+  // the mast with its camera head (and the rock-zapping laser)
+  g.add(mesh(new THREE.CylinderGeometry(0.06, 0.07, 1.05, 12), grey, 0.75, 1.75, 0.45));
+  const head = new THREE.Group();
+  head.position.set(0.75, 2.36, 0.45);
+  head.add(mesh(new THREE.BoxGeometry(0.42, 0.24, 0.34), white));
+  [-0.08, 0.08].forEach((z) => {
+    const eye = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.06, 16), mat.dark(0x111318), 0.22, 0, z);
+    eye.rotation.z = Math.PI / 2;
+    head.add(eye);
+  });
+  const laser = mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.12, 16), mat.dark(0x3a3f4b), 0.24, 0.14, 0);
+  laser.rotation.z = Math.PI / 2;
+  head.add(laser);
+  g.add(head);
+  // the robot arm, folded in front, with its turret of tools (drill, camera, scoop)
+  g.add(tube([V3(1.05, 1.0, -0.35), V3(1.45, 0.95, -0.35), V3(1.5, 0.6, -0.2)], 0.05, grey, 8));
+  const turret = mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.22, 16), mat.dark(0x6b7290), 1.52, 0.48, -0.2);
+  g.add(turret);
+  g.add(mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.22, 8), mat.steel(0xe0e4ea, 0.3), 1.52, 0.3, -0.2));
+  // nuclear power source at the back, with cooling fins
+  const rtg = new THREE.Group();
+  rtg.position.set(-1.3, 1.25, 0);
+  rtg.rotation.z = 0.7;
+  rtg.add(mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.7, 16), mat.dark(0x3a3f4b)));
+  for (let i = 0; i < 8; i++) {
+    const fin = mesh(new THREE.BoxGeometry(0.6, 0.02, 0.22), mat.dark(0x50566a), 0, 0, 0);
+    fin.rotation.y = (i / 8) * Math.PI;
+    fin.rotation.z = Math.PI / 2;
+    fin.translateZ(0.2);
+    rtg.add(fin);
+  }
+  g.add(rtg);
+  // the hexagonal dish antenna
+  const dish = mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.04, 6), white, -0.55, 1.6, -0.45);
+  dish.rotation.z = 0.5;
+  g.add(dish);
+  g.add(mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.3, 8), grey, -0.55, 1.4, -0.45));
+  g.add(label('Mast cameras + laser', V3(0.75, 2.8, 0.45), 0.22, '#4fd1ff'));
+  g.add(label('Robot arm + drill', V3(2.3, 0.35, -0.2), 0.22, '#ffd166'));
+  g.add(label('Nuclear power', V3(-1.95, 1.9, 0), 0.22, '#ff9f43'));
+  g.add(label('Six wheels', V3(-0.4, -0.2, 1.15), 0.22, '#3ddc97'));
+  g.userData.startRotX = 0.3;
+  g.userData.startRotY = -0.55;
+  g.userData.update = (t) => {
+    head.rotation.y = Math.sin(t * 0.5) * 0.4;
+  };
+  g.userData.distance = 1;
+  return g;
+}
+
+// The James Webb Space Telescope: 18 gold hexagons standing on a tower above a five-layer,
+// tennis-court-sized sunshield, with the spacecraft underneath.
+function jwst() {
+  const g = new THREE.Group();
+  // the sunshield: five thin diamond-shaped layers, a little apart
+  const shape = new THREE.Shape();
+  shape.moveTo(-2.1, 0);
+  shape.lineTo(-0.6, -1.4);
+  shape.lineTo(0.6, -1.4);
+  shape.lineTo(2.1, 0);
+  shape.lineTo(0.6, 1.4);
+  shape.lineTo(-0.6, 1.4);
+  shape.closePath();
+  const shieldGeo = new THREE.ShapeGeometry(shape);
+  for (let k = 0; k < 5; k++) {
+    const layer = new THREE.Mesh(shieldGeo, new THREE.MeshStandardMaterial({ color: k === 0 ? 0xc9bdf0 : 0xb7a8e6, metalness: 0.75, roughness: 0.3, side: THREE.DoubleSide }));
+    layer.rotation.x = -Math.PI / 2;
+    layer.position.y = -0.05 * k;
+    layer.scale.setScalar(1 - k * 0.02);
+    g.add(layer);
+  }
+  // the spacecraft bus, solar panel and antenna under the sunshield
+  g.add(mesh(new THREE.BoxGeometry(0.7, 0.4, 0.7), mat.dark(0x4a4f5c), 0, -0.5, 0));
+  const solar = mesh(new THREE.BoxGeometry(1.4, 0.03, 0.45), mat.dark(0x1e2a5c), -1.0, -0.62, 0);
+  g.add(solar);
+  const dish = mesh(new THREE.SphereGeometry(0.16, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat.paint(0xe9ecf2, 0.4), 0.35, -0.85, 0.3);
+  dish.rotation.x = Math.PI;
+  g.add(dish);
+  // the tower and the box of science instruments behind the mirror
+  g.add(mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.7, 12), mat.dark(0x2b2f38), 0, 0.35, -0.15));
+  g.add(mesh(new THREE.BoxGeometry(0.6, 0.6, 0.35), mat.dark(0x3a3f4b), 0, 1.15, -0.35));
+  // the primary mirror: 18 gold hexagons, standing up and facing forwards
+  const gold = new THREE.MeshStandardMaterial({ color: 0xe2b54a, metalness: 1, roughness: 0.18, emissive: 0x2a1a00, emissiveIntensity: 0.25 });
+  const mirror = new THREE.Group();
+  mirror.position.set(0, 1.45, -0.1);
+  mirror.rotation.x = -0.12;
+  const R = 0.27;
+  for (let q = -2; q <= 2; q++) {
+    for (let r = -2; r <= 2; r++) {
+      const ring = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+      if (ring < 1 || ring > 2) continue;
+      const x = 1.5 * R * q, y = Math.sqrt(3) * R * (r + q / 2);
+      const seg = mesh(new THREE.CylinderGeometry(R * 0.95, R * 0.95, 0.05, 6), gold, x, -y, (x * x + y * y) * 0.08);
+      seg.rotation.x = Math.PI / 2;
+      seg.rotation.y = Math.PI / 6;
+      mirror.add(seg);
+    }
+  }
+  g.add(mirror);
+  // the secondary mirror on its three long struts
+  const sm = V3(0, 1.45, 1.6);
+  [[0, 1.45 + R * 4.6, 0.05], [-R * 3.8, 1.45 - R * 2.4, 0.05], [R * 3.8, 1.45 - R * 2.4, 0.05]].forEach(([x, y, z]) => g.add(tube([V3(x, y, z), sm], 0.02, mat.dark(0x2b2f38), 6)));
+  g.add(mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.04, 24), gold, sm.x, sm.y, sm.z).rotateX(Math.PI / 2));
+  g.add(label('Gold mirror (18 segments)', V3(0, 2.85, 0), 0.24, '#ffd166'));
+  g.add(label('Secondary mirror', V3(0.9, 1.75, 1.7), 0.22, '#4fd1ff'));
+  g.add(label('Sunshield: 5 layers', V3(1.6, 0.25, 1.2), 0.22, '#a78bfa'));
+  g.add(label('Solar panel', V3(-1.5, -0.9, 0.3), 0.22, '#3ddc97'));
+  g.userData.startRotX = 0.25;
+  g.userData.startRotY = -0.6;
+  g.userData.distance = 1;
+  return g;
+}
+
+const BUILDERS = { engine, gyroscope, thrusters, power, antenna, lifeSupport, heatShield, parachute, mercuryRedstone, explorer1, saturnV, apollo13, voyager, curiosity, jwst };
 
 export function buildModel(name) {
   const fn = BUILDERS[name] || engine;

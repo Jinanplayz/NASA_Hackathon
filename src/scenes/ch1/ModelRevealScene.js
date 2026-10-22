@@ -14,7 +14,7 @@ import { drawPanel } from '../../ui/widgets.js';
 const VX = 30, VY = 84, VW = 760, VH = 600;
 const PX = 810, PY = 84, PW = 440, PH = 600;
 
-const FALLBACK_ART = { mercuryRedstone: 'mercuryRedstone', explorer1: 'explorer1', saturnV: 'saturnV' };
+const FALLBACK_ART = { mercuryRedstone: 'mercuryRedstone', explorer1: 'explorer1', saturnV: 'saturnV', apollo13: 'csmLm', voyager: 'voyager', curiosity: 'curiosity', jwst: 'jwst' };
 
 export class ModelRevealScene extends BaseScene {
   constructor() {
@@ -52,18 +52,33 @@ export class ModelRevealScene extends BaseScene {
     drawPanel(pg, PX, PY, PW, PH, { fill: COLORS.panel, radius: 22, stroke: COLORS.cyan, strokeWidth: 3 });
     const title = txt(this, PX + 28, PY + 28, this.T('title', ''), { size: 34, weight: 800, color: CSS.yellow, wrap: PW - 56 });
     const sub = txt(this, PX + 28, title.y + title.height + 4, this.T('subtitle', ''), { size: 18, color: CSS.cyan, weight: 600, wrap: PW - 56 });
-    let y = sub.y + sub.height + 24;
-    this.T('stats', []).forEach((s, i) => {
-      const row = this.add.graphics();
-      row.fillStyle(i % 2 ? 0x18224c : 0x1d2a5c, 1);
-      const lbl = txt(this, PX + 44, y + 12, s.label.toUpperCase(), { size: 14, weight: 800, color: CSS.cyan, scale: false });
-      const val = txt(this, PX + 44, y + 32, s.value, { size: 20, weight: 600, wrap: PW - 90 });
-      const h = 32 + val.height + 12;
-      row.fillRoundedRect(PX + 28, y, PW - 56, h, 12);
+    // the facts, made a little smaller when they're long, so they never run under the button
+    const top = sub.y + sub.height + 24, bottom = PY + PH - 96;
+    const layout = (size, pad) => {
+      let y = top;
+      const made = [];
+      this.T('stats', []).forEach((s, i) => {
+        const row = this.add.graphics();
+        row.fillStyle(i % 2 ? 0x18224c : 0x1d2a5c, 1);
+        const lbl = txt(this, PX + 44, y + pad, s.label.toUpperCase(), { size: size < 20 ? 12 : 14, weight: 800, color: CSS.cyan, scale: false });
+        const val = txt(this, PX + 44, y + pad + lbl.height + 2, s.value, { size, weight: 600, wrap: PW - 90 });
+        const h = pad + lbl.height + 2 + val.height + pad;
+        row.fillRoundedRect(PX + 28, y, PW - 56, h, 12);
+        made.push({ row, lbl, val, i });
+        y += h + 8;
+      });
+      return { made, end: y - 8 };
+    };
+    let rows;
+    for (const [size, pad] of [[20, 12], [18, 9], [16, 7], [14, 6]]) {
+      rows = layout(size, pad);
+      if (rows.end <= bottom || size === 14) break;
+      rows.made.forEach((r) => [r.row, r.lbl, r.val].forEach((o) => o.destroy()));
+    }
+    rows.made.forEach(({ lbl, val, i }) => {
       lbl.setAlpha(0);
       val.setAlpha(0);
       this.tweens.add({ targets: [lbl, val], alpha: 1, duration: 300, delay: 400 + i * 250 });
-      y += h + 10;
     });
 
     this.continueBtn = new Button(this, PX + PW / 2, PY + PH - 50, {

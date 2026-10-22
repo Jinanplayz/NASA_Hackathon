@@ -219,6 +219,8 @@ const THEMES = {
     chords: [[36, 43, 55, 62], [34, 41, 53, 60], [31, 38, 50, 57], [33, 40, 52, 59]] },
   ocean: { bar: 9, cutoff: 1000, wave: 'triangle', level: 0.4, waves: true, sparkle: 0.15,
     chords: [[38, 50, 57, 61, 64], [35, 50, 54, 57, 62], [31, 50, 55, 59, 62], [33, 49, 52, 57, 61]] },
+  mars: { bar: 10, cutoff: 850, wave: 'triangle', level: 0.42, waves: true, sparkle: 0.25,
+    chords: [[38, 50, 57, 62, 65], [36, 48, 55, 60, 63], [34, 46, 53, 58, 62], [36, 48, 55, 58, 63]] },
   triumph: { bar: 4, cutoff: 1800, wave: 'triangle', level: 0.4, arp: 0.25, sparkle: 0.3,
     chords: [[36, 55, 60, 64, 67], [41, 57, 60, 65, 69], [43, 55, 59, 62, 67], [36, 52, 60, 64, 72]] }
 };
@@ -355,6 +357,17 @@ export const Sfx = {
       }
     }
   },
+  // A single musical note (used by games where each button has its own sound).
+  note(freq, { decay = 0.35, type = 'triangle', vol = 0.16 } = {}) {
+    if (!ensure() || paused) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    try {
+      tone({ freq, type, attack: 0.01, decay, vol });
+      tone({ freq: freq * 2, type: 'sine', attack: 0.01, decay: decay * 0.6, vol: vol * 0.3 });
+    } catch {
+      /* never let a sound crash the game */
+    }
+  },
   rumble(opts) {
     if (!ensure()) return { set() {}, stop() {} };
     return makeRumble(opts);
@@ -366,7 +379,7 @@ export const Sfx = {
     paused = p;
     loops.forEach((l) => l._mute(p));
   },
-  // Background mood for the current screen: menu, story, lab, sky, space, tension, moon, ocean, triumph.
+  // Background mood for the current screen: menu, story, lab, sky, space, tension, moon, ocean, mars, triumph.
   setMusic(name) {
     wantedTheme = name;
     if (ctx) setTheme(name); // otherwise it starts on the first tap/click

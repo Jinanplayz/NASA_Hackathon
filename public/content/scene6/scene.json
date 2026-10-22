@@ -1,0 +1,912 @@
+{
+  "title": "Mars Rovers",
+  "steps": [
+    { "type": "cutscene", "data": "intro", "name": "Wheels on other worlds" },
+    { "type": "moonBuggy", "data": "moonBuggy", "name": "Drive the Moon buggy" },
+    { "type": "cutscene", "data": "mariner4", "name": "First look at Mars" },
+    { "type": "paintByNumbers", "data": "paintByNumbers", "name": "Colour the first picture" },
+    { "type": "cutscene", "data": "pathfinder", "name": "Bouncing onto Mars" },
+    { "type": "airbagBounce", "data": "airbagBounce", "name": "Bounce to a landing" },
+    { "type": "roverProgram", "data": "roverProgram", "name": "Drive Sojourner" },
+    { "type": "cutscene", "data": "twins", "name": "Spirit and Opportunity" },
+    { "type": "dustDevil", "data": "dustDevil", "name": "Keep the lights on" },
+    { "type": "cutscene", "data": "opportunity", "name": "Goodbye, Oppy" },
+    { "type": "modelReveal", "data": "curiosityReveal", "name": "Meet Curiosity" },
+    { "type": "skyCrane", "data": "skyCrane", "name": "The sky crane" },
+    { "type": "drill", "data": "drill", "name": "Drill into Mars" },
+    { "type": "samHum", "data": "samHum", "name": "Happy birthday, Curiosity" },
+    { "type": "cutscene", "data": "curiosity", "name": "A lake on Mars" },
+    { "type": "cutscene", "data": "perseverance", "name": "Perseverance" },
+    { "type": "landingNav", "data": "landingNav", "name": "Find a safe spot" },
+    { "type": "cutscene", "data": "touchdown", "name": "Touchdown in Jezero" },
+    { "type": "ingenuity", "data": "ingenuity", "name": "Fly Ingenuity" },
+    { "type": "cutscene", "data": "whatNext", "name": "Signs of life?" },
+    { "type": "summary", "data": "summary", "name": "Mission summary" },
+    { "type": "chapterComplete", "data": "complete", "name": "Chapter complete" }
+  ],
+
+  "intro": {
+    "slides": [
+      {
+        "year": "Mars",
+        "heading": "The Red Planet",
+        "text": "Mars is the fourth planet from the Sun, about half as wide as Earth. Its red colour comes from rusty dust! A day on Mars is a little longer than ours: 24 hours and 37 minutes.",
+        "visual": "marsSpin"
+      },
+      {
+        "heading": "Cold, dusty and far away",
+        "text": "Mars is much colder than Earth, and its air is far too thin to breathe. Radio messages take from about 3 to 22 minutes to get there, so nobody can drive a Mars rover with a joystick!",
+        "visual": "marsDelay"
+      },
+      {
+        "year": "1970",
+        "heading": "The first robot on wheels",
+        "text": "Before Mars came the Moon. In November 1970, the Soviet Union's Lunokhod 1 became the first robot rover to drive on another world, steered by a team on Earth. Here is its landing spot, photographed by a NASA spacecraft in 2010.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA12967/PIA12967~orig.jpg",
+          "alt": "The Luna 17 lander on the Moon, seen from orbit"
+        },
+        "credit": "Image: NASA/GSFC/Arizona State University · Luna 17, which carried Lunokhod 1",
+        "visual": "lunokhodDrive"
+      },
+      {
+        "year": "1971",
+        "heading": "A car on the Moon",
+        "text": "In July 1971, Apollo 15 astronauts Dave Scott and Jim Irwin drove the first Lunar Roving Vehicle. It folded up to fit on the side of their lunar module, and it ran on batteries. Watch it on the Moon!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/Exploring the Moon_ Lunar Rovers/Exploring the Moon_ Lunar Rovers~mobile.mp4",
+          "start": 85,
+          "end": 100,
+          "credit": "Video: NASA · The Apollo Lunar Roving Vehicle"
+        },
+        "visual": "lrvDrive"
+      },
+      {
+        "heading": "Wire wheels",
+        "text": "Here is Apollo 15's rover on the Moon. Its wheels were made of woven wire instead of rubber tyres, because of the Moon's freezing cold and burning heat.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/as15-88-11901/as15-88-11901~medium.jpg",
+          "alt": "The Lunar Roving Vehicle parked on the Moon"
+        },
+        "credit": "Photo: NASA · Apollo 15's Lunar Roving Vehicle",
+        "visual": "lrvDrive"
+      },
+      {
+        "heading": "Your mission",
+        "text": "Drive the Moon buggy, colour in the first close-up picture of Mars, then help NASA's robots bounce, roll, drill and even fly their way across the Red Planet!",
+        "visual": "roverFamily"
+      }
+    ],
+    "endLabel": "Let's drive!"
+  },
+
+  "moonBuggy": {
+    "intro": [
+      "It's July 1971, and you're driving the Moon buggy near a deep valley called Hadley Rille. Drive to three stops and pick up a rock at each one!",
+      "Press Jump, tap the screen or press the space bar to hop over craters and boulders. In the Moon's weak gravity, the buggy floats when it jumps!"
+    ],
+    "stops": [
+      {
+        "name": "Elbow crater",
+        "text": "Stop 1: Elbow crater! The astronauts picked up rock samples here, while Mission Control watched them through the rover's TV camera."
+      },
+      {
+        "name": "St. George crater",
+        "text": "Stop 2: St. George crater, at the foot of a mountain called Hadley Delta. The buggy's top speed was about 13 km/h (8 mph): a bit slower than a bike."
+      },
+      {
+        "name": "Spur crater",
+        "text": "Stop 3: Spur crater! Here the astronauts found the 'Genesis Rock', a bright white piece of the Moon's ancient crust, about 4 billion years old."
+      }
+    ],
+    "nextLabel": "Next stop",
+    "homeLabel": "Back to the lunar module",
+    "bumpsLabel": "Bumps",
+    "jumpLabel": "Jump!",
+    "craterHit": "Bump! Jump over the craters.",
+    "rockHit": "Bump! Jump over the boulders.",
+    "resultTitle": "Great driving!",
+    "resultText": "Apollo 15, 16 and 17 each took a rover to the Moon. All three are still parked up there today!"
+  },
+
+  "mariner4": {
+    "slides": [
+      {
+        "year": "1965",
+        "heading": "Mariner 4",
+        "text": "Before anything could land on Mars, we needed to see it up close. In July 1965, NASA's Mariner 4 flew past Mars and took the first close-up pictures of another planet.",
+        "visual": "mariner4Flyby"
+      },
+      {
+        "heading": "A picture made of numbers",
+        "text": "Mariner 4's camera turned each picture into numbers: one number for how bright each dot was. Its radio was so slow that one picture took about 8 hours to send!",
+        "visual": "numberStream"
+      },
+      {
+        "heading": "The first close-up of Mars",
+        "text": "Here is that very first picture. The engineers couldn't wait for the computers to turn the numbers into a picture... so they did it by hand!",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA14032/PIA14032~orig.jpg",
+          "alt": "Mariner 4's first black-and-white picture of Mars"
+        },
+        "credit": "Image: NASA/JPL-Caltech · Mariner 4's first picture of Mars",
+        "visual": "numberStream"
+      },
+      {
+        "heading": "Craters!",
+        "text": "Mariner 4's pictures showed craters, like on the Moon, and very thin air. Mars was not the green, watery world that some people had imagined.",
+        "visual": "craterMars"
+      }
+    ],
+    "endLabel": "Grab the crayons!"
+  },
+
+  "paintByNumbers": {
+    "intro": [
+      "The numbers from Mariner 4 have arrived! The engineers printed them on strips of paper, bought crayons from an art shop, and coloured in each number by hand.",
+      "Pick a crayon, then colour every square with its number: 1 is the darkest, 6 the brightest. Drag across the paper to colour lots of squares at once!"
+    ],
+    "paperLabel": "Mariner 4 · the numbers of the first close-up picture of Mars · 1965",
+    "crayonsLabel": "Crayons",
+    "keyLabel": "1 = darkest      6 = brightest",
+    "infoTitle": "Numbers into pictures",
+    "infoText": "Every picture on a screen is made of tiny dots called pixels. Each number here says how bright one dot is. Mariner 4 sent 40,000 numbers for each picture!",
+    "progressLabel": "Coloured in",
+    "wrongCrayon": "That square needs crayon {n}.",
+    "doneTitle": "A picture of Mars!",
+    "doneText": "You turned numbers into a picture, just like a computer does. Bright planet at the top, the dark of space at the bottom.",
+    "photo": {
+      "src": "https://images-assets.nasa.gov/image/PIA14033/PIA14033~medium.jpg",
+      "alt": "The hand-coloured picture made by the engineers in 1965",
+      "credit": "Image: NASA/JPL-Caltech · The hand-coloured first picture of Mars"
+    },
+    "photoLine": "Here is the real one, coloured by the engineers in 1965. They framed it, and it still hangs at NASA's Jet Propulsion Laboratory!",
+    "resultTitle": "First picture of Mars!",
+    "resultText": "The hand-coloured picture was ready before the computer's version. Today's rovers send millions of dots in every picture."
+  },
+
+  "pathfinder": {
+    "slides": [
+      {
+        "year": "July 4, 1997",
+        "heading": "Mars Pathfinder",
+        "text": "Thirty-two years later, NASA tried something new: landing on Mars inside a giant ball of airbags! Mars Pathfinder bounced across the ground about 15 times before it stopped.",
+        "visual": "pathfinderBounce"
+      },
+      {
+        "heading": "Sojourner",
+        "text": "Inside was Sojourner, the first rover on Mars. It was about the size of a microwave oven, and it drove at about 1 centimetre per second.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA01551/PIA01551~orig.jpg",
+          "alt": "Sojourner on Mars, just after rolling off the lander"
+        },
+        "credit": "Image: NASA/JPL · Sojourner, just after rolling onto Mars",
+        "visual": "sojournerRoll"
+      },
+      {
+        "heading": "Named by a 12-year-old",
+        "text": "Sojourner was named after Sojourner Truth, a woman who fought for freedom and equal rights. The name was chosen in a contest won by 12-year-old Valerie Ambroise.",
+        "visual": "sojournerRoll"
+      },
+      {
+        "heading": "Rocks with funny names",
+        "text": "The team gave rocks cartoon names like Barnacle Bill, Yogi and Scooby-Doo. Sojourner pressed an instrument against them to find out what they were made of.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA00766/PIA00766~orig.jpg",
+          "alt": "Sojourner pressing its instrument against the rock Yogi"
+        },
+        "credit": "Image: NASA/JPL · Sojourner studies the rock Yogi",
+        "visual": "sojournerRoll"
+      }
+    ],
+    "endLabel": "Let's land!"
+  },
+
+  "airbagBounce": {
+    "intro": [
+      "You are Pathfinder's landing computer! Mars is too far away for anyone on Earth to help, so everything has to happen by itself.",
+      "First inflate the airbags, then fire the braking rockets, then cut the cord. Keep an eye on the height!",
+      "Then the ball drops and bounces forwards. Hold the left arrow to slow it down or the right arrow to speed it up, so it never lands on a sharp rock!"
+    ],
+    "inflateLabel": "Inflate airbags",
+    "rocketsLabel": "Fire rockets",
+    "cutLabel": "Cut the cord",
+    "inflateHint": "Inflate the airbags between 420 m and 260 m.",
+    "rocketsHint": "Fire the rockets between 130 m and 80 m.",
+    "cutHint": "Cut the cord between 40 m and 12 m.",
+    "inflateEarly": "Too early! Wait until you're lower.",
+    "inflateLate": "Too late! The backup timer inflated the airbags just in time.",
+    "rocketsEarly": "Too early! The rockets would run out of fuel too high up.",
+    "rocketsLate": "Too late! The backup timer fired the rockets.",
+    "cutEarly": "Too high! Wait until you're close to the ground.",
+    "cutLate": "Too late! The backup timer cut the cord.",
+    "altLabel": "Height",
+    "bouncesLabel": "Bounces",
+    "steerHint": "◀ slow down   ▶ speed up: miss the sharp rocks!",
+    "ripLabel": "Rip!",
+    "doneLine": "Touchdown! Now the airbags pull back, the petals open... and Sojourner is ready to roll!",
+    "resultTitle": "Landed on Mars!",
+    "resultText": "Pathfinder's airbag landing worked so well that NASA used airbags again for the rovers Spirit and Opportunity."
+  },
+
+  "roverProgram": {
+    "intro": [
+      "Now drive Sojourner! Radio messages took about 10 minutes to reach Mars, so you can't steer it live.",
+      "Plan a list of moves, then send it. Forward drives one square; the turns spin Sojourner on the spot. Use Study when it's facing a rock."
+    ],
+    "cmdNames": {
+      "F": "Forward",
+      "L": "Turn left",
+      "R": "Turn right",
+      "S": "Study"
+    },
+    "commandsLabel": "Moves",
+    "programLabel": "Your program",
+    "sendLabel": "Send to Mars",
+    "undoLabel": "Undo",
+    "clearLabel": "Clear",
+    "solsLabel": "Messages sent",
+    "levels": [
+      {
+        "title": "Barnacle Bill",
+        "goal": "Drive next to the rock Barnacle Bill, face it, and study it.",
+        "intro": "First stop: Barnacle Bill, close to the lander. Sojourner starts off facing right.",
+        "rocks": {
+          "A": "Barnacle Bill"
+        },
+        "facts": {
+          "A": "Barnacle Bill was the first rock ever studied by a rover on another planet!"
+        }
+      },
+      {
+        "title": "Yogi",
+        "goal": "Find a way around the big rocks, then study Yogi.",
+        "intro": "Next, Yogi! Big rocks are in the way, but Sojourner's sensors will stop it before it bumps into one.",
+        "rocks": {
+          "A": "Yogi"
+        },
+        "facts": {
+          "A": "Yogi is a rock about 1 metre across, named after a cartoon bear."
+        }
+      },
+      {
+        "title": "Scooby-Doo and Wedge",
+        "goal": "Study both rocks. You'll need more than one message!",
+        "intro": "Two rocks this time: Scooby-Doo and Wedge. A message can only hold 14 moves, so plan the trip in two parts.",
+        "rocks": {
+          "A": "Scooby-Doo",
+          "B": "Wedge"
+        },
+        "facts": {
+          "A": "Sojourner studied each rock by pressing its instrument against it, sometimes for hours.",
+          "B": "Sojourner was only meant to work for a week, but it kept going for nearly three months!"
+        }
+      }
+    ],
+    "sending": "On its way... about 10 minutes to reach Mars",
+    "hazard": "Hazard! Sojourner saw a rock in the way and stopped itself.",
+    "nothing": "Nothing to study here. Face a rock first!",
+    "waiting": "Sojourner waits for its next message.",
+    "full": "The program is full. Send it, or undo some moves.",
+    "doneLine": "Brilliant driving! Sojourner drove about 100 metres in all. Slow and steady!",
+    "resultTitle": "Rover driver!",
+    "resultText": "Rover drivers still plan each day's moves like this. Today's rovers can also find their own safe path."
+  },
+
+  "dustDevil": {
+    "intro": [
+      "January 2004: twin rovers called Spirit and Opportunity land on opposite sides of Mars. You're driving Spirit!",
+      "Spirit runs on sunlight. Dust slowly covers its solar panels, and the battery runs down. Drive to each flagged rock and stop next to it to study it.",
+      "Look out for dust devils: little whirlwinds that can blow the panels clean! Drive into one to clean up."
+    ],
+    "rocks": [
+      "Adirondack",
+      "Humphrey",
+      "Mazatzal",
+      "Pot of Gold",
+      "Home Plate"
+    ],
+    "rockFacts": [
+      "Adirondack was the first rock Spirit studied. It is volcanic rock, like basalt on Earth.",
+      "Humphrey had bright minerals in its cracks: a hint that a little water once trickled through it.",
+      "Spirit used its rock grinder on Mazatzal, to look underneath the dusty outside.",
+      "Pot of Gold is a knobbly rock with a mineral called hematite, which often forms in water.",
+      "Home Plate is a flat plateau made by an ancient volcanic explosion. Hot water may once have bubbled up near here."
+    ],
+    "batteryLabel": "Battery",
+    "dustLabel": "Dust on panels",
+    "studiedLabel": "Rocks studied",
+    "solLabel": "Sol",
+    "winterLabel": "Winter",
+    "slopeLabel": "Sunny slope",
+    "cleanLabel": "Clean!",
+    "cleanFact": "Real dust devils sometimes blew the rovers' solar panels clean, giving them more power. Scientists called these 'cleaning events'!",
+    "winterLine": "Winter is coming! The Sun is low in the sky, so the panels make less power. Spirit spent its winters parked on slopes tilted towards the Sun. Drive onto the sunny slope and wait for spring!",
+    "springLine": "Spring is here! The Sun is higher again. On to Home Plate!",
+    "outOfPower": "Out of power! Spirit sleeps until the Sun charges its battery a little.",
+    "lowBattery": "Battery low! Stop and let the Sun charge it, or catch a dust devil.",
+    "doneLine": "Amazing! Spirit was only meant to last 90 sols, about three months. It kept exploring for more than six years!",
+    "resultTitle": "Solar power pro!",
+    "resultText": "Opportunity lasted even longer: more than 14 years! Dust devils cleaned its panels many times."
+  },
+
+  "skyCrane": {
+    "intro": [
+      "August 2012: the rover Curiosity arrives at Mars! It's as big as a car, far too heavy to bounce down on airbags.",
+      "So NASA invented the sky crane: a rocket-powered platform that lowers the rover on cables, like a claw machine! Steer it over the green safe spot.",
+      "Moving makes the rover swing, so move gently. The moment the wheels touch down, cut the cables!"
+    ],
+    "mountLabel": "Mount Sharp",
+    "safeLabel": "Safe spot",
+    "altLabel": "Height",
+    "swingLabel": "Swing",
+    "swingOk": "steady",
+    "swingSome": "a little",
+    "swingBad": "too much!",
+    "cutLabel": "Cut the cables!",
+    "cutText": "Snip!",
+    "missSpot": "Ouch! The wheels came down on sharp rocks. Let's try that again!",
+    "tooSwingy": "Bump! The rover was swinging too much. Let's try that again!",
+    "cutLate": "Too slow! The crane started to drag the rover, so the computer cut the cables.",
+    "doneLine": "Touchdown confirmed! Curiosity landed in Gale Crater on August 6, 2012. The crane flew off to crash far away, where it couldn't hit the rover.",
+    "resultTitle": "Sky crane pro!",
+    "resultText": "NASA called the landing 'seven minutes of terror': the team could only wait while the spacecraft landed all by itself."
+  },
+
+  "drill": {
+    "intro": [
+      "February 2013: Curiosity is ready to drill into Mars for the very first time! First, help the scientists pick a good rock.",
+      "Then hold the drill button to press down. Keep the pressure in the green zone: too little and nothing happens, too much and the drill gets stuck!"
+    ],
+    "chooseTitle": "Which rock should we drill?",
+    "chooseText": "Read the clues. We want a rock that water once flowed through, and one that's safe to drill.",
+    "rocks": [
+      {
+        "art": "drillRockVeins",
+        "name": "Flat rock with white veins",
+        "clue": "Solid and steady. Thin white lines run through it.",
+        "ok": true,
+        "why": "Great choice! The white veins are a mineral left behind by water flowing through cracks. NASA drilled a rock just like this, called John Klein."
+      },
+      {
+        "art": "drillPebbles",
+        "name": "Pile of pebbles",
+        "clue": "Lots of small, loose stones.",
+        "ok": false,
+        "why": "Loose pebbles would wobble and roll around under the drill. Drills need solid rock."
+      },
+      {
+        "art": "drillSlope",
+        "name": "Rock on a steep slope",
+        "clue": "A big rock on a steep hill.",
+        "ok": false,
+        "why": "Too risky! On a steep slope the rover could slip while it drills."
+      }
+    ],
+    "rockName": "John Klein",
+    "drillTitle": "Drill!",
+    "drillText": "Hold the button to press the drill down. Some layers are harder than others, so watch the pressure!",
+    "pressureLabel": "Pressure",
+    "drillLabel": "Hold to drill",
+    "stuck": "Stuck! Too much pressure. Wait while it wiggles free...",
+    "pushHarder": "Keep holding: more pressure!",
+    "easeOff": "Ease off!",
+    "good": "Drilling!",
+    "holdHint": "Hold the button to press the drill down.",
+    "greyTitle": "Grey inside!",
+    "greyText": "Look! Under the red dust, the rock is grey. Mars is only red on the outside, like a coat of rust.",
+    "deckLabel": "Curiosity's deck",
+    "labs": {
+      "chemin": "CheMin",
+      "sam": "SAM"
+    },
+    "scoopLabel": "Powder",
+    "deliverText": "Drag the powder into both of Curiosity's labs: CheMin and SAM.",
+    "labFacts": {
+      "chemin": "CheMin shines X-rays through the powder to find out which minerals it's made of.",
+      "sam": "SAM heats the powder in a tiny oven and sniffs the gases that come out."
+    },
+    "doneLine": "Big news! This rock contained clay, which forms in water. Long ago, Gale Crater held a lake of fresh water where tiny living things could have lived.",
+    "resultTitle": "Driller!",
+    "resultText": "Curiosity has drilled dozens of holes in Mars. Each one tells more of the story of the ancient lake."
+  },
+
+  "samHum": {
+    "intro": [
+      "August 5, 2013: one year since Curiosity landed! The team planned a surprise: they made the SAM instrument vibrate so it hummed a tune.",
+      "Tap the low, middle or high pad (or press 1, 2 or 3) as each note reaches the white line. Let's practise first!"
+    ],
+    "laneNames": [
+      "Low",
+      "Middle",
+      "High"
+    ],
+    "hitsLabel": "Notes hummed",
+    "practiceLabel": "Practice: the first two lines",
+    "songLabel": "The whole song!",
+    "practiceDone": "Nice practice! Now the whole song. Happy birthday, Curiosity!",
+    "doneLine": "Lovely humming! On August 5, 2013, SAM really did hum 'Happy Birthday' on Mars. It was a one-time treat, because SAM has lots of important science to do.",
+    "resultTitle": "Happy birthday!",
+    "resultText": "Some people think Curiosity sings to itself every year. Not true! It only happened once, in 2013."
+  },
+
+  "landingNav": {
+    "intro": [
+      "February 18, 2021: Perseverance is falling towards Jezero Crater, an old lake bed. It's full of cliffs, boulders and sand dunes!",
+      "Perseverance carries a map in its computer. As it falls, its camera takes pictures. Find where the picture matches the map, then pick a safe spot nearby to land."
+    ],
+    "mapLabel": "Jezero Crater · the map in the computer",
+    "cameraLabel": "Perseverance's camera",
+    "altLabel": "Height",
+    "findTitle": "Where am I?",
+    "findText": "Find the place on the map that matches the camera picture, and tap it.",
+    "notHere": "That doesn't match. Look for the same craters and shapes!",
+    "pickTitle": "Pick a safe spot",
+    "pickText": "Now the red zones show the dangers. Tap a safe spot close to the white square.",
+    "tooFar": "Too far! The rover can only steer a little way. Pick a spot close to the white square.",
+    "hazard": "Danger! That spot is in a red zone: cliffs, boulders or dunes.",
+    "safeTitle": "Safe!",
+    "roundDone": [
+      "Good! Now the rover knows where it is. Still falling... next picture!",
+      "Great! Lower and lower... one more picture!"
+    ],
+    "doneLine": "Touchdown in Jezero Crater! This new trick, called Terrain-Relative Navigation, let Perseverance land in a much more dangerous place than any rover before it.",
+    "resultTitle": "Safe landing!",
+    "resultText": "The real computer did all of this by itself in a few seconds, while still high above the ground!"
+  },
+
+  "ingenuity": {
+    "intro": [
+      "Perseverance brought a passenger: Ingenuity, a tiny helicopter that weighs about as much as a big bag of sugar!",
+      "The air on Mars is so thin that flying there is like flying 30 km above the Earth. So Ingenuity's blades must spin super fast. Hold Lift to spin them up!"
+    ],
+    "goals": {
+      "spin": "Hold Lift until the rotors reach 2,400 rpm.",
+      "hover": "Flight 1: hover in the green band, about 3 metres up. Press and let go of Lift to stay there!",
+      "land1": "Now come down slowly and land gently.",
+      "spin2": "Flight 2! Hold Lift to spin the rotors up again.",
+      "photos": "Fly to each yellow box and press Photo.",
+      "return": "Fly back to Wright Brothers Field and land gently."
+    },
+    "fieldLabel": "Wright Brothers Field",
+    "rpmLabel": "Rotor speed",
+    "altLabel": "Height",
+    "liftLabel": "Hold: lift",
+    "photoLabel": "Photo",
+    "notLinedUp": "Line up with the yellow box first!",
+    "hardLanding": "Bump! That landing was a bit hard. Press Lift now and then to slow down near the ground.",
+    "offPad": "Land on Wright Brothers Field, please!",
+    "flight1Done": "You did it! On April 19, 2021, Ingenuity made the first powered, controlled flight on another planet: 3 metres up for about 30 seconds. Ready for flight 2?",
+    "photoFacts": [
+      "Click! Ingenuity's camera looked down at the ground below.",
+      "Click! From up high, Ingenuity scouted paths for Perseverance to drive.",
+      "Click! Say cheese, Perseverance!"
+    ],
+    "doneLine": "Amazing flying! Ingenuity was only meant to make 5 flights. It made 72, over almost three years! It even carries a tiny piece of cloth from the Wright brothers' first aeroplane.",
+    "resultTitle": "Mars pilot!",
+    "resultText": "Ingenuity proved we can fly on Mars. Future helicopters could explore cliffs and caves that rovers can't reach."
+  },
+
+  "twins": {
+    "slides": [
+      {
+        "year": "2003–2004",
+        "heading": "Spirit and Opportunity",
+        "text": "Next, NASA sent twin rovers, each about the size of a golf cart. In January 2004 they landed on opposite sides of Mars, bouncing down on airbags just like Pathfinder.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA04928/PIA04928~medium.jpg",
+          "alt": "An artist's picture of a Mars Exploration Rover"
+        },
+        "credit": "Image: NASA/JPL · Artist's picture of a Mars Exploration Rover",
+        "visual": "twinLanding"
+      },
+      {
+        "heading": "Named by a 9-year-old",
+        "text": "Their names came from Sofi Collis, a 9-year-old girl who had once lived in an orphanage. She wrote that in America she could make all her dreams come true: \"Thank you for the Spirit and the Opportunity.\"",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/KSC-03pd1848/KSC-03pd1848~medium.jpg",
+          "alt": "Sofi Collis with models of the two rovers"
+        },
+        "credit": "Photo: NASA · Sofi Collis with models of the rovers, 2003",
+        "visual": "twinLanding"
+      },
+      {
+        "heading": "Looking for water",
+        "text": "Their job: find out if Mars was ever wet. Opportunity found tiny round pebbles nicknamed 'blueberries', made of a mineral that forms in water!",
+        "visual": "merDrive"
+      },
+      {
+        "heading": "Dust devils",
+        "text": "Spirit photographed these dust devils: little whirlwinds that wander across Mars. Sometimes they blew the rovers' solar panels clean!",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA07458/PIA07458~orig.jpg",
+          "alt": "Dust devils crossing the plain, photographed by Spirit"
+        },
+        "credit": "Images: NASA/JPL · Dust devils seen by Spirit",
+        "visual": "merDrive",
+        "devil": true,
+        "caption": "Dust devils: free solar panel cleaning!"
+      }
+    ],
+    "endLabel": "Drive Spirit!"
+  },
+
+  "opportunity": {
+    "slides": [
+      {
+        "year": "2004–2018",
+        "heading": "Opportunity's marathon",
+        "text": "Both rovers were built to last 90 sols, about three months. Opportunity kept going for more than 14 years! In 2015 it drove farther than a marathon.",
+        "visual": "oppyMarathon"
+      },
+      {
+        "heading": "45 kilometres",
+        "text": "Here is Opportunity's whole journey, from its landing spot to where it stopped: more than 45 kilometres (28 miles), the farthest anything had ever driven on another world.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA23178/PIA23178~medium.jpg",
+          "alt": "A map of Opportunity's route across Mars"
+        },
+        "credit": "Image: NASA/JPL-Caltech/Univ. of Arizona · Opportunity's route",
+        "visual": "oppyMarathon"
+      },
+      {
+        "heading": "Spirit gets stuck",
+        "text": "In 2009, Spirit got stuck in soft sand. It couldn't tilt its solar panels towards the winter Sun, and it went quiet in 2010, after more than six years on Mars.",
+        "visual": "merDrive",
+        "stuck": true,
+        "caption": "Stuck in soft sand (2009)"
+      },
+      {
+        "year": "June 2018",
+        "heading": "The great dust storm",
+        "text": "Then a giant dust storm covered the whole of Mars. The sky went dark, and Opportunity's solar panels couldn't make enough power.",
+        "visual": "dustStorm"
+      },
+      {
+        "heading": "\"My battery is low and it's getting dark\"",
+        "text": "Opportunity's last message only had numbers about its power and the dark sky. A reporter turned them into these sad words, and people all over the world shared them.",
+        "speak": "My battery is low and it's getting dark. Opportunity's last message only had numbers about its power and the dark sky. A reporter turned them into these sad words, and people all over the world shared them.",
+        "visual": "dustStorm"
+      },
+      {
+        "year": "February 2019",
+        "heading": "I'll be seeing you",
+        "text": "Engineers tried for eight months to wake Opportunity up. Before saying goodbye, the team played it one last song: 'I'll Be Seeing You', sung by Billie Holiday.",
+        "visual": "seeingYou"
+      }
+    ],
+    "endLabel": "Continue"
+  },
+
+  "curiosityReveal": {
+    "model": "curiosity",
+    "title": "Curiosity",
+    "subtitle": "A science lab as big as a car",
+    "stats": [
+      {
+        "label": "Size",
+        "value": "About 3 m (10 feet) long and 900 kg: as heavy as a small car"
+      },
+      {
+        "label": "Power",
+        "value": "A nuclear battery that turns heat into electricity: no dusty solar panels!"
+      },
+      {
+        "label": "Laser",
+        "value": "Zaps rocks up to 7 m away to find out what they're made of"
+      },
+      {
+        "label": "Landed",
+        "value": "August 6, 2012 · Gale Crater"
+      }
+    ],
+    "line": "Meet Curiosity! It's much bigger than Spirit and Opportunity: far too heavy to bounce down on airbags. So how do you land it? Drag to spin it, then let's find out!",
+    "continue": "Land it!"
+  },
+
+  "curiosity": {
+    "slides": [
+      {
+        "year": "2012 – today",
+        "heading": "A lake on Mars",
+        "text": "Curiosity found that Gale Crater once held a lake of fresh water: the kind of place where tiny living things could have lived, billions of years ago.",
+        "visual": "galeLake"
+      },
+      {
+        "heading": "Rover selfie!",
+        "text": "Curiosity takes selfies with a camera on the end of its robot arm, then joins lots of pictures together. That's why you can't see the arm, like a hidden selfie stick!",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA19808/PIA19808~medium.jpg",
+          "alt": "Curiosity's selfie, looking up at the rover"
+        },
+        "credit": "Image: NASA/JPL-Caltech/MSSS · Curiosity's selfie at 'Buckskin'",
+        "visual": "curiosityDrive"
+      },
+      {
+        "heading": "Three generations",
+        "text": "Test models of three NASA rovers, side by side: Spirit and Opportunity's twin (left), little Sojourner (middle) and Curiosity (right).",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA11436/PIA11436~orig.jpg",
+          "alt": "Three test rovers of different sizes side by side"
+        },
+        "credit": "Photo: NASA/JPL-Caltech · Three generations of Mars rovers",
+        "visual": "curiosityDrive"
+      },
+      {
+        "heading": "Happy birthday!",
+        "text": "Here's NASA's video about Curiosity's first birthday on Mars, and the engineer who taught SAM to hum!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/GSFC_20130805_HappyBirthday_m11331_Curiosity/GSFC_20130805_HappyBirthday_m11331_Curiosity~mobile.mp4",
+          "start": 54,
+          "end": 126,
+          "credit": "Video: NASA Goddard · Happy Birthday, Curiosity!"
+        },
+        "visual": "birthdayHum"
+      },
+      {
+        "heading": "Climbing Mount Sharp",
+        "text": "For more than ten years, Curiosity has been climbing Mount Sharp, reading its rock layers like the pages of a history book.",
+        "visual": "curiosityDrive"
+      }
+    ],
+    "endLabel": "Continue"
+  },
+
+  "perseverance": {
+    "slides": [
+      {
+        "year": "July 30, 2020",
+        "heading": "Perseverance",
+        "text": "NASA's newest rover launched in July 2020. It looks a lot like Curiosity, but it has a new job: to search for signs of ancient life, and to collect pieces of Mars rock.",
+        "visual": "cruiseToMars"
+      },
+      {
+        "heading": "Named by a 13-year-old",
+        "text": "Perseverance was named by Alex Mather, a 13-year-old student from Virginia, USA. His essay won a contest with about 28,000 entries.",
+        "visual": "cruiseToMars"
+      },
+      {
+        "heading": "Jezero Crater",
+        "text": "Its target was Jezero Crater. Long ago, a river flowed into a lake here and dropped mud in a fan shape called a delta. On Earth, deltas are great places to find signs of life.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA23239/PIA23239~medium.jpg",
+          "alt": "Jezero Crater and its river delta, seen from orbit"
+        },
+        "credit": "Image: NASA/JPL-Caltech/MSSS/JHU-APL · Jezero Crater",
+        "visual": "jezeroDelta"
+      },
+      {
+        "heading": "A dangerous landing",
+        "text": "Jezero is full of cliffs, boulders and sand dunes. To land there safely, Perseverance needed a brand-new trick: finding its own way down!",
+        "visual": "skyCraneVis"
+      }
+    ],
+    "endLabel": "Find a safe spot!"
+  },
+
+  "touchdown": {
+    "slides": [
+      {
+        "year": "February 18, 2021",
+        "heading": "Parachute!",
+        "text": "For the first time ever, cameras filmed a landing on Mars. Watch the giant parachute open and the heat shield fall away!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/JPL-20210222-M2020f-0001-Perseverance Rover’s Descent and Touchdown on Mars/JPL-20210222-M2020f-0001-Perseverance Rover’s Descent and Touchdown on Mars~mobile.mp4",
+          "start": 14,
+          "end": 42,
+          "credit": "Video: NASA/JPL-Caltech · Perseverance's descent, filmed by its own cameras"
+        },
+        "visual": "skyCraneVis"
+      },
+      {
+        "heading": "The sky crane",
+        "text": "And here is the sky crane lowering Perseverance on its cables, filmed from above, with dust flying everywhere!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/JPL-20210222-M2020f-0001-Perseverance Rover’s Descent and Touchdown on Mars/JPL-20210222-M2020f-0001-Perseverance Rover’s Descent and Touchdown on Mars~mobile.mp4",
+          "start": 166,
+          "end": 192,
+          "credit": "Video: NASA/JPL-Caltech · Perseverance's touchdown"
+        },
+        "visual": "skyCraneVis"
+      },
+      {
+        "heading": "Mission control cheers",
+        "text": "Radio signals took more than 11 minutes to reach Earth, so the team had to wait to find out... then cheered!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/JPL-20210218-M2020f-0003-Perseverance Landing Wrap v2/JPL-20210218-M2020f-0003-Perseverance Landing Wrap v2~mobile.mp4",
+          "start": 0,
+          "end": 63,
+          "credit": "Video: NASA/JPL-Caltech · Perseverance lands successfully"
+        },
+        "visual": "skyCraneVis"
+      },
+      {
+        "heading": "First look",
+        "text": "One of Perseverance's first colour pictures, taken by a hazard camera close to the ground.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA24430/PIA24430~orig.jpg",
+          "alt": "Perseverance's first colour picture of the ground at Jezero"
+        },
+        "credit": "Image: NASA/JPL-Caltech · Perseverance's first full-colour look at Mars",
+        "visual": "marsSounds"
+      },
+      {
+        "heading": "Sounds of Mars",
+        "text": "Perseverance carries microphones too. It recorded the first sounds ever heard from the surface of Mars: the soft whoosh of Martian wind.",
+        "visual": "marsSounds"
+      }
+    ],
+    "endLabel": "Fly Ingenuity!"
+  },
+
+  "whatNext": {
+    "slides": [
+      {
+        "year": "April 19, 2021",
+        "heading": "The first flight on another planet",
+        "text": "Here is Perseverance's video of Ingenuity's first flight. Watch it lift off, hover and land!",
+        "video": {
+          "src": "https://images-assets.nasa.gov/video/JPL-20210419-TECHf-0001-First Video of NASA’s Ingenuity Mars Helicopter in Flight/JPL-20210419-TECHf-0001-First Video of NASA’s Ingenuity Mars Helicopter in Flight~mobile.mp4",
+          "start": 0,
+          "end": 57,
+          "credit": "Video: NASA/JPL-Caltech/ASU · Ingenuity's first flight"
+        },
+        "visual": "heliFly"
+      },
+      {
+        "heading": "Selfie with a helicopter",
+        "text": "Perseverance took this selfie with Ingenuity in April 2021. Can you spot the little helicopter behind the rover?",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA24542/PIA24542~medium.jpg",
+          "alt": "Perseverance's selfie with the Ingenuity helicopter"
+        },
+        "credit": "Image: NASA/JPL-Caltech/MSSS · Perseverance's selfie with Ingenuity",
+        "visual": "heliFly"
+      },
+      {
+        "heading": "Mars rocks in tubes",
+        "text": "Perseverance has sealed dozens of pieces of Mars rock in special tubes. NASA hopes samples like these can come to Earth one day, to be studied in labs.",
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA26643/PIA26643~medium.jpg",
+          "alt": "Pictures of the sample tubes collected by Perseverance"
+        },
+        "credit": "Image: NASA/JPL-Caltech · Perseverance's sample tubes",
+        "visual": "sampleTubes"
+      },
+      {
+        "heading": "A clue to ancient life?",
+        "text": "In 2025, NASA said a rock called 'Cheyava Falls' holds the best clue yet that tiny living things might once have lived on Mars. Scientists need to study it in labs on Earth to be sure!",
+        "visual": "sampleTubes"
+      },
+      {
+        "heading": "What's next?",
+        "text": "Robots have shown the way. NASA is working to send astronauts back to the Moon, and one day on to Mars. Maybe you'll be one of them!",
+        "visual": "marsFuture"
+      }
+    ],
+    "endLabel": "Mission summary"
+  },
+
+  "summary": {
+    "pages": [
+      {
+        "title": "Mission report: Mars rovers",
+        "kind": "stats",
+        "stats": [
+          {
+            "label": "First robot rover",
+            "value": "Lunokhod 1 · Moon, November 1970"
+          },
+          {
+            "label": "First Mars rover",
+            "value": "Sojourner · July 4, 1997"
+          },
+          {
+            "label": "Longest drive",
+            "value": "Opportunity · more than 45 km (28 miles)"
+          },
+          {
+            "label": "Sky crane landing",
+            "value": "Curiosity · August 6, 2012"
+          },
+          {
+            "label": "Perseverance landed",
+            "value": "February 18, 2021 · Jezero Crater"
+          },
+          {
+            "label": "First flight on Mars",
+            "value": "Ingenuity · April 19, 2021"
+          }
+        ],
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA24542/PIA24542~medium.jpg",
+          "alt": "Perseverance and Ingenuity on Mars",
+          "credit": "Image: NASA/JPL-Caltech/MSSS · Perseverance and Ingenuity"
+        },
+        "fallback": "perseverance",
+        "say": "From the first robot rover on the Moon in 1970 to a helicopter flying on Mars in 2021, rovers have explored farther and farther."
+      },
+      {
+        "title": "Rovers through the years",
+        "kind": "timeline",
+        "items": [
+          {
+            "year": "1965",
+            "name": "Mariner 4",
+            "text": "First close-up of Mars."
+          },
+          {
+            "year": "1970",
+            "name": "Lunokhod 1",
+            "text": "First robot rover."
+          },
+          {
+            "year": "1971",
+            "name": "Moon buggy",
+            "text": "Astronauts drive."
+          },
+          {
+            "year": "1997",
+            "name": "Sojourner",
+            "text": "First rover on Mars."
+          },
+          {
+            "year": "2004",
+            "name": "Spirit & Opportunity",
+            "text": "Signs of water."
+          },
+          {
+            "year": "2012",
+            "name": "Curiosity",
+            "text": "An ancient lake."
+          },
+          {
+            "year": "2021",
+            "name": "Perseverance",
+            "text": "Samples and flight."
+          }
+        ],
+        "say": "In about fifty years, rovers went from remote-control cars on the Moon to robot scientists that drive, drill and fly on Mars."
+      },
+      {
+        "title": "What the rovers taught us",
+        "kind": "tech",
+        "items": [
+          {
+            "name": "Mars was once wet",
+            "art": "marsRockLayered",
+            "text": "Rivers, lakes and minerals made in water: Mars was once a much wetter world."
+          },
+          {
+            "name": "Robots that think",
+            "art": "sojourner",
+            "text": "Messages take minutes to arrive, so rovers learned to steer around dangers by themselves."
+          },
+          {
+            "name": "New ways to land",
+            "art": "airbagBall",
+            "text": "Airbags, sky cranes and smart cameras let us land bigger rovers in harder places."
+          },
+          {
+            "name": "Flying on Mars",
+            "art": "ingenuity",
+            "text": "Ingenuity proved that helicopters can fly in Mars's very thin air."
+          }
+        ],
+        "say": "Rovers taught us that Mars was once wet, and they gave us new ways to land, drive and even fly on another planet."
+      }
+    ]
+  },
+
+  "complete": {
+    "title": "Chapter 6 complete!",
+    "badge": "Rover Pilot",
+    "lines": [
+      "You drove the Moon buggy and coloured in the first close-up of Mars.",
+      "You bounced Pathfinder down and programmed Sojourner.",
+      "You kept Spirit powered, landed Curiosity and drilled into Mars.",
+      "You guided Perseverance down and flew Ingenuity!"
+    ],
+    "guide": "Fantastic, star sailor! Next, let's look deep into space with the biggest space telescope ever built: the James Webb Space Telescope!"
+  }
+}

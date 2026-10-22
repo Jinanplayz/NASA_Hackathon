@@ -36,6 +36,10 @@ const PRONOUNCE = [
   [/\s*\(S-IVB\)/g, ''],
   [/\b1202\b/g, 'twelve oh two'],
   [/\bTIROS-1\b/g, 'TIROS 1'],
+  [/\bL2\b/g, 'L 2'],
+  [/\bK2-18 b\b/g, 'K 2 18 b'],
+  [/\bSMACS 0723\b/g, 'SMACS oh seven two three'],
+  [/(^|\s)-(\d)/g, '$1minus $2'],
   [/\s·\s/g, '. ']
 ];
 
@@ -121,6 +125,32 @@ const NOT_SPOKEN = new Set([
   'travelLabel', 'airLabel', 'shieldLabel', 'shallowLabel', 'steepLabel', 'fuelLeft', 'selectedLabel',
   'swipeHint', 'subtitle', 'steps_meta', 'a', 'b', 'layersName', 'helpLabel', 'helpYes', 'helpNo', 'tips', 'music', 'tvsTitle'
 ]);
+// On-screen labels in chapters 4-7 (shown, never read aloud). Some of these names are spoken
+// lines in chapters 1-3 (e.g. parts, clue, tooFar), so they're only skipped from chapter 4 on.
+const OLD_CHAPTERS = ['scene1', 'scene2', 'scene3'];
+const NOT_SPOKEN_LATER = new Set([
+  'aimHint', 'altLabel', 'aquariusLabel', 'odysseyLabel', 'tunnelLabel', 'badTitle', 'fineTitle', 'batteryLabel', 'bigLabel',
+  'smallLabel', 'bouncesLabel', 'brightLabel', 'brokenLabel', 'burnLabel', 'cameraLabel', 'chainTitle', 'pileTitle',
+  'checklistTitle', 'chooseTitle', 'cleanLabel', 'clearLabel', 'undoLabel', 'co2Label', 'commandsLabel', 'programLabel',
+  'consoleTitle', 'copyTitle', 'copyHint', 'moveTitle', 'moveHint', 'countdown', 'coverTitle', 'craterHit', 'rockHit',
+  'crayonsLabel', 'keyLabel', 'paperLabel', 'cutLabel', 'cutText', 'cutHint', 'inflateLabel', 'inflateHint', 'rocketsLabel',
+  'rocketsHint', 'dangerTitle', 'dataLabel', 'dayLabel', 'daysLabel', 'movesLabel', 'deckLabel', 'distLabel', 'doneLabel',
+  'drillLabel', 'drillTitle', 'dustLabel', 'easeOff', 'pushHarder', 'holdHint', 'stuck', 'edgeLabel', 'fairingLabel',
+  'fartherLabel', 'fieldLabel', 'filmLabel', 'findTitle', 'pickTitle', 'safeTitle', 'fits', 'tooWide', 'tooTall', 'flying',
+  'focusLabel', 'focusTitle', 'foundLabel', 'frameLabel', 'fromLabel', 'toLabel', 'fuelLabel', 'full', 'galaxyLabel',
+  'sunLabel', 'ghostHint', 'greyTitle', 'hintLabel', 'hitsLabel', 'homeLabel', 'nextLabel', 'hoursUnit', 'needLabel',
+  'idealLabel', 'imageAlt', 'infoTitle', 'jumpLabel', 'justRight', 'tooFast', 'tooSlow', 'levelLabel', 'liftLabel',
+  'photoLabel', 'mapLabel', 'memoryTitle', 'meterLabel', 'mirrorLabel', 'mountLabel', 'safeLabel', 'slopeLabel', 'noFuel',
+  'noImage', 'notHere', 'notLinedUp', 'notMatch', 'tooFew', 'notThis', 'notVisible', 'notYet', 'nothing', 'observedLabel',
+  'observingLabel', 'offLabel', 'onLabel', 'offPad', 'offTarget', 'onTarget', 'pitchDown', 'pitchUp', 'rollLeft', 'rollRight',
+  'placedLabel', 'plannedLabel', 'targetLabel', 'powerLabel', 'practiceLabel', 'songLabel', 'pressureLabel', 'previewLabel',
+  'recordLabel', 'ripLabel', 'rockName', 'roundLabel', 'rpmLabel', 'scoopLabel', 'sendLabel', 'sharpClose', 'sharpNo',
+  'sharpYes', 'shutdownLabel', 'snapLabel', 'solLabel', 'solsLabel', 'speedLabel', 'stackedLabel', 'steerHint',
+  'stretchLabel', 'studiedLabel', 'swingBad', 'swingLabel', 'swingOk', 'swingSome', 'timerLabel', 'toVoyager', 'tooFar',
+  'waiting', 'winterLabel', 'wrongCrayon', 'wrongType', 'xLabel', 'yLabel', 'yearLabel', 'zoneLabel', 'cmdNames', 'laneNames',
+  'bands', 'eyes', 'molecules', 'parts', 'gases', 'channel', 'channels', 'names', 'place', 'A', 'B', 'clue', 'goal', 'time',
+  'day', 'caption', 'labs', 'lostTarget', 'secondEarly', 'fallback'
+]);
 
 function readJSON(f) {
   return JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -151,12 +181,15 @@ function walk(node, folder, trail) {
   if (node && typeof node === 'object') {
     for (const [k, v] of Object.entries(node)) {
       if (NOT_SPOKEN.has(k)) continue;
+      if (NOT_SPOKEN_LATER.has(k) && !OLD_CHAPTERS.includes(folder)) continue;
       const parent = trail[trail.length - 1];
       if (k === 'year' && !trail.includes('tvs')) continue; // years are spoken only by the TV milestones
       if (k === 'title' && (trail.length === 0 || parent === 'complete' || String(parent).endsWith('Reveal'))) continue;
       if (k === 'items' && trail.includes('pages')) continue; // summary cards are read, not spoken
       if (k === 'name' && trail.includes('layers')) continue; // gauge labels
       if (k === 'name' && trail.includes('tools')) continue; // tool captions
+      if (k === 'title' && (trail.includes('rounds') || trail.includes('levels'))) continue; // shown above a game
+      if (k === 'name' && ['stops', 'objects', 'targets'].some((t) => trail.includes(t))) continue; // shown on cards
       walk(v, folder, trail.concat(k));
     }
     return;

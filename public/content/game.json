@@ -42,10 +42,46 @@
       "years": "1969",
       "art": "apollo11"
     },
-    { "id": "apollo13", "comingSoon": true, "title": "Apollo 13", "years": "1970" },
-    { "id": "voyager", "comingSoon": true, "title": "Voyager 1", "years": "1977" },
-    { "id": "rovers", "comingSoon": true, "title": "Mars Rovers", "years": "1997 – today" },
-    { "id": "jwst", "comingSoon": true, "title": "James Webb Telescope", "years": "2021" }
+    {
+      "id": "apollo13",
+      "folder": "scene4",
+      "label": "Chapter 4",
+      "short": "Chapter 4 · Apollo 13",
+      "title": "Apollo 13",
+      "subtitle": "An explosion in space, and a daring trip home",
+      "years": "1970",
+      "art": "apollo13"
+    },
+    {
+      "id": "voyager",
+      "folder": "scene5",
+      "label": "Chapter 5",
+      "short": "Chapter 5 · Voyager 1",
+      "title": "Voyager 1",
+      "subtitle": "A grand tour of the giant planets, and out to the stars",
+      "years": "1977 – today",
+      "art": "voyager"
+    },
+    {
+      "id": "rovers",
+      "folder": "scene6",
+      "label": "Chapter 6",
+      "short": "Chapter 6 · Mars Rovers",
+      "title": "Mars Rovers",
+      "subtitle": "Robots that bounce, roll, drill and fly on the Red Planet",
+      "years": "1970 – today",
+      "art": "rovers"
+    },
+    {
+      "id": "jwst",
+      "folder": "scene7",
+      "label": "Chapter 7",
+      "short": "Chapter 7 · James Webb",
+      "title": "James Webb Telescope",
+      "subtitle": "A golden eye that sees the very first galaxies",
+      "years": "2021 – today",
+      "art": "jwst"
+    }
   ],
   "ui": {
     "start": "Start the Journey",

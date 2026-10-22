@@ -27,7 +27,51 @@ export const SCENE_FOR_TYPE = {
   splashdown: 'Splashdown',
   rescue: 'Rescue',
   summary: 'Summary',
-  chapterComplete: 'ChapterComplete'
+  chapterComplete: 'ChapterComplete',
+  // Chapter 4 · Apollo 13
+  simulator: 'Simulator',
+  stageBurn: 'StageBurn',
+  diagnose: 'Diagnose',
+  lifeboat: 'Lifeboat',
+  powerDown: 'PowerDown',
+  freeReturn: 'FreeReturn',
+  scrubber: 'Scrubber',
+  manualBurn: 'ManualBurn',
+  powerUp: 'PowerUp',
+  causeChain: 'CauseChain',
+  // Chapter 5 · Voyager 1
+  launchWindow: 'LaunchWindow',
+  goldenRecord: 'GoldenRecord',
+  recordCover: 'RecordCover',
+  flybyCamera: 'FlybyCamera',
+  ioPlume: 'IoPlume',
+  colorFilters: 'ColorFilters',
+  dsnRelay: 'DsnRelay',
+  familyPortrait: 'FamilyPortrait',
+  memoryFix: 'MemoryFix',
+  heliopause: 'Heliopause',
+  // Chapter 6 · Mars rovers
+  moonBuggy: 'MoonBuggy',
+  paintByNumbers: 'PaintByNumbers',
+  airbagBounce: 'AirbagBounce',
+  roverProgram: 'RoverProgram',
+  dustDevil: 'DustDevil',
+  skyCrane: 'SkyCrane',
+  drill: 'Drill',
+  samHum: 'SamHum',
+  landingNav: 'LandingNav',
+  ingenuity: 'Ingenuity',
+  // Chapter 7 · James Webb Space Telescope
+  lightTravel: 'LightTravel',
+  infraredLens: 'InfraredLens',
+  mirrorPuzzle: 'MirrorPuzzle',
+  fairingFold: 'FairingFold',
+  deployParts: 'DeployParts',
+  lagrange: 'Lagrange',
+  mirrorAlign: 'MirrorAlign',
+  sunshieldGuard: 'SunshieldGuard',
+  deepField: 'DeepField',
+  spectrum: 'Spectrum'
 };
 
 const OVERLAYS = ['Pause', 'Settings'];

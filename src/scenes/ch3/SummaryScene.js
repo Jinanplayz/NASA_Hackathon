@@ -7,6 +7,7 @@ import { starfield } from '../common/bg.js';
 import { txt, fitText } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
 import { drawPanel } from '../../ui/widgets.js';
+import { drawIcon } from '../../ui/icons.js';
 
 // NASA-style mission summary: stats, the missions that led to Apollo 11,
 // and the technology Apollo gave the world.
@@ -89,8 +90,10 @@ export class SummaryScene extends BaseScene {
       el.appendChild(im);
       this.photo = this.addDom(720, 156, el);
       const cr = txt(this, 980, 572, p.image.credit || Content.ui('photoCredit', 'Photo: NASA'), { size: 14, color: CSS.dim, origin: 0.5, scale: false });
-      // fallback art under the photo in case it can't load
-      const fallback = this.add.image(980, 356, 'moonwalker').setScale(2.6 / TEX);
+      // fallback art under the photo in case it can't load (a page can choose it: "fallback": "csmLm")
+      const key = p.fallback && this.textures.exists(p.fallback) ? p.fallback : 'moonwalker';
+      const fallback = this.add.image(980, 356, key);
+      fallback.setScale(Math.min(360 / fallback.width, 300 / fallback.height, 2.6 / TEX));
       this.layer.addAt(fallback, 0);
       this.layer.add(cr);
     }
@@ -137,12 +140,68 @@ export class SummaryScene extends BaseScene {
       const x = 60 + col * 590, y = 160 + row * 210;
       const g = this.add.graphics();
       drawPanel(g, x, y, 570, 192, { fill: COLORS.panel, radius: 20, stroke: COLORS.stroke });
-      const icon = this.techIcon(k, x + 70, y + 96);
+      const icon = it.icon || it.art ? this.namedIcon(it, x + 70, y + 96) : this.techIcon(k, x + 70, y + 96);
       const nm = txt(this, x + 140, y + 26, it.name, { size: 24, weight: 800, color: CSS.yellow, wrap: 410 });
       const tx = txt(this, x + 140, y + 66, it.text, { size: 18, wrap: 410 });
       fitText(tx, 410, 110, 12);
       this.layer.add([g, icon, nm, tx]);
     });
+  }
+
+  // An icon chosen by the page: "art" is a picture from the game, "icon" a simple drawing
+  // (team, tank, checklist, heart, or any button icon such as star, check, gear, info).
+  namedIcon(it, x, y) {
+    const c = this.add.container(0, 0);
+    const g = this.add.graphics();
+    g.fillStyle(0x070b1d, 1);
+    g.fillCircle(x, y, 50);
+    g.lineStyle(3, COLORS.cyan, 1);
+    g.strokeCircle(x, y, 50);
+    c.add(g);
+    if (it.art && this.textures.exists(it.art)) {
+      const im = this.add.image(x, y, it.art);
+      im.setScale(Math.min(80 / im.width, 80 / im.height));
+      c.add(im);
+      return c;
+    }
+    const d = this.add.graphics();
+    c.add(d);
+    switch (it.icon) {
+      case 'team':
+        [[-20, 6, 0x4fd1ff], [20, 6, 0xffd166], [0, -4, 0x3ddc97]].forEach(([dx, dy, col]) => {
+          d.fillStyle(col, 1);
+          d.fillCircle(x + dx, y + dy - 14, 10);
+          d.fillRoundedRect(x + dx - 13, y + dy - 2, 26, 22, 9);
+        });
+        break;
+      case 'tank':
+        d.fillStyle(0xdfe3ea, 1);
+        d.fillCircle(x, y, 26);
+        d.fillStyle(COLORS.cyan, 0.6);
+        d.fillCircle(x, y, 18);
+        d.fillStyle(0x9aa1ae, 1);
+        d.fillRect(x - 5, y - 36, 10, 12);
+        break;
+      case 'checklist':
+        d.fillStyle(0xf5ecd6, 1);
+        d.fillRoundedRect(x - 22, y - 30, 44, 60, 5);
+        for (let i = 0; i < 4; i++) {
+          d.fillStyle(COLORS.green, 1);
+          d.fillRect(x - 15, y - 20 + i * 13, 6, 6);
+          d.fillStyle(0x7d8597, 1);
+          d.fillRect(x - 5, y - 19 + i * 13, 20, 4);
+        }
+        break;
+      case 'heart':
+        d.fillStyle(COLORS.pink, 1);
+        d.fillCircle(x - 12, y - 8, 15);
+        d.fillCircle(x + 12, y - 8, 15);
+        d.fillTriangle(x - 26, y - 1, x + 26, y - 1, x, y + 28);
+        break;
+      default:
+        drawIcon(d, it.icon, x, y, 44, COLORS.yellow);
+    }
+    return c;
   }
 
   techIcon(k, x, y) {
