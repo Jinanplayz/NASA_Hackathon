@@ -4,10 +4,11 @@ import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
+import { bake } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { toast, dialog, cameraShake, ProgressBar, drawPanel, Toggle, pointerArrow } from '../../ui/widgets.js';
+import { toast, dialog, cameraShake, ProgressBar, Toggle, pointerArrow, roundBox } from '../../ui/widgets.js';
 import { live } from '../../core/voiceText.js';
 
 // Land Eagle gently on the flat, safe spot. THRUST slows the fall, the side jets move
@@ -97,6 +98,8 @@ export class LunarLandingScene extends BaseScene {
       g.fillEllipse(x - r * 0.3, y - r * 0.3, r * 0.9, r * 0.5);
       this.boulders.push({ x, y, r });
     }
+    // (the ground never changes: one picture is much cheaper to draw every frame)
+    bake(this, g, FULL.x, 480, FULL.w + 20, FULL.y + FULL.h - 480);
     txt(this, (ROCKS.x0 + ROCKS.x1) / 2, 650, this.T('rocksLabel', 'Boulders!'), { size: 15, weight: 700, origin: 0.5, color: CSS.orange, scale: false }).setDepth(DEPTH.world + 1);
     // landing pad lights
     const pad = this.add.graphics().setDepth(DEPTH.world + 1);
@@ -115,8 +118,7 @@ export class LunarLandingScene extends BaseScene {
 
   buildHud() {
     const x = W - 290, y = 84;
-    const g = this.add.graphics().setDepth(DEPTH.hud);
-    drawPanel(g, x, y, 270, 262, { fill: 0x070b1d, alpha: 0.85, radius: 16 });
+    const g = roundBox(this, x, y, 270, 262, { fill: 0x070b1d, alpha: 0.85, radius: 16 }).setDepth(DEPTH.hud);
     const row = (i, label) => {
       txt(this, x + 16, y + 14 + i * 44, label, { size: 14, weight: 700, color: CSS.dim, scale: false }).setDepth(DEPTH.hud);
       return txt(this, x + 254, y + 32 + i * 44, '', { size: 22, weight: 800, origin: [1, 0.5], scale: false }).setDepth(DEPTH.hud);

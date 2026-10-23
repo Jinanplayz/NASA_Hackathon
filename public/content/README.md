@@ -109,6 +109,20 @@ add a step `{ "type": "cutscene", "data": "myNewVideo", "name": "..." }` and a b
 | `spectrum` | Match spectrum bumps to gases in a planet's air | Ch 7 |
 | `chapterComplete` | Badge and "chapter complete" screen | all |
 
+### The task bar in the mini-games (chapters 4–7)
+
+Every mini-game from chapter 4 on shows what to do in a bar at the top of the screen, and
+Captain Nova reads it out. Its text lives in the activity's block as a little object with a
+short `title` and one line of `help`, for example:
+
+```json
+"task": { "title": "Hold BURN!", "help": "Let go when the speed bar reaches the green zone." }
+```
+
+Games with several parts have one for each part (like `copyTask`, `moveTask`, `offTask`).
+Keep the title short (a few words, it's shown big) and the help to one sentence. After
+changing them, run `npm run voices` so the new words get recorded.
+
 ## Cutscenes (the narrated "videos")
 
 ```json

@@ -6,7 +6,7 @@ import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
 import { txt, fitText } from '../../ui/text.js';
-import { drawPanel, toast, floatText } from '../../ui/widgets.js';
+import { toast, floatText, roundBox, RoundBox } from '../../ui/widgets.js';
 import { drawIcon } from '../../ui/icons.js';
 
 // Connect the teams behind Apollo 11 the way messages really travelled.
@@ -49,8 +49,7 @@ export class WiringScene extends BaseScene {
     this.nodesCfg.forEach((n) => (this.nodes[n.id] = this.makeNode(n)));
 
     // clue list
-    const cg = this.add.graphics();
-    drawPanel(cg, CLX, CLY, CLW, CLH, { fill: 0x0e1840, radius: 20, stroke: COLORS.cyan });
+    const cg = roundBox(this, CLX, CLY, CLW, CLH, { fill: 0x0e1840, radius: 20, stroke: COLORS.cyan });
     txt(this, CLX + 20, CLY + 16, this.T('cluesTitle', 'Clues'), { size: 22, weight: 800, color: CSS.yellow, scale: false });
     this.clueRows = this.links.map((l, i) => {
       const y = CLY + 56 + i * 68;
@@ -68,7 +67,7 @@ export class WiringScene extends BaseScene {
 
   makeNode(n) {
     const c = this.add.container(n.x, n.y).setDepth(10);
-    const g = this.add.graphics();
+    const g = new RoundBox(this);
     c.add(g);
     const col = hexColor(n.color);
     // icon
@@ -146,13 +145,15 @@ export class WiringScene extends BaseScene {
 
   drawNode(c, state = '') {
     const g = c.g;
-    g.clear();
-    g.fillStyle(0x000000, 0.35);
-    g.fillRoundedRect(-NW / 2, -NH / 2 + 4, NW, NH, 16);
-    g.fillStyle(state === 'sel' ? 0x22306b : COLORS.panel, 1);
-    g.fillRoundedRect(-NW / 2, -NH / 2, NW, NH, 16);
-    g.lineStyle(state ? 4 : 3, state === 'sel' ? COLORS.yellow : state === 'bad' ? COLORS.red : c.col, 1);
-    g.strokeRoundedRect(-NW / 2, -NH / 2, NW, NH, 16);
+    g.draw(-NW / 2, -NH / 2, NW, NH, {
+      fill: state === 'sel' ? 0x22306b : COLORS.panel,
+      alpha: 1,
+      radius: 16,
+      stroke: state === 'sel' ? COLORS.yellow : state === 'bad' ? COLORS.red : c.col,
+      strokeWidth: state ? 4 : 3,
+      shadowAlpha: 0.35,
+      shadowY: 4
+    });
   }
 
   drawClues() {

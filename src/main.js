@@ -14,7 +14,7 @@ import { ALL_SCENES } from './scenes/index.js';
 function showError(err) {
   console.error(err);
   const box = document.getElementById('loading');
-  box.classList.remove('hidden');
+  box.classList.remove('hidden', 'gone');
   box.innerHTML = '';
   const title = document.createElement('p');
   title.textContent = 'Oops! The game could not start.';

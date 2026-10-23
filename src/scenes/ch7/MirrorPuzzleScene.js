@@ -4,7 +4,7 @@ import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame, starsFor, draggable, InfoPanel } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, draggable, InfoPanel, GoalBar, idleHint } from '../common/kit.js';
 import { img, makeTex, linear, poly } from '../../art/core.js';
 import { MIRROR_CELLS, hexCenter } from '../../art/ch7.js';
 import { txt } from '../../ui/text.js';
@@ -12,8 +12,8 @@ import { toast, shake, floatText } from '../../ui/widgets.js';
 
 // Webb's mirror is made of 18 gold hexagons. Because the mirror is curved, there are three
 // slightly different shapes: A (the inner ring), and B and C (taking turns in the outer ring).
-// Put every segment in a place with the same letter.
-const C0 = { x: 390, y: 385 }, R = 50, SR = 30;
+// Put every segment in a place with the same letter (drag it, or tap it and it finds a place).
+const C0 = { x: 390, y: 414 }, R = 50, SR = 30;
 const TYPE_COL = { A: 0x4fd1ff, B: 0xff9f43, C: 0xa78bfa };
 
 function typeOf(q, r) {
@@ -67,7 +67,6 @@ export class MirrorPuzzleScene extends BaseScene {
       const t = txt(this, x, y, type, { size: 24, weight: 800, color: '#' + TYPE_COL[type].toString(16), origin: 0.5, scale: false });
       return { x, y, type, seg: null, label: t };
     });
-    txt(this, C0.x, 120, this.T('mirrorLabel', "Webb's primary mirror"), { size: 20, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
     // tap an empty place to put the selected segment there
     this.slots.forEach((s) => {
       const z = this.add.zone(s.x, s.y, R * 1.6, R * 1.6).setInteractive({ useHandCursor: true });
@@ -77,7 +76,7 @@ export class MirrorPuzzleScene extends BaseScene {
     // the segments, mixed up in the tray
     const types = shuffle(this.slots.map((s) => s.type));
     this.segs = types.map((type, i) => {
-      const x = 790 + (i % 6) * 76, y = 400 + Math.floor(i / 6) * 76;
+      const x = 790 + (i % 6) * 76, y = 436 + Math.floor(i / 6) * 76;
       const c = this.add.container(x, y);
       const im = img(this, 0, 0, 'hexSeg', 1);
       const t = txt(this, 0, 0, type, { size: 20, weight: 800, color: '#3a2a08', origin: 0.5, scale: false });
@@ -90,20 +89,31 @@ export class MirrorPuzzleScene extends BaseScene {
           const s = this.slots.find((k) => !k.seg && Math.hypot(k.x - px, k.y - py) < R * 0.9);
           return s ? this.put(c, s) : false;
         },
-        onTap: () => this.select(c)
+        // a tap sends it to the next empty place with its letter
+        onTap: () => {
+          const s = this.slots.find((k) => !k.seg && k.type === c.type);
+          if (s) this.put(c, s);
+        }
       });
       return c;
     });
-    this.info = new InfoPanel(this, 760, 110, 470, 240, { title: this.T('panelTitle', '18 golden segments'), text: this.T('panelText', ''), size: 18 });
-    this.countText = txt(this, 995, 640, '', { size: 20, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
-    this.updateCount();
+    this.info = new InfoPanel(this, 760, 176, 470, 210, { title: '', text: '', size: 18 });
+    this.info.g.setVisible(false);
+    this.goal = new GoalBar(this);
+    // stuck? point at a segment in the tray
+    idleHint(this, () => {
+      const c = this.state === 'play' && this.segs.find((k) => k.enabled);
+      return c ? { x: c.x, y: c.y - 36 } : null;
+    }, { delay: 8000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Build the golden mirror!', help: 'Put each segment in a place with the same letter. Drag it, or just tap it.' }), { count: '0 / 18' });
     });
   }
 
   updateCount() {
-    this.countText.setText(`${this.T('placedLabel', 'Segments in place')}: ${this.placed} / 18`);
+    this.goal.setCount(`${this.placed} / 18`);
   }
 
   select(c) {
@@ -120,7 +130,7 @@ export class MirrorPuzzleScene extends BaseScene {
       this.mistakes++;
       Sfx.play('error');
       shake(this, c, 6);
-      toast(this, this.T('wrongType', 'That is a {a} segment. It only fits where you see {a}.').split('{a}').join(c.type), { y: 670, color: COLORS.orange, sound: false, duration: 2000 });
+      toast(this, this.T('wrongPlace', 'That place has a different letter. Match the letters!'), { y: 690, color: COLORS.orange, sound: false, speak: true, duration: 2000 });
       c.goHome();
       c.setScale(1);
       this.selected = null;
@@ -142,6 +152,7 @@ export class MirrorPuzzleScene extends BaseScene {
     const facts = this.T('facts', []);
     const k = [3, 9, 15].indexOf(this.placed);
     if (k >= 0 && facts[k]) {
+      this.info.g.setVisible(true);
       this.info.show(this.T('panelTitle', '18 golden segments'), facts[k]);
       Speech.say(facts[k]);
     }

@@ -18,7 +18,10 @@ export class BootScene extends Phaser.Scene {
     this.time.delayedCall(30, () => {
       buildAllArt(this);
       const loading = document.getElementById('loading');
-      if (loading) loading.classList.add('hidden');
+      if (loading) {
+        loading.classList.add('hidden');
+        setTimeout(() => loading.classList.contains('hidden') && loading.classList.add('gone'), 700);
+      }
       // fetch the 3D viewer in the background so it's ready before the first 3D screen
       setTimeout(loadThree, 1500);
 

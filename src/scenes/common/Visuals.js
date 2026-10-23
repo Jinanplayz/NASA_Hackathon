@@ -3,9 +3,7 @@
 
 import Phaser from 'phaser';
 import { COLORS, CSS, seeded } from '../../core/constants.js';
-import { Sfx } from '../../core/Sfx.js';
 import { img } from '../../art/core.js';
-import { txt } from '../../ui/text.js';
 import { starPoints } from '../../ui/icons.js';
 import { drawShrouds } from './parachute.js';
 

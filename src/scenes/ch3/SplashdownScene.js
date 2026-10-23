@@ -7,7 +7,7 @@ import { BaseScene } from '../BaseScene.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { toast, floatText, drawPanel } from '../../ui/widgets.js';
+import { toast, floatText, roundBox } from '../../ui/widgets.js';
 import { drawShrouds } from '../common/parachute.js';
 
 // Open the parachutes at the right heights, flip the upside-down capsule with its
@@ -56,8 +56,8 @@ export class SplashdownScene extends BaseScene {
     this.capsule.add([this.lines, ...this.drogues, ...this.mains, this.cmGroup]);
 
     // height meter
+    roundBox(this, METER_X - 70, METER_TOP - 40, 140, METER_BOT - METER_TOP + 90, { fill: 0x070b1d, alpha: 0.85, radius: 18 }).setDepth(DEPTH.hud);
     const mg = this.add.graphics().setDepth(DEPTH.hud);
-    drawPanel(mg, METER_X - 70, METER_TOP - 40, 140, METER_BOT - METER_TOP + 90, { fill: 0x070b1d, alpha: 0.85, radius: 18 });
     txt(this, METER_X, METER_TOP - 22, this.T('heightLabel', 'Height'), { size: 15, weight: 800, color: CSS.cyan, origin: 0.5, scale: false }).setDepth(DEPTH.hud);
     const yFor = (a) => METER_BOT - (a / START_ALT) * (METER_BOT - METER_TOP);
     this.yFor = yFor;

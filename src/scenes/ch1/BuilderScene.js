@@ -4,7 +4,7 @@ import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
 import { blueprint } from '../common/bg.js';
 import { txt, fitText } from '../../ui/text.js';
-import { drawPanel, pointerArrow, shake, floatText } from '../../ui/widgets.js';
+import { pointerArrow, shake, floatText, roundBox, RoundBox } from '../../ui/widgets.js';
 import { drawIcon } from '../../ui/icons.js';
 
 // Pick the parts of Freedom 7 from a box of parts. Only the right parts can be chosen;
@@ -39,8 +39,7 @@ export class BuilderScene extends BaseScene {
     this.busy = false;
 
     // build area
-    const bg = this.add.graphics();
-    drawPanel(bg, BX, BY, BW, BH, { fill: 0x0b1633, radius: 22, stroke: COLORS.cyan });
+    const bg = roundBox(this, BX, BY, BW, BH, { fill: 0x0b1633, radius: 22, stroke: COLORS.cyan });
     txt(this, BX + BW / 2, BY + 24, this.T('buildTitle', 'Freedom 7'), { size: 22, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
     this.progressText = txt(this, BX + BW / 2, BY + 50, '', { size: 16, color: CSS.dim, origin: 0.5, scale: false });
     this.stackCX = BX + BW / 2;
@@ -71,7 +70,7 @@ export class BuilderScene extends BaseScene {
     this.arrow = pointerArrow(this, 0, 0, 'down').setVisible(false);
 
     this.updateProgress();
-    this.guide.sequence(this.T('intro', []), { modal: true }).then(() => this.pointNext());
+    this.guide.sequence(this.T('intro', []), { modal: true }).then((r) => r !== null && this.pointNext());
   }
 
   slotPos(id) {
@@ -84,7 +83,7 @@ export class BuilderScene extends BaseScene {
     const x = GRID_X + col * (CW + GX) + CW / 2;
     const y = GRID_Y + row * (CH + GY) + CH / 2;
     const c = this.add.container(x, y);
-    const g = this.add.graphics();
+    const g = new RoundBox(this);
     const im = this.add.image(0, -14, p.card).setScale(0.8 / TEX);
     const name = txt(this, 0, CH / 2 - 24, p.name, { size: 17, weight: 700, origin: 0.5, align: 'center', wrap: CW - 16, scale: false });
     fitText(name, CW - 12, 40, 12);
@@ -110,14 +109,15 @@ export class BuilderScene extends BaseScene {
   drawCard(c, state = '') {
     const g = c.g;
     const placed = this.placed.has(c.part.id);
-    g.clear();
-    g.fillStyle(0x000000, 0.3);
-    g.fillRoundedRect(-CW / 2, -CH / 2 + 4, CW, CH, 16);
-    g.fillStyle(placed ? 0x10331f : state === 'hover' ? 0x22306b : COLORS.panel, 1);
-    g.fillRoundedRect(-CW / 2, -CH / 2, CW, CH, 16);
     const stroke = placed ? COLORS.green : state === 'wrong' ? COLORS.red : state === 'next' ? COLORS.yellow : COLORS.stroke;
-    g.lineStyle(state === 'next' || state === 'wrong' || placed ? 4 : 2, stroke, 1);
-    g.strokeRoundedRect(-CW / 2, -CH / 2, CW, CH, 16);
+    g.draw(-CW / 2, -CH / 2, CW, CH, {
+      fill: placed ? 0x10331f : state === 'hover' ? 0x22306b : COLORS.panel,
+      alpha: 1,
+      radius: 16,
+      stroke,
+      strokeWidth: state === 'next' || state === 'wrong' || placed ? 4 : 2,
+      shadowY: 4
+    });
     c.mark.clear();
     if (placed) {
       c.mark.fillStyle(COLORS.green, 1);

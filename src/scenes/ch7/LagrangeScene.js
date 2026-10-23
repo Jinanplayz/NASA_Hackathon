@@ -4,11 +4,11 @@ import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame, starsFor } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, toast, floatText } from '../../ui/widgets.js';
+import { toast, floatText, roundBox } from '../../ui/widgets.js';
 
 // Webb's home is L2, a spot 1.5 million km from Earth on the side away from the Sun.
 // Earth's gravity slows Webb down all the way there, and Webb can only push itself AWAY from
@@ -52,15 +52,15 @@ export class LagrangeScene extends BaseScene {
 
     // the speed gauge: your speed, and the "just right" speed to stop exactly at L2
     const gx = 110, gy = 450, gw = 680;
-    const pg = this.add.graphics();
-    drawPanel(pg, gx - 30, gy - 40, gw + 60, 150, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
+    const pg = roundBox(this, gx - 30, gy - 40, gw + 60, 150, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
     txt(this, gx, gy - 28, this.T('speedLabel', 'Speed'), { size: 18, weight: 800, color: CSS.cyan, scale: false });
     this.gauge = { x: gx, y: gy, w: gw };
     this.gaugeG = this.add.graphics();
-    this.idealText = txt(this, gx + gw, gy - 28, this.T('idealLabel', 'Green line: just right to stop at L2'), { size: 15, weight: 700, color: CSS.green, origin: [1, 0], scale: false });
-    this.statusText = txt(this, gx + gw / 2, gy + 70, '', { size: 18, weight: 800, origin: 0.5, scale: false });
-    this.dayText = txt(this, 60, 100, '', { size: 22, weight: 800, color: CSS.yellow, scale: false });
-    this.fuelText = txt(this, 60, 134, '', { size: 18, weight: 700, color: CSS.text, scale: false });
+    this.idealText = txt(this, gx + gw, gy - 28, this.T('idealLabel', 'Green zone: just right to stop at L2'), { size: 15, weight: 700, color: CSS.green, origin: [1, 0], scale: false });
+    this.statusText = txt(this, gx + gw / 2, gy + 70, '', { size: 22, weight: 800, origin: 0.5, scale: false });
+    this.dayText = txt(this, 1220, 186, '', { size: 22, weight: 800, color: CSS.yellow, origin: [1, 0], scale: false });
+    this.fuelText = txt(this, 1220, 220, '', { size: 18, weight: 700, color: CSS.text, origin: [1, 0], scale: false });
+    this.goal = new GoalBar(this);
 
     this.smallBtn = new Button(this, 1010, 470, { width: 280, height: 66, size: 22, label: this.T('smallLabel', 'Small push'), icon: 'next', variant: 'primary', onClick: () => this.push(SMALL, 1) });
     this.bigBtn = new Button(this, 1010, 556, { width: 280, height: 66, size: 22, label: this.T('bigLabel', 'Big push'), icon: 'skip', variant: 'warn', onClick: () => this.push(BIG, 3) });
@@ -69,8 +69,12 @@ export class LagrangeScene extends BaseScene {
       this.input.keyboard.on('keydown-B', () => this.push(BIG, 3));
     }
     this.draw();
+    // too slow? point at Small push
+    idleHint(this, () => (this.state === 'fly' && this.v - this.ideal() < -0.015 ? { x: this.smallBtn.x, y: this.smallBtn.y - 40 } : null), { delay: 2500 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'fly';
+      if (!ok) return;
+      this.state = 'fly';
+      this.goal.set(this.T('task', { title: 'Coast to L2!', help: "Tap a push button to keep the speed bar in the green zone. Not too fast: Webb can't brake!" }));
     });
   }
 
@@ -107,8 +111,10 @@ export class LagrangeScene extends BaseScene {
     const px = (v) => x + clamp(v / max, 0, 1) * w;
     g.fillStyle(0x0b1230, 1);
     g.fillRoundedRect(x, y, w, 30, 10);
-    // too fast: past the green line there's no way to slow down
+    // the green zone is just right; past it there's no way to slow down
     const ideal = this.ideal();
+    g.fillStyle(COLORS.green, 0.45);
+    g.fillRect(px(ideal - 0.015), y - 6, px(ideal + 0.008) - px(ideal - 0.015), 42);
     g.fillStyle(COLORS.red, 0.25);
     g.fillRect(px(ideal + 0.008), y, x + w - px(ideal + 0.008), 30);
     g.fillStyle(COLORS.cyan, 0.85);

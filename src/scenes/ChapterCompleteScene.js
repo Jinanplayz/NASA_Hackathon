@@ -3,11 +3,12 @@ import { Content } from '../core/Content.js';
 import { Progress } from '../core/Progress.js';
 import { Flow } from '../core/Flow.js';
 import { Sfx } from '../core/Sfx.js';
+import { Speech } from '../core/Speech.js';
 import { BaseScene } from './BaseScene.js';
 import { starfield } from './common/bg.js';
 import { txt } from '../ui/text.js';
 import { Button } from '../ui/Button.js';
-import { drawPanel } from '../ui/widgets.js';
+import { roundBox } from '../ui/widgets.js';
 import { drawIcon, starPoints } from '../ui/icons.js';
 
 // Celebration screen at the end of a chapter.
@@ -59,8 +60,7 @@ export class ChapterCompleteScene extends BaseScene {
 
     // summary
     const px = 560, py = 110, pw = 680, ph = 420;
-    const pg = this.add.graphics();
-    drawPanel(pg, px, py, pw, ph, { fill: COLORS.panel, stroke: COLORS.green, strokeWidth: 3, radius: 24 });
+    const pg = roundBox(this, px, py, pw, ph, { fill: COLORS.panel, stroke: COLORS.green, strokeWidth: 3, radius: 24 });
     txt(this, px + 32, py + 28, this.T('title', Content.ui('chapterComplete', 'Chapter complete!')), { size: 38, weight: 800, color: CSS.yellow, scale: false });
     // the achievements, sized so they always fit between the title and the buttons
     // (long lists, or "Bigger text", get a slightly smaller font instead of running into the buttons)
@@ -99,7 +99,12 @@ export class ChapterCompleteScene extends BaseScene {
       buttons.push(new Button(this, px + pw - 170, py + ph - 56, { width: 280, height: 64, label: Content.ui('home', 'Home'), icon: 'home', variant: 'success', onClick: () => Flow.home(this) }));
     }
 
+    // read out what was achieved, then Captain Nova's last word
     const guideLine = this.T('guide', next ? '' : Content.ui('allDone', ''));
-    if (guideLine) this.time.delayedCall(1600, () => this.guide.say(guideLine, { next: false, width: 1000 }));
+    const here = this.stillHere();
+    this.time.delayedCall(900, async () => {
+      if (lines.length) await Speech.say(lines);
+      if (guideLine && here()) this.guide.say(guideLine, { next: false, width: 1000 });
+    });
   }
 }

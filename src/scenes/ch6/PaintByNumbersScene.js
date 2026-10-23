@@ -3,16 +3,17 @@ import { COLORS, CSS, DEPTH, seeded, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor, InfoPanel, showPhoto } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, InfoPanel, showPhoto, GoalBar, idleHint } from '../common/kit.js';
 import { txt } from '../../ui/text.js';
-import { drawPanel, toast, ProgressBar, shake } from '../../ui/widgets.js';
+import { toast, ProgressBar, shake, roundBox } from '../../ui/widgets.js';
 
 // Mariner 4 (1965) sent the first close-up picture of Mars as a long list of numbers: how bright
 // each dot was. Engineers couldn't wait for the computer, so they printed the numbers on strips of
-// paper and coloured them in by hand with crayons. Do the same: pick a crayon and colour every
-// square that has its number.
-const COLS = 20, ROWS = 11, CELL = 34;
-const GX = 60, GY = 168;
+// paper and coloured them in by hand with crayons. Do the same: pick a crayon (its squares light
+// up) and colour every square that has its number.
+const COLS = 14, ROWS = 8, CELL = 46;
+const GX = 66, GY = 236;
+const BOX = { x: 800, y: 176 }; // the crayon box
 // crayons from dark (1) to bright (6)
 const CRAYONS = [0x3a1c10, 0x6e3218, 0xa8522a, 0xd27a3e, 0xeba560, 0xf5d67a];
 
@@ -37,6 +38,7 @@ export class PaintByNumbersScene extends BaseScene {
     this.setupStage({ bg: 0x0d1024 });
     this.state = 'intro';
     this.mistakes = 0;
+    this.halfSaid = false;
     this.crayon = 0;
     this.painting = false;
     this.cursor = { c: 0, r: 0 };
@@ -45,8 +47,8 @@ export class PaintByNumbersScene extends BaseScene {
     // the paper strips with their numbers
     const rnd = seeded(65);
     this.cells = [];
+    roundBox(this, GX - 16, GY - 56, COLS * CELL + 32, ROWS * CELL + 80, { fill: 0x1a1a22, radius: 14, stroke: 0x4a4a5a, strokeWidth: 2 });
     const pg = this.add.graphics();
-    drawPanel(pg, GX - 16, GY - 56, COLS * CELL + 32, ROWS * CELL + 80, { fill: 0x1a1a22, radius: 14, stroke: 0x4a4a5a, strokeWidth: 2 });
     txt(this, GX, GY - 42, this.T('paperLabel', 'Mariner 4 · first close-up picture of Mars · July 15, 1965'), { size: 15, weight: 800, color: '#d8d0bc', scale: false });
     for (let c = 0; c < COLS; c++) {
       // each column is its own strip of paper, a little bit off
@@ -56,7 +58,7 @@ export class PaintByNumbersScene extends BaseScene {
       for (let r = 0; r < ROWS; r++) {
         const n = brightness((c + 0.5) / COLS, (r + 0.5) / ROWS, rnd);
         const x = GX + c * CELL + CELL / 2, y = GY + r * CELL + CELL / 2 + off;
-        const t = txt(this, x, y, String(n), { size: 15, weight: 700, color: '#6a6458', origin: 0.5, scale: false });
+        const t = txt(this, x, y, String(n), { size: 19, weight: 800, color: '#6a6458', origin: 0.5, scale: false });
         this.cells.push({ c, r, n, x, y, done: false, t });
       }
     }
@@ -76,9 +78,8 @@ export class PaintByNumbersScene extends BaseScene {
     this.input.on('pointerup', () => (this.painting = false));
 
     // the crayon box
-    const bx = 800, by = 112;
-    const bg = this.add.graphics();
-    drawPanel(bg, bx, by, 440, 210, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
+    const bx = BOX.x, by = BOX.y;
+    const bg = roundBox(this, bx, by, 440, 210, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
     txt(this, bx + 220, by + 16, this.T('crayonsLabel', 'Crayons'), { size: 19, weight: 800, color: CSS.yellow, origin: [0.5, 0], scale: false });
     this.crayonBtns = CRAYONS.map((col, i) => {
       const x = bx + 50 + i * 68, y = by + 110;
@@ -102,9 +103,10 @@ export class PaintByNumbersScene extends BaseScene {
       return c;
     });
     txt(this, bx + 220, by + 186, this.T('keyLabel', '1 = darkest    6 = brightest'), { size: 15, weight: 700, color: CSS.dim, origin: 0.5, scale: false });
-    this.info = new InfoPanel(this, bx, 340, 440, 250, { title: this.T('infoTitle', ''), text: this.T('infoText', ''), size: 18 });
-    txt(this, bx, 618, this.T('progressLabel', 'Coloured in'), { size: 17, weight: 800, color: CSS.cyan, scale: false });
-    this.bar = new ProgressBar(this, bx, 646, 440, 16, { color: COLORS.orange });
+    this.info = new InfoPanel(this, bx, 404, 440, 196, { title: this.T('infoTitle', ''), text: this.T('infoText', ''), size: 17 });
+    txt(this, bx, 620, this.T('progressLabel', 'Coloured in'), { size: 17, weight: 800, color: CSS.cyan, scale: false });
+    this.bar = new ProgressBar(this, bx, 648, 440, 16, { color: COLORS.orange });
+    this.goal = new GoalBar(this);
 
     if (this.input.keyboard) {
       for (let i = 0; i < 6; i++) this.input.keyboard.on(`keydown-${['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'][i]}`, () => this.pick(i));
@@ -124,8 +126,19 @@ export class PaintByNumbersScene extends BaseScene {
       });
     }
     this.pick(0, false);
+    // stuck? point at a square the chosen crayon can colour (or at the next crayon)
+    idleHint(this, () => {
+      if (this.state !== 'play') return null;
+      const cell = this.cells.find((k) => !k.done && k.n === this.crayon + 1);
+      if (cell) return { x: cell.x, y: cell.y - CELL / 2 };
+      const left = this.cells.find((k) => !k.done);
+      const b = left && this.crayonBtns[left.n - 1];
+      return b ? { x: b.x, y: b.y - 80 } : null;
+    }, { delay: 7000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Colour the picture!', help: 'Pick a crayon. Its squares light up: colour them in!' }), { count: '0%' });
     });
   }
 
@@ -143,7 +156,13 @@ export class PaintByNumbersScene extends BaseScene {
         b.ring.lineStyle(3, COLORS.yellow, 1);
         b.ring.strokeRoundedRect(-28, -74, 56, 124, 12);
       }
-      this.tweens.add({ targets: b, y: k === i ? 222 - 16 : 222, duration: 150 });
+      this.tweens.add({ targets: b, y: k === i ? BOX.y + 110 - 16 : BOX.y + 110, duration: 150 });
+    });
+    // the squares that need this crayon light up; the others fade
+    this.cells.forEach((cell) => {
+      if (cell.done) return;
+      const mine = cell.n === i + 1;
+      cell.t.setColor(mine ? '#c2410c' : '#b9b3a6').setScale(mine ? 1.15 : 1);
     });
     if (sound) Sfx.play('select');
   }
@@ -166,8 +185,7 @@ export class PaintByNumbersScene extends BaseScene {
     let n = 0;
     for (let dc = -1; dc <= 1; dc++) {
       for (let dr = -1; dr <= 1; dr++) {
-        // the square itself, plus the four next to it (a fat crayon)
-        if (Math.abs(dc) + Math.abs(dr) > 1) continue;
+        // the square itself and all eight around it (a fat crayon)
         const cell = c + dc >= 0 && c + dc < COLS ? this.cellAt(c + dc, r + dr) : null;
         if (!cell || cell.done || cell.r !== r + dr || cell.n !== want) continue;
         this.fill(cell);
@@ -177,6 +195,12 @@ export class PaintByNumbersScene extends BaseScene {
     if (n) {
       Sfx.play('tick');
       this.bar.set(this.painted / this.total);
+      this.goal.setCount(`${Math.round((this.painted / this.total) * 100)}%`);
+      // halfway there: a fact about pixels
+      if (!this.halfSaid && this.painted >= this.total / 2) {
+        this.halfSaid = true;
+        Speech.say(this.T('infoText', ''));
+      }
       if (this.painted >= this.total) this.win();
     } else if (isTap && !here.done && here.n !== want) {
       // a tap on a square that needs another crayon (only counted once per square)
@@ -187,7 +211,7 @@ export class PaintByNumbersScene extends BaseScene {
       }
       Sfx.play('error');
       shake(this, here.t, 4);
-      toast(this, this.T('wrongCrayon', 'That square needs crayon {n}.').replace('{n}', here.n), { y: 100, color: COLORS.orange, sound: false, duration: 1500 });
+      toast(this, this.T('wrongSquare', 'That square needs a different crayon. Look at its number!'), { y: 664, color: COLORS.orange, sound: false, speak: true, duration: 1800 });
     }
   }
 

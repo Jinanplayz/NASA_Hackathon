@@ -3,17 +3,20 @@ import { COLORS, CSS, DEPTH, seeded, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor, InfoPanel } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, InfoPanel, GoalBar, idleHint } from '../common/kit.js';
 import { makeTex, blob, circle } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
-import { drawPanel, toast, floatText } from '../../ui/widgets.js';
+import { toast, floatText, roundBox } from '../../ui/widgets.js';
 
 // Perseverance (2021) found its own way down: while falling it took pictures, matched them to a
 // map stored in its computer to work out where it was, then steered to the safest spot nearby.
 // Each round: find where the camera picture is on the map, then pick a safe spot close to it.
-const MAP = { x: 60, y: 100, w: 720, h: 560 };
+const MAP = { x: 60, y: 176, w: 720, h: 504 };
 const SNAP = 140; // size of the camera picture (on the map)
 const ROUNDS = [{ x: 0.3, y: 0.32 }, { x: 0.7, y: 0.6 }, { x: 0.46, y: 0.72 }];
+// the rings to choose from (one of them is where the camera is looking)
+const CHOICES = [...ROUNDS, { x: 0.16, y: 0.78 }];
+const REACH = 150; // how far the rover can steer from where it is
 
 // Jezero crater: the old river delta, cliffs, boulder fields and dunes (hazards in the hazard map)
 function drawJezero(c, w, h, hazards) {
@@ -123,9 +126,8 @@ export class LandingNavScene extends BaseScene {
     });
 
     // the camera picture and the "viewfinder" the player moves around
-    const px = 820, py = 100;
-    const pg = this.add.graphics();
-    drawPanel(pg, px, py, 420, 280, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
+    const px = 820, py = 176;
+    const pg = roundBox(this, px, py, 420, 280, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
     txt(this, px + 210, py + 16, this.T('cameraLabel', "Perseverance's camera"), { size: 17, weight: 800, color: CSS.yellow, origin: [0.5, 0], scale: false });
     this.snap = this.add.image(px + 210, py + 160, 'jezeroMap').setDisplaySize(1, 1);
     this.snapFrame = this.add.graphics();
@@ -133,12 +135,14 @@ export class LandingNavScene extends BaseScene {
     this.snapFrame.strokeRect(px + 210 - 100, py + 160 - 100, 200, 200);
     this.finder = this.add.graphics().setDepth(DEPTH.ui - 5);
     this.marker = this.add.graphics().setDepth(DEPTH.ui - 4);
-    this.info = new InfoPanel(this, px, 400, 420, 180, { title: '', text: '', size: 18 });
-    this.altText = txt(this, px + 210, 610, '', { size: 26, weight: 800, color: '#ffffff', origin: [0.5, 0], scale: false });
+    this.rings = this.add.graphics().setDepth(DEPTH.ui - 6);
+    this.info = new InfoPanel(this, px, 474, 420, 140, { title: '', text: '', size: 17 });
+    this.info.g.setVisible(false);
+    this.altText = txt(this, px + 210, 630, '', { size: 26, weight: 800, color: '#ffffff', origin: [0.5, 0], scale: false });
+    this.goal = new GoalBar(this);
 
     // pointer: in the "find" step the viewfinder follows the pointer; a tap places it
     this.zone = this.add.zone(MAP.x + MAP.w / 2, MAP.y + MAP.h / 2, MAP.w, MAP.h).setInteractive({ useHandCursor: true });
-    this.zone.on('pointermove', (p) => this.state === 'find' && this.drawFinder(p.worldX, p.worldY));
     this.zone.on('pointerup', (p) => this.tap(p.worldX, p.worldY));
     this.cursor = { x: MAP.x + MAP.w / 2, y: MAP.y + MAP.h / 2 };
     if (this.input.keyboard) {
@@ -155,9 +159,29 @@ export class LandingNavScene extends BaseScene {
       this.input.keyboard.on('keydown-DOWN', () => mv(0, 20));
       this.input.keyboard.on('keydown-SPACE', () => this.tap(this.cursor.x, this.cursor.y));
     }
+    // stuck? point at the right ring (or the middle of the landing circle)
+    idleHint(this, () => {
+      if (this.state === 'find') return { x: this.target.x, y: this.target.y - 74 };
+      return null;
+    }, { delay: 14000 });
     playIntro(this).then((ok) => {
       if (ok) this.startRound(0);
     });
+  }
+
+  // the rings to choose from, or (once found) the circle the rover can reach
+  drawRings() {
+    const g = this.rings;
+    g.clear();
+    if (this.state === 'find') {
+      CHOICES.forEach((c) => {
+        g.lineStyle(4, COLORS.cyan, 0.95);
+        g.strokeCircle(MAP.x + c.x * MAP.w, MAP.y + c.y * MAP.h, SNAP / 2);
+      });
+    } else if (this.state === 'pick') {
+      g.lineStyle(4, 0xffffff, 0.9);
+      for (let a = 0; a < Math.PI * 2; a += 0.2) g.beginPath(), g.arc(this.target.x, this.target.y, REACH, a, a + 0.12), g.strokePath();
+    }
   }
 
   startRound(i) {
@@ -177,9 +201,13 @@ export class LandingNavScene extends BaseScene {
     this.finder.clear();
     this.alt = [4200, 2100, 900][i];
     this.altText.setText(`${this.T('altLabel', 'Height')}: ${this.alt} m`);
-    this.info.show(this.T('findTitle', 'Where am I?'), this.T('findText', ''));
+    this.info.g.setVisible(false);
+    this.info.title.setText('');
+    this.info.body.setText('');
     this.state = 'find';
-    Speech.say(this.T('findText', ''));
+    this.drawRings();
+    this.goal.set(this.T('findTask', { title: 'Which ring matches the camera?', help: 'Compare the picture with the map, then tap the matching ring.' }), { count: `${i + 1} / ${ROUNDS.length}`, speak: i === 0 });
+    if (i > 0) Speech.say(this.T('findTask', {}).title || '');
   }
 
   drawFinder(x, y) {
@@ -214,13 +242,19 @@ export class LandingNavScene extends BaseScene {
 
   async tap(x, y) {
     if (this.state === 'find') {
-      this.drawFinder(x, y);
-      const d = Math.hypot(x - this.target.x, y - this.target.y);
-      if (d > 45) {
+      // which ring was tapped?
+      const ring = CHOICES.map((c) => ({ x: MAP.x + c.x * MAP.w, y: MAP.y + c.y * MAP.h })).find((c) => Math.hypot(x - c.x, y - c.y) < SNAP / 2 + 16);
+      if (!ring) {
+        toast(this, this.T('tapRing', 'Tap one of the blue rings.'), { y: 664, sound: false, speak: true, duration: 1600 });
+        return;
+      }
+      this.drawFinder(ring.x, ring.y);
+      const d = Math.hypot(ring.x - this.target.x, ring.y - this.target.y);
+      if (d > 20) {
         this.findTries++;
         this.mistakes++;
         Sfx.play('error');
-        toast(this, this.T('notHere', "That doesn't match. Look for the same craters and shapes!"), { y: 100, color: COLORS.orange, sound: false, duration: 2000 });
+        toast(this, this.T('notHere', "That doesn't match. Look for the same craters and shapes!"), { y: 664, color: COLORS.orange, sound: false, speak: true, duration: 2000 });
         if (this.findTries >= 3) {
           // a hint: flash where it is
           const hint = this.add.circle(this.target.x, this.target.y, 80, COLORS.cyan, 0.25).setDepth(DEPTH.ui);
@@ -231,33 +265,36 @@ export class LandingNavScene extends BaseScene {
       // found: the hazard map appears around it
       this.state = 'pick';
       Sfx.play('success');
+      this.drawRings();
       this.drawFinder(this.target.x, this.target.y);
       floatText(this, this.target.x, this.target.y - 90, '✓', CSS.green, 34);
       this.hazG.setVisible(true);
       this.cursor = { x: this.target.x, y: this.target.y };
-      this.info.show(this.T('pickTitle', 'Pick a safe spot'), this.T('pickText', ''));
-      Speech.say(this.T('pickText', ''));
+      this.drawRings();
+      this.goal.set(this.T('pickTask', { title: 'Pick a safe spot!', help: 'Tap inside the white circle, away from the red danger zones.' }), { count: `${this.round + 1} / ${ROUNDS.length}` });
       return;
     }
     if (this.state === 'pick') {
       const d = Math.hypot(x - this.target.x, y - this.target.y);
       this.drawMarker(x, y);
-      if (d > 150) {
+      if (d > REACH) {
         Sfx.play('error');
-        toast(this, this.T('tooFar', "Too far! The rover can only steer a little way. Pick a spot close to where you are."), { y: 100, color: COLORS.orange, sound: false, duration: 2400 });
+        toast(this, this.T('outside', 'Too far! Pick a spot inside the white circle.'), { y: 664, color: COLORS.orange, sound: false, speak: true, duration: 2400 });
         return;
       }
       if (this.inHazard(x, y)) {
         this.mistakes++;
         Sfx.play('error');
-        toast(this, this.T('hazard', 'Danger! That spot is in a red zone: cliffs, boulders or dunes.'), { y: 100, color: COLORS.orange, sound: false, speak: true, duration: 2400 });
+        toast(this, this.T('hazard', 'Danger! That spot is in a red zone: cliffs, boulders or dunes.'), { y: 664, color: COLORS.orange, sound: false, speak: true, duration: 2400 });
         return;
       }
       this.state = 'between';
       Sfx.play('bigSuccess');
       this.finder.clear();
+      this.drawRings();
       const lines = this.T('roundDone', []);
       if (this.round + 1 < ROUNDS.length) {
+        this.info.g.setVisible(true);
         this.info.show(this.T('safeTitle', 'Safe!'), lines[this.round] || '');
         Speech.say(lines[this.round] || '');
         await new Promise((r) => this.time.delayedCall(3200, r));

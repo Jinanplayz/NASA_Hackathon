@@ -2,7 +2,7 @@ import { COLORS, CSS, DEPTH, seeded } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame } from '../common/kit.js';
+import { playIntro, finishGame, GoalBar, idleHint, bake } from '../common/kit.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
 import { drawPanel, toast } from '../../ui/widgets.js';
@@ -10,7 +10,7 @@ import { drawPanel, toast } from '../../ui/widgets.js';
 // Finding the edge of the Sun's bubble (2012): Voyager 1's particle counts draw across the
 // chart. Particles from the Sun drop away and cosmic rays from the galaxy jump up when it
 // crosses out - after a few short fake-outs in July and August. Press "Edge!" at the real one.
-const CH = { x: 70, y: 150, w: 1140, h: 360 };
+const CH = { x: 70, y: 240, w: 1140, h: 320 };
 const DAYS = 335; // January 1 to December 1, 2012
 const DIPS = [[209, 212], [226, 230]]; // the fake-outs (July 28, August 14)
 const EDGE = 237; // August 25, 2012
@@ -54,6 +54,7 @@ export class HeliopauseScene extends BaseScene {
       g.lineBetween(x, CH.y, x, CH.y + CH.h);
       txt(this, x + 4, CH.y + CH.h + 10, MONTHS[m], { size: 13, color: CSS.dim, scale: false });
     }
+    bake(this, g, CH.x - 24, CH.y - 54, CH.w + 48, CH.h + 124);
     // the legend
     const lg = this.add.graphics();
     lg.fillStyle(COLORS.yellow, 1);
@@ -66,11 +67,16 @@ export class HeliopauseScene extends BaseScene {
     this.cursor = this.add.graphics();
     this.dateText = txt(this, 0, CH.y - 4, '', { size: 16, weight: 800, color: '#ffffff', origin: [0.5, 1], scale: false }).setDepth(DEPTH.ui);
 
-    this.edgeBtn = new Button(this, 640, 640, { width: 300, height: 76, size: 30, label: this.T('edgeLabel', 'Edge!'), icon: 'star', variant: 'warn', onClick: () => this.press() });
+    this.edgeBtn = new Button(this, 640, 662, { width: 300, height: 76, size: 30, label: this.T('edgeLabel', 'Edge!'), icon: 'star', variant: 'warn', onClick: () => this.press() });
     if (this.input.keyboard) this.input.keyboard.on('keydown-SPACE', () => this.press());
+    this.goal = new GoalBar(this);
     this.draw();
+    // after the real edge, point at the button
+    idleHint(this, () => (this.state === 'play' && this.day >= EDGE + 4 ? { x: this.edgeBtn.x, y: this.edgeBtn.y - 44 } : null), { delay: 1500 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: "Find the edge of the Sun's bubble!", help: 'Press Edge! when the yellow line drops AND the blue line jumps up, and they stay there.' }));
     });
   }
 
@@ -99,7 +105,7 @@ export class HeliopauseScene extends BaseScene {
     if (this.day >= EDGE && this.day <= EDGE + 40) return this.win();
     this.mistakes++;
     Sfx.play('error');
-    toast(this, this.T('early', 'Not yet!'), { y: 100, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
+    toast(this, this.T('fakeOut', 'Not yet!'), { y: 190, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
   }
 
   async win() {
@@ -110,7 +116,7 @@ export class HeliopauseScene extends BaseScene {
     mark.lineStyle(4, COLORS.green, 1);
     mark.lineBetween(x, CH.y - 10, x, CH.y + CH.h + 10);
     txt(this, x - 10, CH.y + CH.h - 30, 'Aug 25, 2012', { size: 16, weight: 800, color: CSS.green, origin: [1, 0.5], scale: false }).setDepth(DEPTH.ui);
-    const r = await this.guide.say(this.T('good', ''), { modal: true, position: 'top' });
+    const r = await this.guide.say(this.T('edgeFound', ''), { modal: true, position: 'top' });
     if (r === null) return;
     finishGame(this, { stars: this.mistakes === 0 ? 3 : this.mistakes <= 2 ? 2 : 1 });
   }
@@ -123,7 +129,7 @@ export class HeliopauseScene extends BaseScene {
       // missed it: go back a little and watch again
       this.mistakes++;
       this.day = 170;
-      toast(this, this.T('late', 'Too late!'), { y: 100, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
+      toast(this, this.T('tooLate', 'Too late!'), { y: 190, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
     }
     this.draw();
   }

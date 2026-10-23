@@ -7,7 +7,7 @@ import { starfield } from '../common/bg.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { dialog, ProgressBar, drawPanel } from '../../ui/widgets.js';
+import { dialog, ProgressBar, roundBox } from '../../ui/widgets.js';
 
 // Timing game: a marker slides along a bar. Tap when it is inside the green zone to
 // fire a tiny thruster puff that pushes the drifting satellite back onto its orbit.
@@ -67,8 +67,8 @@ export class BalanceScene extends BaseScene {
 
     // drift meter
     const mx = W - 110;
+    roundBox(this, mx - 60, 110, 120, 380, { fill: 0x0b1230, radius: 18 });
     const mg = this.add.graphics();
-    drawPanel(mg, mx - 60, 110, 120, 380, { fill: 0x0b1230, radius: 18 });
     txt(this, mx, 130, this.T('driftLabel', 'Drift'), { size: 16, weight: 800, color: CSS.cyan, origin: 0.5, scale: false });
     mg.fillStyle(0x3a4470, 1);
     mg.fillRoundedRect(mx - 10, 160, 20, 300, 10);

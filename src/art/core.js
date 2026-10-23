@@ -22,20 +22,6 @@ export function img(scene, x, y, key, scale = 1) {
   return scene.add.image(x, y, key).setScale(scale / TEX);
 }
 
-// Logical (display) size of a texture.
-export function texSize(scene, key) {
-  const f = scene.textures.getFrame(key);
-  return { w: f.width / TEX, h: f.height / TEX };
-}
-
-// Scale an image so it fits inside a box (logical px).
-export function fitImage(image, maxW, maxH) {
-  const f = image.frame;
-  const s = Math.min(maxW / f.width, maxH / f.height);
-  image.setScale(s);
-  return image;
-}
-
 // ---------- colour helpers ----------
 export function rgb(hex) {
   const n = typeof hex === 'number' ? hex : parseInt(hex.replace('#', ''), 16);

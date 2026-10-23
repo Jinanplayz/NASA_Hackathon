@@ -82,31 +82,32 @@
 
   "moonBuggy": {
     "intro": [
-      "It's July 1971, and you're driving the Moon buggy near a deep valley called Hadley Rille. Drive to three stops and pick up a rock at each one!",
-      "Press Jump, tap the screen or press the space bar to hop over craters and boulders. In the Moon's weak gravity, the buggy floats when it jumps!"
+      "It's July 1971, and you're driving the Moon buggy near a deep valley called Hadley Rille. In the Moon's weak gravity, the buggy floats when it jumps!"
     ],
     "stops": [
       {
         "name": "Elbow crater",
-        "text": "Stop 1: Elbow crater! The astronauts picked up rock samples here, while Mission Control watched them through the rover's TV camera."
+        "text": "Stop 1: Elbow crater! The astronauts picked up rock samples here, while Mission Control watched them through the rover's TV camera.",
+        "ask": "Drive to Elbow crater!"
       },
       {
         "name": "St. George crater",
-        "text": "Stop 2: St. George crater, at the foot of a mountain called Hadley Delta. The buggy's top speed was about 13 km/h (8 mph): a bit slower than a bike."
+        "text": "Stop 2: St. George crater, at the foot of a mountain called Hadley Delta. The buggy's top speed was about 13 km/h (8 mph): a bit slower than a bike.",
+        "ask": "Now drive to St. George crater!"
       },
       {
         "name": "Spur crater",
-        "text": "Stop 3: Spur crater! Here the astronauts found the 'Genesis Rock', a bright white piece of the Moon's ancient crust, about 4 billion years old."
+        "text": "Stop 3: Spur crater! Here the astronauts found the 'Genesis Rock', a bright white piece of the Moon's ancient crust, about 4 billion years old.",
+        "ask": "Last stop: Spur crater!"
       }
     ],
-    "nextLabel": "Next stop",
-    "homeLabel": "Back to the lunar module",
     "bumpsLabel": "Bumps",
     "jumpLabel": "Jump!",
     "craterHit": "Bump! Jump over the craters.",
     "rockHit": "Bump! Jump over the boulders.",
     "resultTitle": "Great driving!",
-    "resultText": "Apollo 15, 16 and 17 each took a rover to the Moon. All three are still parked up there today!"
+    "resultText": "Apollo 15, 16 and 17 each took a rover to the Moon. All three are still parked up there today!",
+    "jumpHelp": "Tap Jump to hop over craters and boulders."
   },
 
   "mariner4": {
@@ -143,8 +144,7 @@
 
   "paintByNumbers": {
     "intro": [
-      "The numbers from Mariner 4 have arrived! The engineers printed them on strips of paper, bought crayons from an art shop, and coloured in each number by hand.",
-      "Pick a crayon, then colour every square with its number: 1 is the darkest, 6 the brightest. Drag across the paper to colour lots of squares at once!"
+      "The numbers from Mariner 4 have arrived! The engineers couldn't wait for the computer. They printed the numbers on strips of paper, bought crayons from an art shop, and coloured them in by hand!"
     ],
     "paperLabel": "Mariner 4 · the numbers of the first close-up picture of Mars · 1965",
     "crayonsLabel": "Crayons",
@@ -152,7 +152,6 @@
     "infoTitle": "Numbers into pictures",
     "infoText": "Every picture on a screen is made of tiny dots called pixels. Each number here says how bright one dot is. Mariner 4 sent 40,000 numbers for each picture!",
     "progressLabel": "Coloured in",
-    "wrongCrayon": "That square needs crayon {n}.",
     "doneTitle": "A picture of Mars!",
     "doneText": "You turned numbers into a picture, just like a computer does. Bright planet at the top, the dark of space at the bottom.",
     "photo": {
@@ -162,7 +161,12 @@
     },
     "photoLine": "Here is the real one, coloured by the engineers in 1965. They framed it, and it still hangs at NASA's Jet Propulsion Laboratory!",
     "resultTitle": "First picture of Mars!",
-    "resultText": "The hand-coloured picture was ready before the computer's version. Today's rovers send millions of dots in every picture."
+    "resultText": "The hand-coloured picture was ready before the computer's version. Today's rovers send millions of dots in every picture.",
+    "task": {
+      "title": "Colour the picture!",
+      "help": "Pick a crayon. Its squares light up: colour them in!"
+    },
+    "wrongSquare": "That square needs a different crayon. Look at its number!"
   },
 
   "pathfinder": {
@@ -205,15 +209,11 @@
   "airbagBounce": {
     "intro": [
       "You are Pathfinder's landing computer! Mars is too far away for anyone on Earth to help, so everything has to happen by itself.",
-      "First inflate the airbags, then fire the braking rockets, then cut the cord. Keep an eye on the height!",
-      "Then the ball drops and bounces forwards. Hold the left arrow to slow it down or the right arrow to speed it up, so it never lands on a sharp rock!"
+      "First slow down and get ready to land. Then the ball of airbags drops and bounces across the ground!"
     ],
     "inflateLabel": "Inflate airbags",
     "rocketsLabel": "Fire rockets",
     "cutLabel": "Cut the cord",
-    "inflateHint": "Inflate the airbags between 420 m and 260 m.",
-    "rocketsHint": "Fire the rockets between 130 m and 80 m.",
-    "cutHint": "Cut the cord between 40 m and 12 m.",
     "inflateEarly": "Too early! Wait until you're lower.",
     "inflateLate": "Too late! The backup timer inflated the airbags just in time.",
     "rocketsEarly": "Too early! The rockets would run out of fuel too high up.",
@@ -222,17 +222,34 @@
     "cutLate": "Too late! The backup timer cut the cord.",
     "altLabel": "Height",
     "bouncesLabel": "Bounces",
-    "steerHint": "◀ slow down   ▶ speed up: miss the sharp rocks!",
     "ripLabel": "Rip!",
     "doneLine": "Touchdown! Now the airbags pull back, the petals open... and Sojourner is ready to roll!",
     "resultTitle": "Landed on Mars!",
-    "resultText": "Pathfinder's airbag landing worked so well that NASA used airbags again for the rovers Spirit and Opportunity."
+    "resultText": "Pathfinder's airbag landing worked so well that NASA used airbags again for the rovers Spirit and Opportunity.",
+    "pressHelp": "Press the button when the height marker is in the green zone.",
+    "steerHelp": "Hold left to slow down, right to speed up. Miss the sharp rocks!",
+    "inflateTask": {
+      "title": "Inflate the airbags!",
+      "help": "Press the button when the height marker is in the green zone."
+    },
+    "rocketsTask": {
+      "title": "Fire the braking rockets!",
+      "help": "Press the button when the height marker is in the green zone."
+    },
+    "cutTask": {
+      "title": "Cut the cord!",
+      "help": "Press the button when the height marker is in the green zone."
+    },
+    "bounceTask": {
+      "title": "Steer past the sharp rocks!",
+      "help": "Hold left to slow down, right to speed up. Miss the sharp rocks!"
+    }
   },
 
   "roverProgram": {
     "intro": [
-      "Now drive Sojourner! Radio messages took about 10 minutes to reach Mars, so you can't steer it live.",
-      "Plan a list of moves, then send it. Forward drives one square; the turns spin Sojourner on the spot. Use Study when it's facing a rock."
+      "Now drive Sojourner! Radio messages took about 10 minutes to reach Mars, so nobody could steer it live.",
+      "Plan a list of moves, then send it. Forward drives one square, and the turns spin Sojourner on the spot. Use Study when it's facing a rock."
     ],
     "cmdNames": {
       "F": "Forward",
@@ -249,37 +266,46 @@
     "levels": [
       {
         "title": "Barnacle Bill",
-        "goal": "Drive next to the rock Barnacle Bill, face it, and study it.",
         "intro": "First stop: Barnacle Bill, close to the lander. Sojourner starts off facing right.",
         "rocks": {
           "A": "Barnacle Bill"
         },
-        "facts": {
-          "A": "Barnacle Bill was the first rock ever studied by a rover on another planet!"
+        "facts": [
+          "Barnacle Bill was the first rock ever studied by a rover on another planet!"
+        ],
+        "task": {
+          "title": "Drive to Barnacle Bill!",
+          "help": "Drive next to the rock, turn to face it, then add Study. Press Send."
         }
       },
       {
         "title": "Yogi",
-        "goal": "Find a way around the big rocks, then study Yogi.",
         "intro": "Next, Yogi! Big rocks are in the way, but Sojourner's sensors will stop it before it bumps into one.",
         "rocks": {
           "A": "Yogi"
         },
-        "facts": {
-          "A": "Yogi is a rock about 1 metre across, named after a cartoon bear."
+        "facts": [
+          "Yogi is a rock about 1 metre across, named after a cartoon bear."
+        ],
+        "task": {
+          "title": "Drive around to Yogi!",
+          "help": "Find a way around the big rocks, then study Yogi."
         }
       },
       {
         "title": "Scooby-Doo and Wedge",
-        "goal": "Study both rocks. You'll need more than one message!",
         "intro": "Two rocks this time: Scooby-Doo and Wedge. A message can only hold 14 moves, so plan the trip in two parts.",
         "rocks": {
           "A": "Scooby-Doo",
           "B": "Wedge"
         },
-        "facts": {
-          "A": "Sojourner studied each rock by pressing its instrument against it, sometimes for hours.",
-          "B": "Sojourner was only meant to work for a week, but it kept going for nearly three months!"
+        "facts": [
+          "Sojourner studied each rock by pressing its instrument against it, sometimes for hours.",
+          "Sojourner was only meant to work for a week, but it kept going for nearly three months!"
+        ],
+        "task": {
+          "title": "Study Scooby-Doo and Wedge!",
+          "help": "Study both rocks. You can send more than one message!"
         }
       }
     ],
@@ -295,8 +321,7 @@
 
   "dustDevil": {
     "intro": [
-      "January 2004: twin rovers called Spirit and Opportunity land on opposite sides of Mars. You're driving Spirit!",
-      "Spirit runs on sunlight. Dust slowly covers its solar panels, and the battery runs down. Drive to each flagged rock and stop next to it to study it.",
+      "January 2004: twin rovers called Spirit and Opportunity land on Mars. You're driving Spirit! It runs on sunlight, but dust slowly covers its solar panels.",
       "Look out for dust devils: little whirlwinds that can blow the panels clean! Drive into one to clean up."
     ],
     "rocks": [
@@ -315,7 +340,6 @@
     ],
     "batteryLabel": "Battery",
     "dustLabel": "Dust on panels",
-    "studiedLabel": "Rocks studied",
     "solLabel": "Sol",
     "winterLabel": "Winter",
     "slopeLabel": "Sunny slope",
@@ -327,14 +351,21 @@
     "lowBattery": "Battery low! Stop and let the Sun charge it, or catch a dust devil.",
     "doneLine": "Amazing! Spirit was only meant to last 90 sols, about three months. It kept exploring for more than six years!",
     "resultTitle": "Solar power pro!",
-    "resultText": "Opportunity lasted even longer: more than 14 years! Dust devils cleaned its panels many times."
+    "resultText": "Opportunity lasted even longer: more than 14 years! Dust devils cleaned its panels many times.",
+    "task": {
+      "title": "Drive to the next flag!",
+      "help": "Hold the right arrow to drive. Stop next to the flag to study the rock."
+    },
+    "winterTask": {
+      "title": "Park on the sunny slope!",
+      "help": "Wait there until spring comes."
+    }
   },
 
   "skyCrane": {
     "intro": [
       "August 2012: the rover Curiosity arrives at Mars! It's as big as a car, far too heavy to bounce down on airbags.",
-      "So NASA invented the sky crane: a rocket-powered platform that lowers the rover on cables, like a claw machine! Steer it over the green safe spot.",
-      "Moving makes the rover swing, so move gently. The moment the wheels touch down, cut the cables!"
+      "So NASA invented the sky crane: a rocket-powered platform that lowers the rover on cables, like a claw machine!"
     ],
     "mountLabel": "Mount Sharp",
     "safeLabel": "Safe spot",
@@ -350,16 +381,21 @@
     "cutLate": "Too slow! The crane started to drag the rover, so the computer cut the cables.",
     "doneLine": "Touchdown confirmed! Curiosity landed in Gale Crater on August 6, 2012. The crane flew off to crash far away, where it couldn't hit the rover.",
     "resultTitle": "Sky crane pro!",
-    "resultText": "NASA called the landing 'seven minutes of terror': the team could only wait while the spacecraft landed all by itself."
+    "resultText": "NASA called the landing 'seven minutes of terror': the team could only wait while the spacecraft landed all by itself.",
+    "task": {
+      "title": "Lower Curiosity onto the green spot!",
+      "help": "Hold the arrows to steer. Move gently, so it doesn't swing."
+    },
+    "cutTask": {
+      "title": "Wheels down! Cut the cables!",
+      "help": "Press the red button, quick!"
+    }
   },
 
   "drill": {
     "intro": [
-      "February 2013: Curiosity is ready to drill into Mars for the very first time! First, help the scientists pick a good rock.",
-      "Then hold the drill button to press down. Keep the pressure in the green zone: too little and nothing happens, too much and the drill gets stuck!"
+      "February 2013: Curiosity is ready to drill into Mars for the very first time! First, help the scientists pick a good rock."
     ],
-    "chooseTitle": "Which rock should we drill?",
-    "chooseText": "Read the clues. We want a rock that water once flowed through, and one that's safe to drill.",
     "rocks": [
       {
         "art": "drillRockVeins",
@@ -385,7 +421,6 @@
     ],
     "rockName": "John Klein",
     "drillTitle": "Drill!",
-    "drillText": "Hold the button to press the drill down. Some layers are harder than others, so watch the pressure!",
     "pressureLabel": "Pressure",
     "drillLabel": "Hold to drill",
     "stuck": "Stuck! Too much pressure. Wait while it wiggles free...",
@@ -401,49 +436,60 @@
       "sam": "SAM"
     },
     "scoopLabel": "Powder",
-    "deliverText": "Drag the powder into both of Curiosity's labs: CheMin and SAM.",
     "labFacts": {
       "chemin": "CheMin shines X-rays through the powder to find out which minerals it's made of.",
       "sam": "SAM heats the powder in a tiny oven and sniffs the gases that come out."
     },
     "doneLine": "Big news! This rock contained clay, which forms in water. Long ago, Gale Crater held a lake of fresh water where tiny living things could have lived.",
     "resultTitle": "Driller!",
-    "resultText": "Curiosity has drilled dozens of holes in Mars. Each one tells more of the story of the ancient lake."
+    "resultText": "Curiosity has drilled dozens of holes in Mars. Each one tells more of the story of the ancient lake.",
+    "chooseTask": {
+      "title": "Pick a rock to drill!",
+      "help": "Choose a solid rock that water once flowed through."
+    },
+    "drillTask": {
+      "title": "Hold to drill!",
+      "help": "Keep the pressure needle in the green zone. Too much, and the drill gets stuck!"
+    },
+    "deliverTask": {
+      "title": "Feed the labs!",
+      "help": "Drag the powder into both of Curiosity's labs: CheMin and SAM."
+    },
+    "drillFact": "Some layers are harder than others, so watch the pressure as you go deeper."
   },
 
   "samHum": {
     "intro": [
-      "August 5, 2013: one year since Curiosity landed! The team planned a surprise: they made the SAM instrument vibrate so it hummed a tune.",
-      "Tap the low, middle or high pad (or press 1, 2 or 3) as each note reaches the white line. Let's practise first!"
+      "August 5, 2013: one year since Curiosity landed! The team planned a surprise: they made the SAM instrument vibrate so it hummed a tune. Let's practise first!"
     ],
     "laneNames": [
       "Low",
       "Middle",
       "High"
     ],
-    "hitsLabel": "Notes hummed",
-    "practiceLabel": "Practice: the first two lines",
-    "songLabel": "The whole song!",
     "practiceDone": "Nice practice! Now the whole song. Happy birthday, Curiosity!",
     "doneLine": "Lovely humming! On August 5, 2013, SAM really did hum 'Happy Birthday' on Mars. It was a one-time treat, because SAM has lots of important science to do.",
     "resultTitle": "Happy birthday!",
-    "resultText": "Some people think Curiosity sings to itself every year. Not true! It only happened once, in 2013."
+    "resultText": "Some people think Curiosity sings to itself every year. Not true! It only happened once, in 2013.",
+    "practiceTask": {
+      "title": "Practise the first two lines!",
+      "help": "Tap the pad when its note reaches the white line."
+    },
+    "songTask": {
+      "title": "Now the whole song!",
+      "help": "Tap the pad when its note reaches the white line."
+    }
   },
 
   "landingNav": {
     "intro": [
-      "February 18, 2021: Perseverance is falling towards Jezero Crater, an old lake bed. It's full of cliffs, boulders and sand dunes!",
-      "Perseverance carries a map in its computer. As it falls, its camera takes pictures. Find where the picture matches the map, then pick a safe spot nearby to land."
+      "February 18, 2021: Perseverance is falling towards Jezero Crater, an old lake bed full of cliffs, boulders and sand dunes!",
+      "It carries a map in its computer. As it falls, its camera takes pictures, and it works out where it is by matching them to the map."
     ],
     "mapLabel": "Jezero Crater · the map in the computer",
     "cameraLabel": "Perseverance's camera",
     "altLabel": "Height",
-    "findTitle": "Where am I?",
-    "findText": "Find the place on the map that matches the camera picture, and tap it.",
     "notHere": "That doesn't match. Look for the same craters and shapes!",
-    "pickTitle": "Pick a safe spot",
-    "pickText": "Now the red zones show the dangers. Tap a safe spot close to the white square.",
-    "tooFar": "Too far! The rover can only steer a little way. Pick a spot close to the white square.",
     "hazard": "Danger! That spot is in a red zone: cliffs, boulders or dunes.",
     "safeTitle": "Safe!",
     "roundDone": [
@@ -452,13 +498,23 @@
     ],
     "doneLine": "Touchdown in Jezero Crater! This new trick, called Terrain-Relative Navigation, let Perseverance land in a much more dangerous place than any rover before it.",
     "resultTitle": "Safe landing!",
-    "resultText": "The real computer did all of this by itself in a few seconds, while still high above the ground!"
+    "resultText": "The real computer did all of this by itself in a few seconds, while still high above the ground!",
+    "findTask": {
+      "title": "Which ring matches the camera?",
+      "help": "Compare the picture with the map, then tap the matching ring."
+    },
+    "pickTask": {
+      "title": "Pick a safe spot!",
+      "help": "Tap inside the white circle, away from the red danger zones."
+    },
+    "tapRing": "Tap one of the blue rings.",
+    "outside": "Too far! Pick a spot inside the white circle."
   },
 
   "ingenuity": {
     "intro": [
       "Perseverance brought a passenger: Ingenuity, a tiny helicopter that weighs about as much as a big bag of sugar!",
-      "The air on Mars is so thin that flying there is like flying 30 km above the Earth. So Ingenuity's blades must spin super fast. Hold Lift to spin them up!"
+      "The air on Mars is so thin that Ingenuity's blades must spin super fast to fly."
     ],
     "goals": {
       "spin": "Hold Lift until the rotors reach 2,400 rpm.",
@@ -473,9 +529,7 @@
     "altLabel": "Height",
     "liftLabel": "Hold: lift",
     "photoLabel": "Photo",
-    "notLinedUp": "Line up with the yellow box first!",
     "hardLanding": "Bump! That landing was a bit hard. Press Lift now and then to slow down near the ground.",
-    "offPad": "Land on Wright Brothers Field, please!",
     "flight1Done": "You did it! On April 19, 2021, Ingenuity made the first powered, controlled flight on another planet: 3 metres up for about 30 seconds. Ready for flight 2?",
     "photoFacts": [
       "Click! Ingenuity's camera looked down at the ground below.",
@@ -484,7 +538,17 @@
     ],
     "doneLine": "Amazing flying! Ingenuity was only meant to make 5 flights. It made 72, over almost three years! It even carries a tiny piece of cloth from the Wright brothers' first aeroplane.",
     "resultTitle": "Mars pilot!",
-    "resultText": "Ingenuity proved we can fly on Mars. Future helicopters could explore cliffs and caves that rovers can't reach."
+    "resultText": "Ingenuity proved we can fly on Mars. Future helicopters could explore cliffs and caves that rovers can't reach.",
+    "stageTitles": {
+      "spin": "Spin up the rotors!",
+      "hover": "Flight 1: hover!",
+      "land1": "Land gently!",
+      "spin2": "Flight 2: spin up again!",
+      "photos": "Take 3 photos!",
+      "return": "Fly home and land!"
+    },
+    "landHere": "Land on Wright Brothers Field, please!",
+    "lineUp": "Line up with the yellow box first!"
   },
 
   "twins": {

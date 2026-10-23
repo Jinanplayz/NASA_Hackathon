@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { W, COLORS, CSS, DEPTH } from '../../core/constants.js';
+import { W, COLORS, DEPTH } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
 import { blueprint } from '../common/bg.js';
-import { playIntro, finishGame } from '../common/kit.js';
+import { playIntro, finishGame, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
-import { toast } from '../../ui/widgets.js';
+import { toast, RoundBox } from '../../ui/widgets.js';
 
 // Cable puzzle: turn the pieces so power flows from Aquarius's battery (left) to
 // Odyssey's battery (right). Tap a piece to turn it; arrow keys + ENTER work too.
@@ -39,7 +39,7 @@ export class PowerUpScene extends BaseScene {
     this.sizes = this.relaxed ? [[4, 3], [5, 4], [6, 4]] : [[5, 4], [6, 4], [7, 5]];
     this.sizes = this.sizes.slice(0, this.T('levels', 3));
     this.layer = this.add.container(0, 0);
-    this.levelText = txt(this, W / 2, 96, '', { size: 22, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
+    this.goal = new GoalBar(this);
     this.cursor = this.add.graphics().setDepth(DEPTH.ui);
     this.cur = { c: 0, r: 0 };
     if (this.input.keyboard) {
@@ -58,9 +58,28 @@ export class PowerUpScene extends BaseScene {
       this.input.keyboard.on('keydown-ENTER', () => this.showCursor && this.turn(this.cur.c, this.cur.r));
     }
     this.buildLevel();
+    // stuck? point at the first piece of the route that is still turned the wrong way
+    idleHint(this, () => {
+      if (this.state !== 'play') return null;
+      const t = this.path.map((p) => this.tile(p.c, p.r)).find((k) => !this.isRight(k));
+      return t ? { x: this.x0 + t.c * T + T / 2, y: this.y0 + t.r * T + 6 } : null;
+    }, { delay: 9000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Connect the batteries!', help: 'Tap a cable piece to turn it. Make the power flow all the way to Odyssey.' }), { count: this.levelCount() });
     });
+  }
+
+  levelCount() {
+    return `${this.T('levelLabel', 'Cable')} ${this.level + 1} / ${this.sizes.length}`;
+  }
+
+  // is this piece of the route turned the right way? (straight pieces work both ways round)
+  isRight(t) {
+    if (t.m === t.goal) return true;
+    const straight = t.goal === (N | S) || t.goal === (E | Wd);
+    return straight && t.m === rot(t.goal, 2);
   }
 
   // a random winding cable route from the left edge to the right edge, then shuffled pieces
@@ -70,11 +89,12 @@ export class PowerUpScene extends BaseScene {
     this.cols = cols;
     this.rows = rows;
     this.x0 = W / 2 - (cols * T) / 2;
-    this.y0 = 150 + ((5 - rows) * T) / 2;
-    this.levelText.setText(`${this.T('levelLabel', 'Cable')} ${this.level + 1} / ${this.sizes.length}`);
+    this.y0 = 186 + ((5 - rows) * T) / 2;
+    if (this.level > 0) this.goal.setCount(this.levelCount());
     this.src = Phaser.Math.Between(0, rows - 1);
     this.dst = Phaser.Math.Between(0, rows - 1);
     const path = this.makePath(cols, rows);
+    this.path = path;
     const masks = Array.from({ length: rows }, () => Array(cols).fill(0));
     path.forEach((p, i) => {
       const prev = path[i - 1], next = path[i + 1];
@@ -98,14 +118,15 @@ export class PowerUpScene extends BaseScene {
         if (!m) m = shapes[Phaser.Math.Between(0, shapes.length - 1)];
         // shuffle: turn the piece a random number of times
         const turns = Phaser.Math.Between(0, 3);
-        const t = { c, r, m: rot(m, turns), onPath: !!masks[r][c], need: (4 - turns) % 4 };
+        const t = { c, r, m: rot(m, turns), goal: m, onPath: !!masks[r][c], need: (4 - turns) % 4 };
         // straight pieces only need half the turns
         if (t.onPath && (m === (N | S) || m === (E | Wd))) t.need %= 2;
         if (t.onPath) this.minMoves += t.need;
+        const frame = new RoundBox(this).draw(this.x0 + c * T + 3, this.y0 + r * T + 3, T - 6, T - 6, { fill: 0x0d1430, alpha: 1, radius: 12, shadow: false, stroke: 0x2e3f85 });
         t.g = this.add.graphics();
         t.zone = this.add.zone(this.x0 + c * T + T / 2, this.y0 + r * T + T / 2, T - 4, T - 4).setInteractive({ useHandCursor: true });
         t.zone.on('pointerup', () => this.turn(c, r));
-        this.layer.add([t.g, t.zone]);
+        this.layer.add([frame, t.g, t.zone]);
         this.tiles.push(t);
       }
     }
@@ -215,12 +236,8 @@ export class PowerUpScene extends BaseScene {
 
   drawTile(t, on) {
     const g = t.g;
-    const x = this.x0 + t.c * T, y = this.y0 + t.r * T, cx = x + T / 2, cy = y + T / 2;
+    const cx = this.x0 + t.c * T + T / 2, cy = this.y0 + t.r * T + T / 2;
     g.clear();
-    g.fillStyle(0x0d1430, 1);
-    g.fillRoundedRect(x + 3, y + 3, T - 6, T - 6, 12);
-    g.lineStyle(2, 0x2e3f85, 1);
-    g.strokeRoundedRect(x + 3, y + 3, T - 6, T - 6, 12);
     const col = on ? COLORS.cyan : 0x6b7290;
     if (on) {
       g.lineStyle(20, COLORS.cyan, 0.18);

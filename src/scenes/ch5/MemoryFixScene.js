@@ -3,17 +3,18 @@ import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { blueprint } from '../common/bg.js';
-import { playIntro, finishGame, draggable } from '../common/kit.js';
+import { playIntro, finishGame, draggable, GoalBar, idleHint, bake } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, toast, shake } from '../../ui/widgets.js';
+import { drawPanel, toast, shake, roundBox, RoundBox } from '../../ui/widgets.js';
 
 // Fixing Voyager 1 from far away (2024): one memory chip broke. Move the pieces of code that
-// sit on the broken (red) cells into empty, healthy memory. Each move is a radio message that
-// takes almost a day to arrive, so fewer moves is better.
+// sit on the broken (red) cells into empty, healthy memory (picking a piece shows every place
+// it fits in green). Each move is a radio message that takes almost a day to arrive, so fewer
+// moves is better.
 const COLS = 10, ROWS = 6, CELL = 58;
-const GX = 120, GY = 170;
+const GX = 120, GY = 236;
 const BROKEN = [[3, 2], [4, 2], [5, 2], [3, 3], [4, 3], [5, 3]];
 const BLOCKS = [
   { id: 'A', len: 3, c: 2, r: 2, label: 'NAV', color: 0x4fd1ff },
@@ -38,6 +39,8 @@ export class MemoryFixScene extends BaseScene {
     this.state = 'intro';
     this.moves = 0;
     this.selected = null;
+    this.allMovedSaid = false;
+    this.goal = new GoalBar(this);
 
     // the memory grid
     const g = this.add.graphics();
@@ -56,6 +59,8 @@ export class MemoryFixScene extends BaseScene {
         }
       }
     }
+    // (the grid never changes: one picture is much cheaper to draw than 60 little boxes)
+    bake(this, g, GX - 28, GY - 64, COLS * CELL + 56, ROWS * CELL + 98);
     txt(this, GX + 4.5 * CELL, GY + 4 * CELL + 2, this.T('brokenLabel', 'Broken chip'), { size: 13, weight: 800, color: '#ff8080', origin: [0.5, 0], scale: false });
     // tapping an empty cell moves the selected piece there
     this.gridZone = this.add.zone(GX + (COLS * CELL) / 2, GY + (ROWS * CELL) / 2, COLS * CELL, ROWS * CELL).setInteractive();
@@ -65,37 +70,64 @@ export class MemoryFixScene extends BaseScene {
       this.tryMove(this.selected, c, r);
     });
 
+    // where the chosen piece would fit
+    this.spots = this.add.graphics().setDepth(DEPTH.ui - 6);
     // the pieces of code
     this.blocks = BLOCKS.map((b) => this.makeBlock({ ...b }));
+    this.stuckAtStart = this.blocks.filter((b) => this.onBroken(b)).length;
 
     // Earth, Voyager and the messages between them
-    const sg = this.add.graphics();
-    drawPanel(sg, 800, 110, 450, 300, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke });
-    this.earthIcon = img(this, 850, 340, 'earthSmall', 0.5);
-    this.voyIcon = img(this, 1190, 180, 'voyager', 0.32);
+    const sg = roundBox(this, 800, 176, 450, 280, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke });
+    this.earthIcon = img(this, 850, 400, 'earthSmall', 0.5);
+    this.voyIcon = img(this, 1190, 240, 'voyager', 0.32);
     this.link = this.add.graphics();
     this.link.lineStyle(2, COLORS.cyan, 0.4);
-    for (let t = 0; t < 1; t += 0.04) this.link.lineBetween(850 + t * 340, 340 - t * 160, 850 + (t + 0.02) * 340, 340 - (t + 0.02) * 160);
-    this.signal = this.add.circle(850, 340, 7, COLORS.yellow).setVisible(false);
-    this.counter = txt(this, 820, 430, '', { size: 18, weight: 700, scale: false, lineSpacing: 8 });
-    this.status = txt(this, 1025, 130, '', { size: 16, weight: 700, color: CSS.cyan, origin: [0.5, 0], align: 'center', wrap: 420, scale: false });
-    this.sendBtn = new Button(this, 1025, 620, { width: 380, height: 70, size: 24, label: this.T('sendLabel', 'Send to Voyager'), icon: 'next', variant: 'success', onClick: () => this.send() });
+    for (let t = 0; t < 1; t += 0.04) this.link.lineBetween(850 + t * 340, 400 - t * 160, 850 + (t + 0.02) * 340, 400 - (t + 0.02) * 160);
+    this.signal = this.add.circle(850, 400, 7, COLORS.yellow).setVisible(false);
+    this.counter = txt(this, 820, 478, '', { size: 18, weight: 700, scale: false, lineSpacing: 8 });
+    this.status = txt(this, 1025, 196, '', { size: 16, weight: 700, color: CSS.cyan, origin: [0.5, 0], align: 'center', wrap: 420, scale: false });
+    this.sendBtn = new Button(this, 1025, 626, { width: 380, height: 72, size: 24, label: this.T('sendLabel', 'Send to Voyager'), icon: 'next', variant: 'success', onClick: () => this.send() });
     this.updateUi();
+    // stuck? point at a piece that's still on the broken chip, or at Send
+    idleHint(this, () => {
+      if (this.state !== 'play') return null;
+      const b = this.blocks.find((k) => this.onBroken(k));
+      if (!b) return { x: this.sendBtn.x, y: this.sendBtn.y - 44 };
+      return { x: b.box.x, y: b.box.y - 34 };
+    }, { delay: 8000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Rescue the code!', help: 'Drag each piece off the red broken chip into empty memory. Then press Send.' }), { count: this.countText() });
     });
+  }
+
+  countText() {
+    return `${this.stuckAtStart - this.blocks.filter((b) => this.onBroken(b)).length} / ${this.stuckAtStart}`;
+  }
+
+  // green outlines where the chosen piece would fit
+  showSpots(b) {
+    const g = this.spots;
+    g.clear();
+    if (!b) return;
+    g.lineStyle(3, COLORS.green, 0.85);
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c + b.len <= COLS; c++) {
+        if (c === b.c && r === b.r) continue;
+        if (this.fits(b, c, r)) g.strokeRoundedRect(GX + c * CELL + 6, GY + r * CELL + 6, b.len * CELL - 12, CELL - 12, 8);
+      }
+    }
   }
 
   makeBlock(b) {
     const w = b.len * CELL - 8, h = CELL - 10;
     const c = this.add.container(0, 0).setDepth(DEPTH.ui - 5);
-    const g = this.add.graphics();
+    const g = new RoundBox(this);
     const draw = (sel) => {
-      g.clear();
-      g.fillStyle(b.color, 0.92);
-      g.fillRoundedRect(-w / 2, -h / 2, w, h, 10);
-      g.lineStyle(sel ? 4 : 2, sel ? 0xffffff : 0x070b1d, 1);
-      g.strokeRoundedRect(-w / 2, -h / 2, w, h, 10);
+      // pieces still on the broken chip get a red outline
+      const stuck = b.box && this.onBroken(b);
+      g.draw(-w / 2, -h / 2, w, h, { fill: b.color, alpha: 0.92, radius: 10, stroke: sel ? 0xffffff : stuck ? COLORS.red : 0x070b1d, strokeWidth: sel || stuck ? 4 : 2, shadow: false });
     };
     draw(false);
     const t = txt(this, 0, 0, b.label, { size: 16, weight: 800, color: '#070b1d', origin: 0.5, scale: false });
@@ -105,6 +137,7 @@ export class MemoryFixScene extends BaseScene {
     b.draw = draw;
     this.place(b, b.c, b.r);
     draggable(this, c, {
+      onGrab: () => this.state === 'play' && this.showSpots(b),
       onDrop: () => {
         const col = Math.round((c.x - w / 2 - 4 - GX) / CELL), row = Math.round((c.y - h / 2 - 5 - GY) / CELL);
         return this.tryMove(b, col, row);
@@ -141,18 +174,24 @@ export class MemoryFixScene extends BaseScene {
     this.blocks.forEach((o) => o.draw(false));
     this.selected = b;
     b.draw(true);
+    this.showSpots(b);
     Sfx.play('select');
   }
 
   tryMove(b, col, row) {
     if (this.state !== 'play') return false;
-    if (col === b.c && row === b.r) return false;
+    if (col === b.c && row === b.r) {
+      this.showSpots(null);
+      return false;
+    }
     if (!this.fits(b, col, row)) {
       Sfx.play('error');
       shake(this, b.box, 6);
-      toast(this, this.T('blocked', ''), { y: 100, color: COLORS.orange, sound: false, duration: 2000 });
+      this.showSpots(null);
+      toast(this, this.T('blocked', ''), { x: 410, y: 650, wrap: 600, color: COLORS.orange, sound: false, speak: true, duration: 2000 });
       return false;
     }
+    this.showSpots(null);
     this.place(b, col, row);
     this.moves++;
     Sfx.play('snap');
@@ -164,7 +203,12 @@ export class MemoryFixScene extends BaseScene {
 
   updateUi() {
     const bad = this.blocks.filter((b) => this.onBroken(b));
-    this.blocks.forEach((b) => b.box.setAlpha(this.onBroken(b) ? 1 : 0.9));
+    this.blocks.forEach((b) => b.draw(b === this.selected));
+    if (this.goal && this.state === 'play') this.goal.setCount(this.countText());
+    if (!bad.length && this.state === 'play' && !this.allMovedSaid) {
+      this.allMovedSaid = true;
+      this.goal.set(this.T('sendTask', { title: 'All safe! Press Send.', help: 'Send the new memory map to Voyager.' }));
+    }
     this.counter.setText(`${this.T('movesLabel', 'Messages sent')}: ${this.moves}\n${this.T('daysLabel', 'Days waiting')}: ${this.moves * 2}`);
     this.sendBtn.setEnabled(bad.length === 0 && this.state !== 'sending');
     if (!bad.length) this.sendBtn.pulse();
@@ -180,6 +224,7 @@ export class MemoryFixScene extends BaseScene {
     this.state = 'sending';
     this.sendBtn.setEnabled(false).stopPulse();
     this.status.setText(this.T('sending', ''));
+    this.showSpots(null);
     Speech.say(this.T('sending', ''));
     Sfx.play('radio');
     // the message flies out to Voyager, and the answer comes back

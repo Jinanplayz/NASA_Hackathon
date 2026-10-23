@@ -18,6 +18,7 @@ export class SettingsScene extends Phaser.Scene {
 
   init(data) {
     this.from = data.from;
+    this.didReset = false;
   }
 
   create() {
@@ -101,6 +102,7 @@ export class SettingsScene extends Phaser.Scene {
       variant: 'danger',
       onClick: () => {
         Progress.reset();
+        this.didReset = true;
         resetBtn.setLabel(L('resetDone', 'Done!')).setEnabled(false);
       }
     });
@@ -112,6 +114,8 @@ export class SettingsScene extends Phaser.Scene {
 
   close() {
     this.scene.stop();
-    this.scene.resume(this.from);
+    // the chapter menu shows progress badges: after a reset it's drawn again
+    if (this.didReset && this.from === 'ChapterSelect') this.scene.get(this.from).scene.restart({});
+    else this.scene.resume(this.from);
   }
 }

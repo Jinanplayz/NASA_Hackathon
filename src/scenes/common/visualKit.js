@@ -1,7 +1,7 @@
 // Building blocks for the animated cutscene pictures (see Visuals.js and the chapter visual files).
 
 import Phaser from 'phaser';
-import { COLORS, CSS, seeded } from '../../core/constants.js';
+import { CSS, seeded } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';

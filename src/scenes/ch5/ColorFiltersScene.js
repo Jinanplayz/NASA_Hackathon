@@ -1,22 +1,23 @@
 import Phaser from 'phaser';
-import { COLORS, CSS, DEPTH, shuffle } from '../../core/constants.js';
+import { COLORS, CSS, shuffle } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame, starsFor, draggable } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, draggable, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
-import { drawPanel, toast } from '../../ui/widgets.js';
+import { toast, roundBox, RoundBox } from '../../ui/widgets.js';
 
 // How Voyager made colour pictures: three black-and-white photos taken through orange, green
 // and blue filters, each shown as one colour channel (red, green, blue). Put each photo into
 // the matching channel to rebuild Saturn's real colours.
 const CHANNELS = ['red', 'green', 'blue'];
 const TINT = { red: 0xff0000, green: 0x00ff00, blue: 0x0000ff };
-const SLOT_Y = 492, PHOTO_Y = 214;
+const SLOT_Y = 528, PHOTO_Y = 262;
 const SLOT_X = [160, 400, 640];
-const PREVIEW = { x: 800, y: 118, w: 450, h: 450 };
+const PREVIEW = { x: 800, y: 178, w: 450, h: 450 };
+const FILTER_COLOR = { orange: 0xff9f43, green: 0x3ddc97, blue: 0x5b8cff };
 
 // black-and-white copies of the Saturn picture, one per colour channel (made once)
 function channelTextures(scene) {
@@ -57,11 +58,7 @@ export class ColorFiltersScene extends BaseScene {
     // the three colour channels
     this.slots = CHANNELS.map((ch, i) => {
       const x = SLOT_X[i], y = SLOT_Y;
-      const g = this.add.graphics();
-      g.fillStyle(0x0b1230, 0.9);
-      g.fillRoundedRect(x - 110, y - 82, 220, 164, 16);
-      g.lineStyle(4, TINT[ch], 0.9);
-      g.strokeRoundedRect(x - 110, y - 82, 220, 164, 16);
+      roundBox(this, x - 110, y - 82, 220, 164, { fill: 0x0b1230, alpha: 0.9, radius: 16, stroke: TINT[ch], strokeWidth: 4, strokeAlpha: 0.9, shadow: false });
       txt(this, x, y - 104, names[ch] || ch, { size: 20, weight: 800, color: Phaser.Display.Color.IntegerToColor(TINT[ch]).rgba, origin: 0.5, scale: false });
       const zone = this.add.zone(x, y, 220, 164).setInteractive({ useHandCursor: true });
       zone.on('pointerup', () => this.selected && this.put(this.selected, ch));
@@ -71,18 +68,16 @@ export class ColorFiltersScene extends BaseScene {
     // the photos (black and white), in a mixed-up order
     this.photos = shuffle(this.T('photos', [])).map((p, i) => {
       const c = this.add.container(SLOT_X[i], PHOTO_Y);
-      const g = this.add.graphics();
-      g.fillStyle(0x000000, 1);
-      g.fillRoundedRect(-104, -78, 208, 156, 12);
-      g.lineStyle(2, 0x6b7290, 1);
-      g.strokeRoundedRect(-104, -78, 208, 156, 12);
+      // the frame shows the colour of the filter the photo was taken through
+      const g = new RoundBox(this).draw(-104, -78, 208, 156, { fill: 0x000000, alpha: 1, radius: 12, stroke: FILTER_COLOR[p.id] ?? 0x6b7290, strokeWidth: 5, shadow: false });
       const pic = img(this, 0, -10, 'saturnCh_' + p.channel, 0.42);
-      const tag = txt(this, 0, 58, p.name, { size: 15, weight: 800, color: '#e6ebf5', origin: 0.5, scale: false });
+      const tag = txt(this, 0, 58, p.name, { size: 17, weight: 800, color: Phaser.Display.Color.IntegerToColor(FILTER_COLOR[p.id] ?? 0xe6ebf5).rgba, origin: 0.5, scale: false });
       c.add([g, pic, tag]);
       c.setSize(208, 156);
       c.photo = p;
       c.slot = null;
       draggable(this, c, {
+        onGrab: () => this.state === 'play' && Speech.say(p.name),
         onDrop: (x, y) => {
           const s = this.slots.find((sl) => Math.abs(x - sl.x) < 120 && Math.abs(y - sl.y) < 90);
           return s ? this.put(c, s.ch) : false;
@@ -93,14 +88,25 @@ export class ColorFiltersScene extends BaseScene {
     });
 
     // the colour picture: the three channels added together
-    const pg = this.add.graphics();
-    drawPanel(pg, PREVIEW.x, PREVIEW.y, PREVIEW.w, PREVIEW.h, { fill: 0x000000, radius: 18, stroke: COLORS.cyan, strokeWidth: 3 });
+    const pg = roundBox(this, PREVIEW.x, PREVIEW.y, PREVIEW.w, PREVIEW.h, { fill: 0x000000, radius: 18, stroke: COLORS.cyan, strokeWidth: 3 });
     txt(this, PREVIEW.x + PREVIEW.w / 2, PREVIEW.y + 24, this.T('previewLabel', 'Colour picture'), { size: 18, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
     this.layers = CHANNELS.map((ch) => img(this, PREVIEW.x + PREVIEW.w / 2, PREVIEW.y + PREVIEW.h / 2 + 10, 'saturnCh_red', 0.98).setTint(TINT[ch]).setBlendMode(Phaser.BlendModes.ADD).setVisible(false));
+    this.goal = new GoalBar(this);
     this.refresh();
+    // stuck? point at a photo that isn't in its right box yet
+    idleHint(this, () => {
+      const c = this.state === 'play' && this.photos.find((k) => k.slot !== k.photo.channel);
+      return c ? { x: c.x, y: c.y - 84 } : null;
+    }, { delay: 9000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Colour in Saturn!', help: 'Drag each filter photo into a colour box. Orange goes in red.' }), { count: this.countText() });
     });
+  }
+
+  countText() {
+    return `${CHANNELS.filter((ch) => this.assign[ch]).length} / 3`;
   }
 
   select(c) {
@@ -138,6 +144,7 @@ export class ColorFiltersScene extends BaseScene {
     this.selected = null;
     Sfx.play('snap');
     this.refresh();
+    this.goal.setCount(this.countText());
     this.check();
     return true;
   }

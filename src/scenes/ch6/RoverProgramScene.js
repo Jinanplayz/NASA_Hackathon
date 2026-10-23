@@ -2,11 +2,11 @@ import { COLORS, CSS } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame } from '../common/kit.js';
+import { playIntro, finishGame, GoalBar, idleHint, bake } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, toast, floatText } from '../../ui/widgets.js';
+import { drawPanel, toast, floatText, roundBox, RoundBox } from '../../ui/widgets.js';
 
 // Driving Sojourner (1997). Radio messages took about ten minutes to reach Mars, so nobody
 // could steer it live: the team planned a list of moves, sent it, and waited to see what
@@ -36,6 +36,7 @@ export class RoverProgramScene extends BaseScene {
   create() {
     this.setupStage({ bg: 0x1a0e0a });
     this.state = 'intro';
+    this.mapImg = null;
     this.level = 0;
     this.sols = 0;
     this.hazards = 0;
@@ -43,40 +44,38 @@ export class RoverProgramScene extends BaseScene {
     this.levelCfg = this.T('levels', []);
 
     // the map
-    this.mapG = this.add.graphics();
     this.mapLayer = this.add.container(0, 0);
     this.rover = img(this, 0, 0, 'sojournerTop', 0.95).setDepth(5);
-    this.title = txt(this, GX, 106, '', { size: 22, weight: 800, color: CSS.yellow, scale: false });
-    this.sub = txt(this, GX, 136, '', { size: 17, weight: 700, color: CSS.dim, scale: false, wrap: COLS * CELL });
+    this.goal = new GoalBar(this);
 
     // the program panel
     const px = 700, pw = 540;
-    const pg = this.add.graphics();
-    drawPanel(pg, px, 96, pw, 470, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
-    txt(this, px + 24, 112, this.T('commandsLabel', 'Moves'), { size: 18, weight: 800, color: CSS.cyan, scale: false });
+    const pg = roundBox(this, px, 176, pw, 418, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
+    txt(this, px + 24, 190, this.T('commandsLabel', 'Moves'), { size: 18, weight: 800, color: CSS.cyan, scale: false });
     const names = this.T('cmdNames', {});
-    CMDS.forEach((c, i) => {
-      const b = new Button(this, px + 82 + i * 126, 180, { width: 112, height: 64, size: 17, icon: c.icon, label: names[c.id] || c.id, variant: c.id === 'S' ? 'warn' : 'primary', onClick: () => this.addCmd(c.id) });
+    this.moveBtns = CMDS.map((c, i) => {
+      const b = new Button(this, px + 82 + i * 126, 252, { width: 112, height: 64, size: 17, icon: c.icon, label: names[c.id] || c.id, variant: c.id === 'S' ? 'warn' : 'primary', onClick: () => this.addCmd(c.id) });
       b.cmd = c.id;
+      return b;
     });
-    txt(this, px + 24, 228, this.T('programLabel', 'Your program'), { size: 18, weight: 800, color: CSS.cyan, scale: false });
-    this.slotG = this.add.graphics();
-    this.slotIcons = this.add.container(0, 0);
+    txt(this, px + 24, 296, this.T('programLabel', 'Your program'), { size: 18, weight: 800, color: CSS.cyan, scale: false });
     this.slotPos = [];
-    for (let i = 0; i < SLOTS; i++) this.slotPos.push({ x: px + 50 + (i % 7) * 70, y: 290 + Math.floor(i / 7) * 74 });
-    this.undoBtn = new Button(this, px + 110, 470, { width: 180, height: 60, size: 20, icon: 'back', label: this.T('undoLabel', 'Undo'), variant: 'secondary', onClick: () => this.undo() });
-    this.clearBtn = new Button(this, px + 300, 470, { width: 170, height: 60, size: 20, icon: 'close', label: this.T('clearLabel', 'Clear'), variant: 'secondary', onClick: () => this.clear() });
-    this.sendBtn = new Button(this, px + 270, 630, { width: 420, height: 76, size: 26, icon: 'next', label: this.T('sendLabel', 'Send to Mars'), variant: 'success', onClick: () => this.send() });
-    this.solText = txt(this, GX, 560, '', { size: 18, weight: 700, color: CSS.text, scale: false });
+    for (let i = 0; i < SLOTS; i++) this.slotPos.push({ x: px + 50 + (i % 7) * 70, y: 356 + Math.floor(i / 7) * 74 });
+    this.slotBoxes = this.slotPos.map(() => this.add.existing(new RoundBox(this)));
+    this.slotIcons = this.add.container(0, 0);
+    this.undoBtn = new Button(this, px + 110, 548, { width: 180, height: 60, size: 20, icon: 'back', label: this.T('undoLabel', 'Undo'), variant: 'secondary', onClick: () => this.undo() });
+    this.clearBtn = new Button(this, px + 300, 548, { width: 170, height: 60, size: 20, icon: 'close', label: this.T('clearLabel', 'Clear'), variant: 'secondary', onClick: () => this.clear() });
+    this.sendBtn = new Button(this, px + 270, 650, { width: 420, height: 72, size: 26, icon: 'next', label: this.T('sendLabel', 'Send to Mars'), variant: 'success', onClick: () => this.send() });
+    this.solText = txt(this, GX, 542, '', { size: 18, weight: 700, color: CSS.text, scale: false });
 
     // Earth, Mars and the message between them
     this.linkG = this.add.graphics();
     this.linkG.lineStyle(2, COLORS.cyan, 0.35);
-    this.linkG.lineBetween(GX + 40, 640, GX + 560, 640);
-    img(this, GX + 20, 640, 'earthSmall', 0.32);
-    img(this, GX + 590, 640, 'mars', 0.16);
-    this.signal = this.add.circle(GX + 40, 640, 7, COLORS.yellow).setVisible(false);
-    this.delayText = txt(this, GX + 300, 612, '', { size: 15, weight: 700, color: CSS.cyan, origin: 0.5, scale: false });
+    this.linkG.lineBetween(GX + 40, 660, GX + 560, 660);
+    img(this, GX + 20, 660, 'earthSmall', 0.32);
+    img(this, GX + 590, 660, 'mars', 0.16);
+    this.signal = this.add.circle(GX + 40, 660, 7, COLORS.yellow).setVisible(false);
+    this.delayText = txt(this, GX + 300, 632, '', { size: 15, weight: 700, color: CSS.cyan, origin: 0.5, scale: false });
 
     if (this.input.keyboard) {
       this.input.keyboard.on('keydown-UP', () => this.addCmd('F'));
@@ -86,6 +85,12 @@ export class RoverProgramScene extends BaseScene {
       this.input.keyboard.on('keydown-BACKSPACE', () => this.undo());
     }
     this.loadLevel(0);
+    // stuck? point at Forward while the program is empty, then at Send
+    idleHint(this, () => {
+      if (this.state !== 'plan') return null;
+      if (!this.program.length) return { x: this.moveBtns[0].x, y: this.moveBtns[0].y - 38 };
+      return { x: this.sendBtn.x, y: this.sendBtn.y - 42 };
+    }, { delay: 12000 });
     playIntro(this).then((ok) => {
       if (ok) this.startLevel();
     });
@@ -96,8 +101,7 @@ export class RoverProgramScene extends BaseScene {
     this.grid = LEVELS[i].map((row) => row.split(''));
     this.rocksDone = {};
     this.mapLayer.removeAll(true);
-    const g = this.mapG;
-    g.clear();
+    const g = this.add.graphics();
     drawPanel(g, GX - 10, GY - 10, COLS * CELL + 20, ROWS * CELL + 20, { fill: 0x8a4424, radius: 12, stroke: 0x4a2010, strokeWidth: 3 });
     const names = (this.levelCfg[i] || {}).rocks || {};
     for (let r = 0; r < ROWS; r++) {
@@ -123,13 +127,14 @@ export class RoverProgramScene extends BaseScene {
     g.lineStyle(1, 0x000000, 0.12);
     for (let c = 1; c < COLS; c++) g.lineBetween(GX + c * CELL, GY, GX + c * CELL, GY + ROWS * CELL);
     for (let r = 1; r < ROWS; r++) g.lineBetween(GX, GY + r * CELL, GX + COLS * CELL, GY + r * CELL);
+    // the map doesn't change during a level: one picture is cheaper to draw every frame
+    if (this.mapImg) this.mapImg.destroy();
+    this.mapImg = bake(this, g, GX - 14, GY - 14, COLS * CELL + 28, ROWS * CELL + 34);
+    this.children.moveBelow(this.mapImg, this.mapLayer);
     this.pos = { c: this.start.c, r: this.start.r, h: 0 };
     this.placeRover(true);
     this.program = [];
     this.drawProgram();
-    const lc = this.levelCfg[i] || {};
-    this.title.setText(lc.title || '');
-    this.sub.setText(lc.goal || '');
     this.updateUi();
   }
 
@@ -140,6 +145,7 @@ export class RoverProgramScene extends BaseScene {
       if (r === null || this._leaving) return;
     }
     this.state = 'plan';
+    this.goal.set(lc.task || { title: lc.title || '' }, { count: `${this.level + 1} / ${this.levelCfg.length || 3}` });
     this.updateUi();
   }
 
@@ -154,7 +160,7 @@ export class RoverProgramScene extends BaseScene {
     if (this.state !== 'plan') return;
     if (this.program.length >= SLOTS) {
       Sfx.play('error');
-      toast(this, this.T('full', 'The program is full. Send it, or undo some moves.'), { y: 100, color: COLORS.orange, sound: false, duration: 1800 });
+      toast(this, this.T('full', 'The program is full. Send it, or undo some moves.'), { y: 664, color: COLORS.orange, sound: false, speak: true, duration: 1800 });
       return;
     }
     this.program.push(id);
@@ -178,15 +184,10 @@ export class RoverProgramScene extends BaseScene {
   }
 
   drawProgram(active = -1) {
-    const g = this.slotG;
-    g.clear();
     this.slotIcons.removeAll(true);
     this.slotPos.forEach((p, i) => {
       const id = this.program[i];
-      g.fillStyle(i === active ? COLORS.yellow : id ? (id === 'S' ? COLORS.orange : COLORS.cyan) : 0x0b1230, id ? 1 : 0.8);
-      g.fillRoundedRect(p.x - 29, p.y - 29, 58, 58, 10);
-      g.lineStyle(2, 0x3a4a92, 1);
-      g.strokeRoundedRect(p.x - 29, p.y - 29, 58, 58, 10);
+      this.slotBoxes[i].draw(p.x - 29, p.y - 29, 58, 58, { fill: i === active ? COLORS.yellow : id ? (id === 'S' ? COLORS.orange : COLORS.cyan) : 0x0b1230, alpha: id ? 1 : 0.8, radius: 10, stroke: 0x3a4a92, shadow: false });
       if (id) {
         const ig = this.add.graphics();
         this.slotIcons.add(ig);
@@ -249,7 +250,7 @@ export class RoverProgramScene extends BaseScene {
     this.program = [];
     this.drawProgram();
     if (Object.values(this.rocksDone).every((d) => d.done)) return this.levelDone();
-    if (!stopped) toast(this, this.T('waiting', 'Sojourner waits for its next message.'), { y: 100, sound: false, duration: 2000 });
+    if (!stopped) toast(this, this.T('waiting', 'Sojourner waits for its next message.'), { y: 664, sound: false, speak: true, duration: 2000 });
     this.state = 'plan';
     this.updateUi();
   }
@@ -271,7 +272,7 @@ export class RoverProgramScene extends BaseScene {
           this.hazards++;
           Sfx.play('error');
           this.tweens.add({ targets: this.rover, x: this.rover.x + DX[p.h] * 10, y: this.rover.y + DY[p.h] * 10, duration: 120, yoyo: true });
-          toast(this, this.T('hazard', 'Hazard! Sojourner saw a rock in the way and stopped itself.'), { y: 100, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
+          toast(this, this.T('hazard', 'Hazard! Sojourner saw a rock in the way and stopped itself.'), { y: 664, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
           this.time.delayedCall(500, () => resolve(false));
           return;
         }
@@ -293,14 +294,14 @@ export class RoverProgramScene extends BaseScene {
           Sfx.play('success');
           floatText(this, GX + c * CELL + CELL / 2, GY + r * CELL, '✓', CSS.green, 34);
           const lc = this.levelCfg[this.level] || {};
-          const fact = (lc.facts || {})[cell];
-          if (fact) toast(this, fact, { y: 100, sound: false, speak: true, duration: 4200 });
+          const fact = (lc.facts || [])[cell === 'B' ? 1 : 0];
+          if (fact) toast(this, fact, { y: 664, sound: false, speak: true, duration: 4200 });
         }
         this.time.delayedCall(700, () => resolve(true));
         return;
       }
       Sfx.play('error');
-      toast(this, this.T('nothing', 'Nothing to study here. Face the rock first!'), { y: 100, color: COLORS.orange, sound: false, duration: 2000 });
+      toast(this, this.T('nothing', 'Nothing to study here. Face the rock first!'), { y: 664, color: COLORS.orange, sound: false, speak: true, duration: 2000 });
       this.time.delayedCall(500, () => resolve(true));
     });
   }

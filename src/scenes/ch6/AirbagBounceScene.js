@@ -3,16 +3,17 @@ import { W, COLORS, CSS, DEPTH, seeded, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, GoalBar, idleHint } from '../common/kit.js';
 import { marsBackdrop } from '../common/mars.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { toast, cameraShake, floatText } from '../../ui/widgets.js';
+import { toast, cameraShake, floatText, roundBox } from '../../ui/widgets.js';
 
 // Mars Pathfinder (1997) landed inside a ball of airbags. First be its landing computer:
-// blow up the airbags, fire the braking rockets, then cut the cord. Then the ball drops and
-// bounces across the rocks: nudge it away from the sharp ones, until it rolls to a stop.
+// blow up the airbags, fire the braking rockets, then cut the cord, each one when the height
+// marker is in the green zone. Then the ball drops and bounces across the rocks: nudge it away
+// from the sharp ones, until it rolls to a stop.
 const GROUND = 600;
 const BALL_R = 52;
 const GRAV = 420, BOUNCE = 0.88, PUSH = 380;
@@ -21,6 +22,7 @@ const STEPS = [
   { key: 'rockets', at: [130, 80] },
   { key: 'cut', at: [40, 12] }
 ];
+const METER = { x: 1170, y: 210, w: 44, h: 360, top: 600 }; // height meter (top = metres at the top)
 
 export class AirbagBounceScene extends BaseScene {
   constructor() {
@@ -54,7 +56,7 @@ export class AirbagBounceScene extends BaseScene {
     }
 
     // descending: parachute, backshell and the lander on its long cord
-    this.rig = this.add.container(W / 2 - 120, 150);
+    this.rig = this.add.container(W / 2 - 120, 262);
     this.chute = img(this, 0, -100, 'marsChute', 0.9);
     this.shell = img(this, 0, 10, 'backshell', 0.8);
     this.cord = this.add.graphics();
@@ -68,10 +70,14 @@ export class AirbagBounceScene extends BaseScene {
     this.rig.add([this.cord, this.chute, this.shell, this.flames, this.ball]);
     this.drawCord();
 
-    // HUD
-    this.altText = txt(this, 60, 100, '', { size: 26, weight: 800, color: '#ffffff', scale: false, stroke: '#3a1a0a', strokeThickness: 6 }).setDepth(DEPTH.ui);
-    this.infoText = txt(this, 60, 140, '', { size: 18, weight: 700, color: '#ffffff', scale: false, stroke: '#3a1a0a', strokeThickness: 5 }).setDepth(DEPTH.ui);
-    this.actBtn = new Button(this, W - 180, 640, { width: 300, height: 76, size: 26, label: this.T('inflateLabel', 'Inflate airbags'), icon: 'next', variant: 'warn', onClick: () => this.act() });
+    // HUD: the task, and a height meter with a green "now!" zone for each step
+    this.goal = new GoalBar(this);
+    const mg = roundBox(this, METER.x - 56, METER.y - 46, METER.w + 112, METER.h + 100, { fill: 0x0b1230, radius: 18, alpha: 0.9 }).setDepth(DEPTH.ui - 1);
+    this.meterTitle = txt(this, METER.x + METER.w / 2, METER.y - 24, this.T('altLabel', 'Height'), { size: 18, weight: 800, color: CSS.cyan, origin: 0.5, scale: false }).setDepth(DEPTH.ui);
+    this.meterG = this.add.graphics().setDepth(DEPTH.ui);
+    this.altText = txt(this, METER.x + METER.w / 2, METER.y + METER.h + 26, '', { size: 18, weight: 800, color: '#ffffff', origin: 0.5, scale: false }).setDepth(DEPTH.ui);
+    this.bounceText = txt(this, 60, 186, '', { size: 22, weight: 800, color: '#ffffff', scale: false, stroke: '#3a1a0a', strokeThickness: 6 }).setDepth(DEPTH.ui);
+    this.actBtn = new Button(this, W - 180, 640, { width: 300, height: 76, size: 26, label: this.T('inflateLabel', 'Inflate airbags'), icon: 'next', variant: 'warn', onClick: () => this.act() }).setDepth(DEPTH.ui);
     // steering buttons for the bounce (hold them)
     this.leftBtn = this.holdButton(110, 640, 'left', -1);
     this.rightBtn = this.holdButton(270, 640, 'right', 1);
@@ -85,13 +91,29 @@ export class AirbagBounceScene extends BaseScene {
     }
     this.setSteer(false);
     this.updateHud();
+    // in the green zone: point at the button
+    idleHint(this, () => {
+      const s = this.state === 'descent' && STEPS[this.step];
+      return s && this.alt <= s.at[0] ? { x: this.actBtn.x, y: this.actBtn.y - 44 } : null;
+    }, { delay: 600 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'descent';
+      if (!ok) return;
+      this.state = 'descent';
+      this.showTask();
     });
   }
 
+  // the banner for the current step
+  showTask() {
+    const s = STEPS[this.step];
+    const keys = { inflate: ['inflateTask', 'Inflate the airbags!'], rockets: ['rocketsTask', 'Fire the braking rockets!'], cut: ['cutTask', 'Cut the cord!'] };
+    const k = s ? keys[s.key] : ['bounceTask', 'Steer past the sharp rocks!'];
+    const help = s ? this.T('pressHelp', 'Press the button when the height marker is in the green zone.') : this.T('steerHelp', 'Hold left to slow down, right to speed up.');
+    this.goal.set(this.T(k[0], { title: k[1], help }), { count: `${Math.min(this.step + 1, 4)} / 4` });
+  }
+
   holdButton(x, y, icon, dir) {
-    const b = new Button(this, x, y, { width: 140, height: 76, icon, variant: 'secondary', sound: null });
+    const b = new Button(this, x, y, { width: 140, height: 76, icon, variant: 'secondary', sound: null }).setDepth(DEPTH.ui);
     b.off('pointerup');
     b.on('pointerdown', () => (this.push = dir));
     b.activate = () => {
@@ -117,14 +139,31 @@ export class AirbagBounceScene extends BaseScene {
   }
 
   updateHud() {
+    const g = this.meterG;
+    g.clear();
     if (this.state === 'bounce' || this.state === 'won') {
-      this.altText.setText(`${this.T('bouncesLabel', 'Bounces')}: ${this.bounces}`);
-      this.infoText.setText(this.T('steerHint', '◀ slow down   ▶ speed up: miss the sharp rocks!'));
+      this.bounceText.setText(`${this.T('bouncesLabel', 'Bounces')}: ${this.bounces}`);
+      [this.meterTitle, this.altText].forEach((t) => t.setVisible(false));
       return;
     }
-    this.altText.setText(`${this.T('altLabel', 'Height')}: ${Math.max(0, Math.round(this.alt))} m`);
+    const yOf = (m) => METER.y + METER.h - (clamp(m, 0, METER.top) / METER.top) * METER.h;
+    g.fillStyle(0x1b2348, 1);
+    g.fillRoundedRect(METER.x, METER.y, METER.w, METER.h, 10);
     const s = STEPS[this.step];
-    this.infoText.setText(s ? this.T(s.key + 'Hint', '') : '');
+    if (s) {
+      // the green zone: press now!
+      g.fillStyle(COLORS.green, 0.9);
+      g.fillRect(METER.x, yOf(s.at[0]), METER.w, yOf(s.at[1]) - yOf(s.at[0]));
+    }
+    g.lineStyle(3, 0xffffff, 0.4);
+    g.strokeRoundedRect(METER.x, METER.y, METER.w, METER.h, 10);
+    // the marker: where we are now
+    const my = yOf(this.alt);
+    const inZone = s && this.alt <= s.at[0] && this.alt >= s.at[1];
+    g.fillStyle(inZone ? COLORS.green : COLORS.yellow, 1);
+    g.fillTriangle(METER.x - 26, my - 12, METER.x - 26, my + 12, METER.x - 4, my);
+    g.fillRect(METER.x, my - 2, METER.w, 4);
+    this.altText.setText(`${Math.max(0, Math.round(this.alt))} m`);
   }
 
   act() {
@@ -134,7 +173,7 @@ export class AirbagBounceScene extends BaseScene {
     if (this.alt > s.at[0]) {
       this.mistakes++;
       Sfx.play('error');
-      toast(this, this.T(s.key + 'Early', 'Too early!'), { y: 210, color: COLORS.orange, sound: false, speak: true, duration: 2200 });
+      toast(this, this.T(s.key + 'Early', 'Too early!'), { y: 230, color: COLORS.orange, sound: false, speak: true, duration: 2200 });
       return;
     }
     this.doStep(s);
@@ -155,6 +194,7 @@ export class AirbagBounceScene extends BaseScene {
       this.drop();
     }
     this.updateHud();
+    if (this.state === 'descent' || this.state === 'bounce') this.showTask();
   }
 
   // the ball falls free and starts bouncing
@@ -225,7 +265,7 @@ export class AirbagBounceScene extends BaseScene {
       const s = STEPS[this.step];
       if (s && this.alt < s.at[1]) {
         this.mistakes++;
-        toast(this, this.T(s.key + 'Late', 'Too late! The computer did it for you.'), { y: 210, color: COLORS.orange, sound: false, speak: true, duration: 2200 });
+        toast(this, this.T(s.key + 'Late', 'Too late! The computer did it for you.'), { y: 230, color: COLORS.orange, sound: false, speak: true, duration: 2200 });
         this.doStep(s);
       }
       this.off = clamp(this.alt, 0, 600) * 0.9;

@@ -8,7 +8,7 @@ import { starfield } from '../common/bg.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, toast, floatText, shake, Slider } from '../../ui/widgets.js';
+import { toast, floatText, shake, Slider, roundBox } from '../../ui/widgets.js';
 
 // Four quick jobs to get home: fix the broken switch (with a felt-tip pen, like Buzz Aldrin),
 // separate the Service Module, point the heat shield forward, and pick a safe entry angle.
@@ -31,8 +31,7 @@ export class RepairScene extends BaseScene {
     this.task = -1;
 
     // instruction bar
-    const ig = this.add.graphics().setDepth(DEPTH.ui);
-    drawPanel(ig, 180, 84, 920, 92, { fill: 0x0e1840, radius: 18, stroke: COLORS.cyan });
+    const ig = roundBox(this, 180, 84, 920, 92, { fill: 0x0e1840, radius: 18, stroke: COLORS.cyan }).setDepth(DEPTH.ui);
     this.taskTitle = txt(this, 204, 96, '', { size: 20, weight: 800, color: CSS.yellow, scale: false }).setDepth(DEPTH.ui);
     this.instr = txt(this, 204, 124, '', { size: 17, wrap: 872, scale: false }).setDepth(DEPTH.ui);
     this.dots = this.add.graphics().setDepth(DEPTH.ui);
@@ -63,9 +62,9 @@ export class RepairScene extends BaseScene {
   taskSwitch() {
     this.setInstr(this.T('intro', [])[1] || '', false);
     const px = 330, py = 190, pw = 620, ph = 310;
+    const box = roundBox(this, px, py, pw, ph, { fill: 0x3a3f4b, stroke: 0x6b7385, radius: 14 });
     const g = this.add.graphics();
-    drawPanel(g, px, py, pw, ph, { fill: 0x3a3f4b, stroke: 0x6b7385, radius: 14 });
-    this.layer.add(g);
+    this.layer.add([box, g]);
     const cols = 8, rows = 4;
     this.breakerAt = { x: px + 80 + 5 * 68, y: py + 66 + 1 * 64 };
     for (let r = 0; r < rows; r++) {
@@ -92,8 +91,7 @@ export class RepairScene extends BaseScene {
     this.layer.add([label, this.brokenGlow, stub]);
 
     // tools
-    const tray = this.add.graphics();
-    drawPanel(tray, 180, 560, 920, 140, { fill: 0x0e1840, radius: 18 });
+    const tray = roundBox(this, 180, 560, 920, 140, { fill: 0x0e1840, radius: 18 });
     this.layer.add(tray);
     this.T('tools', []).forEach((t, i) => {
       const x = 300 + i * 230, y = 616;

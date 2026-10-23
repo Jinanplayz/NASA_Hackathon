@@ -1,18 +1,18 @@
 import Phaser from 'phaser';
 import { W, H, FULL, COLORS, CSS, DEPTH, clamp, lerpColor } from '../../core/constants.js';
-import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
+import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, toast, cameraShake } from '../../ui/widgets.js';
+import { toast, cameraShake, roundBox } from '../../ui/widgets.js';
 
-// Hold BURN to fire the engines and let go when the speed needle is in the green zone.
+// Hold BURN to fire the engines and let go when the speed bar is in the green zone.
 // On the second stage the centre engine shuts down early (as it really did on Apollo 13),
-// so the other engines have to burn for longer than planned.
-const MX = 1040, MY = 120, MW = 70, MH = 430; // speed meter
+// so the other engines have to burn for longer.
+const MX = 1030, MY = 214, MW = 80, MH = 370; // speed meter
 const ROCKET_X = 470, ROCKET_Y = 330;
 
 export class StageBurnScene extends BaseScene {
@@ -45,20 +45,19 @@ export class StageBurnScene extends BaseScene {
 
     // engine lights
     this.engineG = this.add.graphics().setDepth(DEPTH.ui);
-    this.stageText = txt(this, 60, 92, '', { size: 26, weight: 800, color: CSS.yellow, scale: false }).setDepth(DEPTH.ui);
+    this.engineLabel = txt(this, 60, 186, this.T('enginesLabel', 'Engines'), { size: 16, weight: 800, color: CSS.cyan, scale: false }).setDepth(DEPTH.ui);
+    this.goal = new GoalBar(this);
 
     // speed meter
-    const mg = this.add.graphics().setDepth(DEPTH.ui - 1);
-    drawPanel(mg, MX - 50, MY - 50, MW + 100, MH + 110, { fill: 0x0b1230, radius: 18 });
-    txt(this, MX + MW / 2, MY - 28, this.T('speedLabel', 'Speed'), { size: 18, weight: 800, color: CSS.cyan, origin: 0.5, scale: false }).setDepth(DEPTH.ui);
+    const mg = roundBox(this, MX - 130, MY - 46, MW + 180, MH + 92, { fill: 0x0b1230, radius: 18 }).setDepth(DEPTH.ui - 1);
+    txt(this, MX + MW / 2, MY - 24, this.T('speedLabel', 'Speed'), { size: 20, weight: 800, color: CSS.cyan, origin: 0.5, scale: false }).setDepth(DEPTH.ui);
     this.meterG = this.add.graphics().setDepth(DEPTH.ui);
-    this.needle = this.add.triangle(0, 0, 0, 0, 22, -12, 22, 12, COLORS.yellow).setDepth(DEPTH.ui + 1);
-    this.zoneText = txt(this, MX - 34, 0, this.T('targetLabel', 'Go!'), { size: 15, weight: 800, color: CSS.green, origin: [1, 0.5], scale: false }).setDepth(DEPTH.ui);
-    this.planText = txt(this, MX - 34, 0, this.T('plannedLabel', 'Planned cutoff'), { size: 13, weight: 700, color: CSS.dim, origin: [1, 0.5], scale: false }).setDepth(DEPTH.ui);
-    this.feedback = txt(this, W / 2 - 80, 560, '', { size: 26, weight: 800, origin: 0.5, scale: false, stroke: '#070b1d', strokeThickness: 6 }).setDepth(DEPTH.toast);
+    this.needle = this.add.triangle(0, 0, 0, 0, 24, -13, 24, 13, COLORS.yellow).setDepth(DEPTH.ui + 1);
+    this.zoneText = txt(this, MX - 14, 0, this.T('targetLabel', 'Let go here!'), { size: 17, weight: 800, color: CSS.green, origin: [1, 0.5], align: 'right', wrap: 100, scale: false }).setDepth(DEPTH.ui);
+    this.feedback = txt(this, W / 2 - 100, 548, '', { size: 28, weight: 800, origin: 0.5, align: 'center', wrap: 640, scale: false, stroke: '#070b1d', strokeThickness: 6 }).setDepth(DEPTH.toast);
 
     // the BURN button: hold it down
-    this.burnBtn = new Button(this, W / 2 - 80, 640, { width: 300, height: 78, size: 32, label: this.T('burnLabel', 'BURN'), icon: 'up', variant: 'warn', sound: null });
+    this.burnBtn = new Button(this, W / 2 - 100, 640, { width: 320, height: 84, size: 34, label: this.T('burnLabel', 'BURN'), icon: 'up', variant: 'warn', sound: null });
     this.burnBtn.off('pointerup');
     this.burnBtn.on('pointerdown', () => this.setHold(true));
     this.input.on('pointerup', () => {
@@ -72,8 +71,11 @@ export class StageBurnScene extends BaseScene {
     }
 
     this.setupStageData(0);
+    idleHint(this, () => (this.state === 'burn' && !this.holding ? { x: this.burnBtn.x, y: this.burnBtn.y - 46 } : null), { delay: 5000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'burn';
+      if (!ok) return;
+      this.state = 'burn';
+      this.goal.set(this.T('task', { title: 'Hold BURN!', help: 'Let go when the speed bar reaches the green zone.' }), { count: this.stageName });
     });
   }
 
@@ -100,9 +102,9 @@ export class StageBurnScene extends BaseScene {
     // green zone and the planned cutoff (where it would have ended with all engines working)
     this.zone = i === 0 ? [0.74, 0.84] : [0.76, 0.85];
     this.zone = this.relaxed ? [this.zone[0] - 0.03, this.zone[1] + 0.03] : this.zone;
-    this.planned = i === 0 ? 0.62 : 0.66;
     this.accel = (i === 0 ? 0.13 : 0.12) * (this.relaxed ? 0.8 : 1);
-    this.stageText.setText(st.name || '');
+    this.stageName = st.name || '';
+    if (i > 0) this.goal.setCount(this.stageName);
     // flames: one per engine
     this.flameBox.removeAll(true);
     const bottom = this.body.displayHeight * this.cropFrac;
@@ -125,7 +127,7 @@ export class StageBurnScene extends BaseScene {
     const n = this.T('stages', [])[this.stage]?.engines ?? 1;
     for (let k = 0; k < n; k++) {
       const out = k === 0 && this.engineOutDone && n === 5 && this.stage === 0 && this.engineOutHappened;
-      const x = 74 + k * 34, y = 150;
+      const x = 74 + k * 34, y = 224;
       g.fillStyle(0x000000, 0.4);
       g.fillCircle(x, y + 2, 13);
       g.fillStyle(out ? 0x3a3f4b : this.holding ? COLORS.orange : 0x6b7290, 1);
@@ -146,17 +148,14 @@ export class StageBurnScene extends BaseScene {
     const yOf = (v) => MY + MH - v * MH;
     g.fillStyle(COLORS.green, 0.9);
     g.fillRect(MX, yOf(this.zone[1]), MW, (this.zone[1] - this.zone[0]) * MH);
-    // speed so far
-    g.fillStyle(COLORS.cyan, 0.65);
-    g.fillRect(MX + 8, yOf(this.speed), MW - 16, this.speed * MH);
-    // planned cutoff tick
-    g.lineStyle(3, 0xffffff, 0.7);
-    for (let x = MX - 18; x < MX + MW + 6; x += 10) g.lineBetween(x, yOf(this.planned), x + 5, yOf(this.planned));
+    // speed so far (turns green inside the zone)
+    const inZone = this.speed >= this.zone[0];
+    g.fillStyle(inZone ? 0xb6ffd9 : COLORS.cyan, 0.75);
+    g.fillRect(MX + 10, yOf(this.speed), MW - 20, this.speed * MH);
     g.lineStyle(3, 0xffffff, 0.4);
     g.strokeRoundedRect(MX, MY, MW, MH, 14);
     this.needle.setPosition(MX + MW + 14, yOf(this.speed));
     this.zoneText.setY(yOf((this.zone[0] + this.zone[1]) / 2));
-    this.planText.setY(yOf(this.planned));
   }
 
   setHold(on) {
@@ -177,7 +176,7 @@ export class StageBurnScene extends BaseScene {
     if (this.speed <= 0.02) return;
     if (this.speed < this.zone[0]) {
       this.mistakes++;
-      this.flash(this.T('early', 'Not fast enough yet! Hold BURN again.'), CSS.orange);
+      this.flash(this.T('tooSoon', 'Not fast enough yet! Hold BURN again.'), CSS.orange);
       Sfx.play('error');
       return;
     }
@@ -186,6 +185,7 @@ export class StageBurnScene extends BaseScene {
   }
 
   flash(text, color) {
+    Speech.say(text);
     this.feedback.setText(text).setColor(color).setAlpha(1).setScale(0.85);
     this.tweens.killTweensOf(this.feedback);
     this.tweens.add({ targets: this.feedback, scale: 1, duration: 200, ease: 'Back.easeOut' });

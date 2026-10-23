@@ -1,14 +1,13 @@
-import Phaser from 'phaser';
 import { W, COLORS, CSS, DEPTH, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, GoalBar, idleHint } from '../common/kit.js';
 import { marsBackdrop } from '../common/mars.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { ProgressBar, drawPanel, toast, floatText } from '../../ui/widgets.js';
+import { ProgressBar, toast, floatText, roundBox } from '../../ui/widgets.js';
 
 // Ingenuity (2021), the first aircraft to fly on another planet. Spin the rotors up (the air is
 // so thin they must spin very fast), hover 3 metres up like the first flight, land gently, then
@@ -59,13 +58,12 @@ export class IngenuityScene extends BaseScene {
     this.dust = this.add.particles(0, 0, 'softDot', { speed: { min: 50, max: 140 }, angle: { min: 160, max: 380 }, lifespan: 900, scale: { start: 0.2, end: 0.5 }, alpha: { start: 0.35, end: 0 }, tint: 0xd09060, frequency: 60, emitting: false }).setDepth(3);
 
     // HUD
-    const hg = this.add.graphics().setDepth(DEPTH.ui - 1);
-    drawPanel(hg, 40, 84, 380, 132, { fill: 0x0b1230, radius: 16, stroke: COLORS.stroke, strokeWidth: 2 });
-    this.rpmText = txt(this, 60, 98, '', { size: 18, weight: 800, color: CSS.cyan, scale: false }).setDepth(DEPTH.ui);
-    this.rpmBar = new ProgressBar(this, 60, 128, 340, 12, { color: COLORS.cyan });
-    this.altText = txt(this, 60, 150, '', { size: 18, weight: 800, color: '#ffffff', scale: false }).setDepth(DEPTH.ui);
-    this.goalText = txt(this, 60, 180, '', { size: 16, weight: 700, color: CSS.yellow, scale: false, wrap: 340 }).setDepth(DEPTH.ui);
-    this.hoverBar = new ProgressBar(this, 440, 100, 200, 14, { color: COLORS.green });
+    const hg = roundBox(this, 40, 176, 380, 96, { fill: 0x0b1230, radius: 16, stroke: COLORS.stroke, strokeWidth: 2 }).setDepth(DEPTH.ui - 1);
+    this.rpmText = txt(this, 60, 188, '', { size: 18, weight: 800, color: CSS.cyan, scale: false }).setDepth(DEPTH.ui);
+    this.rpmBar = new ProgressBar(this, 60, 216, 340, 12, { color: COLORS.cyan });
+    this.altText = txt(this, 60, 236, '', { size: 18, weight: 800, color: '#ffffff', scale: false }).setDepth(DEPTH.ui);
+    this.hoverBar = new ProgressBar(this, 440, 196, 200, 14, { color: COLORS.green });
+    this.goal = new GoalBar(this);
     this.hoverBar.g.setVisible(false);
     // the hover band for the first flight
     this.band = this.add.rectangle(W / 2, GROUND - 3 * PX_PER_M, 2000, PX_PER_M, COLORS.green, 0.12).setVisible(false);
@@ -75,7 +73,7 @@ export class IngenuityScene extends BaseScene {
     this.bandLine.lineBetween(-300, GROUND - 2.5 * PX_PER_M, 1600, GROUND - 2.5 * PX_PER_M);
 
     // controls: hold Lift; arrows to fly sideways; Photo for the second flight
-    this.liftBtn = new Button(this, W - 170, 650, { width: 260, height: 76, size: 26, label: this.T('liftLabel', 'Hold: lift'), icon: 'up', variant: 'warn', sound: null });
+    this.liftBtn = new Button(this, W - 170, 650, { width: 260, height: 76, size: 26, label: this.T('liftLabel', 'Hold: lift'), icon: 'up', variant: 'warn', sound: null }).setDepth(DEPTH.ui);
     this.liftBtn.off('pointerup');
     this.liftBtn.on('pointerdown', () => (this.holding = true));
     this.liftBtn.activate = () => (this.holding = !this.holding);
@@ -100,12 +98,25 @@ export class IngenuityScene extends BaseScene {
     }
     this.setSideButtons(false);
     this.updateHud();
+    // stuck? point at Lift while spinning up
+    idleHint(this, () => ((this.state === 'spin' || this.state === 'spin2') && !this.holding ? { x: this.liftBtn.x, y: this.liftBtn.y - 44 } : null), { delay: 4000 });
     playIntro(this).then((ok) => {
       if (ok) {
         this.state = 'spin';
+        this.showGoal('spin');
         this.updateHud();
       }
     });
+  }
+
+  // the task bar for each part of the flights
+  showGoal(s) {
+    const titles = this.T('stageTitles', {});
+    const goals = this.T('goals', {});
+    const order = ['spin', 'hover', 'land1', 'spin2', 'photos', 'return'];
+    if (!goals[s]) return;
+    this.goal.set({ title: titles[s] || '', help: goals[s] }, { count: `${order.indexOf(s) + 1} / ${order.length}`, speak: false });
+    Speech.say(titles[s] ? [titles[s], goals[s]] : goals[s]);
   }
 
   holdButton(x, y, icon, dir) {
@@ -128,14 +139,11 @@ export class IngenuityScene extends BaseScene {
     this.rpmText.setText(`${this.T('rpmLabel', 'Rotor speed')}: ${Math.round(this.rpm)} rpm`);
     this.rpmBar.set(this.rpm / 2600, true);
     this.altText.setText(`${this.T('altLabel', 'Height')}: ${this.alt.toFixed(1)} m`);
-    const goals = this.T('goals', {});
-    this.goalText.setText(goals[this.state] || '');
   }
 
   setState(s) {
     this.state = s;
-    const goals = this.T('goals', {});
-    if (goals[s]) Speech.say(goals[s]);
+    this.showGoal(s);
     this.band.setVisible(s === 'hover');
     this.bandLine.setVisible(s === 'hover');
     this.hoverBar.g.setVisible(s === 'hover');
@@ -166,7 +174,7 @@ export class IngenuityScene extends BaseScene {
     const y = this.alt;
     if (Math.abs(this.x - s.x) > 40 || Math.abs(y - s.alt) > 1.2) {
       Sfx.play('error');
-      toast(this, this.T('notLinedUp', 'Line up with the yellow box first!'), { y: 270, color: COLORS.orange, sound: false, duration: 1600 });
+      toast(this, this.T('lineUp', 'Line up with the yellow box first!'), { y: 330, color: COLORS.orange, sound: false, speak: true, duration: 1600 });
       return;
     }
     // click!
@@ -174,7 +182,7 @@ export class IngenuityScene extends BaseScene {
     const flash = this.add.rectangle(W / 2, 360, 2400, 1600, 0xffffff, 0.7).setDepth(DEPTH.ui + 10);
     this.tweens.add({ targets: flash, alpha: 0, duration: 400, onComplete: () => flash.destroy() });
     const facts = this.T('photoFacts', []);
-    if (facts[this.shot]) toast(this, facts[this.shot], { y: 270, sound: false, speak: true, duration: 3800 });
+    if (facts[this.shot]) toast(this, facts[this.shot], { y: 330, sound: false, speak: true, duration: 3800 });
     this.shot++;
     if (this.shot >= SHOTS.length) this.setState('return');
     else this.drawShots();
@@ -188,12 +196,12 @@ export class IngenuityScene extends BaseScene {
     if (hard) {
       this.mistakes++;
       Sfx.play('hit');
-      toast(this, this.T('hardLanding', 'Bump! That landing was a bit hard. Let go of Lift slowly, and tap it to slow down.'), { y: 270, color: COLORS.orange, sound: false, speak: true, duration: 3000 });
+      toast(this, this.T('hardLanding', 'Bump! That landing was a bit hard. Let go of Lift slowly, and tap it to slow down.'), { y: 330, color: COLORS.orange, sound: false, speak: true, duration: 3000 });
     } else Sfx.play('puff');
     if (this.state === 'land1') return this.flightDone(1);
     if (this.state === 'return') {
       if (Math.abs(this.x - PAD) > 70) {
-        toast(this, this.T('offPad', 'Land on Wright Brothers Field, please!'), { y: 270, color: COLORS.orange, sound: false, duration: 2000 });
+        toast(this, this.T('landHere', 'Land on Wright Brothers Field, please!'), { y: 330, color: COLORS.orange, sound: false, speak: true, duration: 2000 });
         return;
       }
       return this.flightDone(2);

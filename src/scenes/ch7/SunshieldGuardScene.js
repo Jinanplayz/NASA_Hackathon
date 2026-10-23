@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
-import { W, COLORS, CSS, DEPTH } from '../../core/constants.js';
+import { COLORS, CSS } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame, starsFor, InfoPanel } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, InfoPanel, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { ProgressBar, toast, floatText } from '../../ui/widgets.js';
@@ -13,7 +13,7 @@ import { ProgressBar, toast, floatText } from '../../ui/widgets.js';
 // at the parts of the sky that are well away from the Sun (the green zones). As Webb travels
 // around the Sun during the year, the zones move, so different targets come into view.
 // Tap a target when it's in a green zone to observe it.
-const CX = 470, CY = 380, RING = 250;
+const CX = 450, CY = 430, RING = 220;
 const ZONE = [85, 135]; // allowed angles from the Sun, in degrees
 const YEAR = 70; // seconds for one trip around the Sun
 
@@ -40,6 +40,7 @@ export class SunshieldGuardScene extends BaseScene {
     this.sunCore = img(this, 0, 0, 'sun', 0.35);
     this.webb = img(this, CX, CY, 'jwst', 0.3);
     this.beam = this.add.graphics();
+    this.okRings = this.add.graphics();
 
     // the targets around the sky
     const list = this.T('targets', []);
@@ -62,16 +63,25 @@ export class SunshieldGuardScene extends BaseScene {
     });
 
     // HUD
-    this.info = new InfoPanel(this, 790, 96, 450, 300, { title: this.T('panelTitle', 'Keep cool!'), text: this.T('panelText', ''), size: 18 });
-    this.countText = txt(this, 1015, 420, '', { size: 20, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
+    this.info = new InfoPanel(this, 790, 176, 450, 250, { title: '', text: '', size: 18 });
+    this.info.g.setVisible(false);
+    this.goal = new GoalBar(this);
     txt(this, 820, 460, this.T('yearLabel', 'Time of year'), { size: 16, weight: 800, color: CSS.cyan, scale: false });
     this.yearBar = new ProgressBar(this, 820, 488, 390, 14, { color: COLORS.cyan });
-    this.obsLabel = txt(this, 820, 520, '', { size: 16, weight: 800, color: CSS.green, scale: false });
-    this.obsBar = new ProgressBar(this, 820, 548, 390, 14, { color: COLORS.green });
+    this.obsLabel = txt(this, 820, 520, '', { size: 18, weight: 800, color: CSS.green, scale: false });
+    this.obsBar = new ProgressBar(this, 820, 548, 390, 16, { color: COLORS.green });
     this.updateHud();
     this.drawSky();
+    // stuck? point at a target in the green zone
+    idleHint(this, () => {
+      if (this.state !== 'play' || this.observing) return null;
+      const t = this.targets.find((k) => !k.done && this.allowed(k.a));
+      return t ? { x: t.x, y: t.y - 50 } : null;
+    }, { delay: 6000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Observe 8 targets!', help: "Webb can only look where it's green. Tap a target when it's in a green zone." }), { count: `0 / ${this.targets.length}` });
     });
   }
 
@@ -101,14 +111,24 @@ export class SunshieldGuardScene extends BaseScene {
     g.fillStyle(COLORS.red, 0.1);
     g.slice(CX, CY, RING + 40, this.sunAngle - Phaser.Math.DegToRad(ZONE[0]), this.sunAngle + Phaser.Math.DegToRad(ZONE[0]), false);
     g.fillPath();
-    const sx = CX + Math.cos(this.sunAngle) * (RING + 80), sy = CY + Math.sin(this.sunAngle) * (RING + 80);
+    const sx = CX + Math.cos(this.sunAngle) * (RING + 62), sy = CY + Math.sin(this.sunAngle) * (RING + 62);
     this.sun.setPosition(sx, sy);
     this.sunCore.setPosition(sx, sy);
-    this.targets.forEach((t) => t.setAlpha(t.done ? 0.35 : this.allowed(t.a) ? 1 : 0.6));
+    // targets in a green zone light up with a ring
+    const rg = this.okRings;
+    rg.clear();
+    this.targets.forEach((t) => {
+      const ok = !t.done && this.allowed(t.a);
+      t.setAlpha(t.done ? 0.35 : ok ? 1 : 0.5);
+      if (ok) {
+        rg.lineStyle(4, COLORS.green, 0.6 + Math.sin(this.time.now / 200) * 0.3);
+        rg.strokeCircle(t.x, t.y, 40);
+      }
+    });
   }
 
   updateHud() {
-    this.countText.setText(`${this.T('observedLabel', 'Targets observed')}: ${this.observed} / ${this.targets.length}`);
+    if (this.goal && this.state === 'play') this.goal.setCount(`${this.observed} / ${this.targets.length}`);
     this.yearBar.set(Math.min(1, this.t / YEAR), true);
   }
 
@@ -135,6 +155,7 @@ export class SunshieldGuardScene extends BaseScene {
     this.obsBar.set(0, true);
     Sfx.play('success');
     floatText(this, c.x, c.y - 50, '✓', CSS.green, 30);
+    this.info.g.setVisible(true);
     this.info.show(c.info.name, c.info.fact);
     Speech.say(c.info.fact);
     this.updateHud();

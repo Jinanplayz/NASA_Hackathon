@@ -8,7 +8,7 @@ import { starfield } from '../common/bg.js';
 import { loadThree } from '../../three/loader.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel } from '../../ui/widgets.js';
+import { roundBox } from '../../ui/widgets.js';
 
 // Shows a finished spacecraft as a big 3D model with its key facts.
 const VX = 30, VY = 84, VW = 760, VH = 600;
@@ -26,8 +26,7 @@ export class ModelRevealScene extends BaseScene {
     // (Phaser reuses this screen when it is played again: start from a clean slate)
     this.dragging = false;
     starfield(this, { count: 150 });
-    const vg = this.add.graphics();
-    drawPanel(vg, VX, VY, VW, VH, { fill: 0x0b1230, radius: 22 });
+    const vg = roundBox(this, VX, VY, VW, VH, { fill: 0x0b1230, radius: 22 });
     this.add.image(VX + VW / 2, VY + VH / 2, 'softDot').setDisplaySize(700, 620).setTint(0x3a5bd8).setAlpha(0.3);
     txt(this, VX + VW / 2, VY + VH - 20, Content.ui('dragToSpin', 'Drag to spin · Scroll or pinch to zoom'), { size: 15, color: CSS.dim, origin: 0.5, scale: false });
 
@@ -48,8 +47,7 @@ export class ModelRevealScene extends BaseScene {
     });
 
     // facts panel
-    const pg = this.add.graphics();
-    drawPanel(pg, PX, PY, PW, PH, { fill: COLORS.panel, radius: 22, stroke: COLORS.cyan, strokeWidth: 3 });
+    const pg = roundBox(this, PX, PY, PW, PH, { fill: COLORS.panel, radius: 22, stroke: COLORS.cyan, strokeWidth: 3 });
     const title = txt(this, PX + 28, PY + 28, this.T('title', ''), { size: 34, weight: 800, color: CSS.yellow, wrap: PW - 56 });
     const sub = txt(this, PX + 28, title.y + title.height + 4, this.T('subtitle', ''), { size: 18, color: CSS.cyan, weight: 600, wrap: PW - 56 });
     // the facts, made a little smaller when they're long, so they never run under the button

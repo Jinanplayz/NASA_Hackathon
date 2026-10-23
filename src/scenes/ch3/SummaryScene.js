@@ -6,7 +6,7 @@ import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
 import { txt, fitText } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel } from '../../ui/widgets.js';
+import { roundBox } from '../../ui/widgets.js';
 import { drawIcon } from '../../ui/icons.js';
 
 // NASA-style mission summary: stats, the missions that led to Apollo 11,
@@ -69,8 +69,7 @@ export class SummaryScene extends BaseScene {
     p.stats.forEach((s, k) => {
       const col = k % 2, row = Math.floor(k / 2);
       const x = 40 + col * 330, y = 156 + row * 138;
-      const g = this.add.graphics();
-      drawPanel(g, x, y, 314, 124, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke });
+      const g = roundBox(this, x, y, 314, 124, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke });
       const l = txt(this, x + 20, y + 18, s.label.toUpperCase(), { size: 14, weight: 800, color: CSS.cyan, scale: false, wrap: 280 });
       const v = txt(this, x + 20, y + 48, s.value, { size: 23, weight: 700, wrap: 280 });
       fitText(v, 280, 64, 14);
@@ -117,8 +116,7 @@ export class SummaryScene extends BaseScene {
       dot.strokeCircle(x, y, last ? 16 : 11);
       const yr = txt(this, x, up ? y + 28 : y - 28, it.year, { size: 17, weight: 800, origin: [0.5, up ? 0 : 1], color: last ? CSS.yellow : CSS.cyan, scale: false });
       const cardY = up ? y - 190 : y + 64;
-      const cg = this.add.graphics();
-      drawPanel(cg, x - 82, cardY, 164, 126, { fill: last ? 0x3a2f10 : COLORS.panel, radius: 14, stroke: last ? COLORS.yellow : COLORS.stroke });
+      const cg = roundBox(this, x - 82, cardY, 164, 126, { fill: last ? 0x3a2f10 : COLORS.panel, radius: 14, stroke: last ? COLORS.yellow : COLORS.stroke });
       const nm = txt(this, x, cardY + 12, it.name, { size: 16, weight: 800, origin: [0.5, 0], align: 'center', wrap: 150, scale: false });
       fitText(nm, 150, 40, 11);
       const tx = txt(this, x, cardY + 16 + nm.height + 4, it.text, { size: 13, origin: [0.5, 0], align: 'center', wrap: 148, scale: false, color: CSS.dim });
@@ -138,8 +136,7 @@ export class SummaryScene extends BaseScene {
     p.items.forEach((it, k) => {
       const col = k % 2, row = Math.floor(k / 2);
       const x = 60 + col * 590, y = 160 + row * 210;
-      const g = this.add.graphics();
-      drawPanel(g, x, y, 570, 192, { fill: COLORS.panel, radius: 20, stroke: COLORS.stroke });
+      const g = roundBox(this, x, y, 570, 192, { fill: COLORS.panel, radius: 20, stroke: COLORS.stroke });
       const icon = it.icon || it.art ? this.namedIcon(it, x + 70, y + 96) : this.techIcon(k, x + 70, y + 96);
       const nm = txt(this, x + 140, y + 26, it.name, { size: 24, weight: 800, color: CSS.yellow, wrap: 410 });
       const tx = txt(this, x + 140, y + 66, it.text, { size: 18, wrap: 410 });

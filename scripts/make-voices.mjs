@@ -120,7 +120,7 @@ const NOT_SPOKEN = new Set([
   'orbitLabel', 'launchLabel', 'stageText', 'driftLabel', 'puffLabel', 'good', 'early', 'late', 'thrust',
   'altitude', 'vspeed', 'hspeed', 'fuel', 'padLabel', 'rocksLabel', 'controls', 'heightLabel', 'drogueBtn',
   'mainBtn', 'splash', 'signal', 'bagLabel', 'collectTitle', 'sortTitle', 'retry', 'confirm', 'holdLabel',
-  'aimLeft', 'aimRight', 'next', 'back', 'finish', 'badge', 'lines', 'hits', 'dayLabels', 'sub', 'nodes',
+  'aimLeft', 'aimRight', 'next', 'back', 'finish', 'badge', 'hits', 'dayLabels', 'sub', 'nodes',
   'categories', 'stats', 'steerBack', 'hint', 'dept', 'bumpsLabel', 'panelHint', 'ratedLabel', 'rocketLabel',
   'travelLabel', 'airLabel', 'shieldLabel', 'shallowLabel', 'steepLabel', 'fuelLeft', 'selectedLabel',
   'swipeHint', 'subtitle', 'steps_meta', 'a', 'b', 'layersName', 'helpLabel', 'helpYes', 'helpNo', 'tips', 'music', 'tvsTitle'
@@ -137,19 +137,20 @@ const NOT_SPOKEN_LATER = new Set([
   'rocketsHint', 'dangerTitle', 'dataLabel', 'dayLabel', 'daysLabel', 'movesLabel', 'deckLabel', 'distLabel', 'doneLabel',
   'drillLabel', 'drillTitle', 'dustLabel', 'easeOff', 'pushHarder', 'holdHint', 'stuck', 'edgeLabel', 'fairingLabel',
   'fartherLabel', 'fieldLabel', 'filmLabel', 'findTitle', 'pickTitle', 'safeTitle', 'fits', 'tooWide', 'tooTall', 'flying',
-  'focusLabel', 'focusTitle', 'foundLabel', 'frameLabel', 'fromLabel', 'toLabel', 'fuelLabel', 'full', 'galaxyLabel',
+  'focusLabel', 'focusTitle', 'foundLabel', 'frameLabel', 'fromLabel', 'toLabel', 'fuelLabel', 'galaxyLabel',
   'sunLabel', 'ghostHint', 'greyTitle', 'hintLabel', 'hitsLabel', 'homeLabel', 'nextLabel', 'hoursUnit', 'needLabel',
   'idealLabel', 'imageAlt', 'infoTitle', 'jumpLabel', 'justRight', 'tooFast', 'tooSlow', 'levelLabel', 'liftLabel',
   'photoLabel', 'mapLabel', 'memoryTitle', 'meterLabel', 'mirrorLabel', 'mountLabel', 'safeLabel', 'slopeLabel', 'noFuel',
-  'noImage', 'notHere', 'notLinedUp', 'notMatch', 'tooFew', 'notThis', 'notVisible', 'notYet', 'nothing', 'observedLabel',
+  'noImage', 'notLinedUp', 'notMatch', 'tooFew', 'notYet', 'observedLabel',
   'observingLabel', 'offLabel', 'onLabel', 'offPad', 'offTarget', 'onTarget', 'pitchDown', 'pitchUp', 'rollLeft', 'rollRight',
   'placedLabel', 'plannedLabel', 'targetLabel', 'powerLabel', 'practiceLabel', 'songLabel', 'pressureLabel', 'previewLabel',
   'recordLabel', 'ripLabel', 'rockName', 'roundLabel', 'rpmLabel', 'scoopLabel', 'sendLabel', 'sharpClose', 'sharpNo',
   'sharpYes', 'shutdownLabel', 'snapLabel', 'solLabel', 'solsLabel', 'speedLabel', 'stackedLabel', 'steerHint',
   'stretchLabel', 'studiedLabel', 'swingBad', 'swingLabel', 'swingOk', 'swingSome', 'timerLabel', 'toVoyager', 'tooFar',
-  'waiting', 'winterLabel', 'wrongCrayon', 'wrongType', 'xLabel', 'yLabel', 'yearLabel', 'zoneLabel', 'cmdNames', 'laneNames',
+  'winterLabel', 'wrongCrayon', 'wrongType', 'xLabel', 'yLabel', 'yearLabel', 'zoneLabel', 'cmdNames', 'laneNames',
   'bands', 'eyes', 'molecules', 'parts', 'gases', 'channel', 'channels', 'names', 'place', 'A', 'B', 'clue', 'goal', 'time',
-  'day', 'caption', 'labs', 'lostTarget', 'secondEarly', 'fallback'
+  'day', 'caption', 'labs', 'lostTarget', 'secondEarly', 'fallback', 'enginesLabel', 'panelTitle', 'aimLabel', 'firstLabel',
+  'lastLabel', 'taskTitle'
 ]);
 
 function readJSON(f) {
@@ -188,8 +189,8 @@ function walk(node, folder, trail) {
       if (k === 'items' && trail.includes('pages')) continue; // summary cards are read, not spoken
       if (k === 'name' && trail.includes('layers')) continue; // gauge labels
       if (k === 'name' && trail.includes('tools')) continue; // tool captions
-      if (k === 'title' && (trail.includes('rounds') || trail.includes('levels'))) continue; // shown above a game
-      if (k === 'name' && ['stops', 'objects', 'targets'].some((t) => trail.includes(t))) continue; // shown on cards
+      // a round's or level's own title is only shown above the game (its task bar title is spoken)
+      if (k === 'title' && parent !== 'task' && (trail.includes('rounds') || trail.includes('levels'))) continue;
       walk(v, folder, trail.concat(k));
     }
     return;

@@ -1,16 +1,16 @@
 import Phaser from 'phaser';
-import { COLORS, CSS, DEPTH, shuffle, seeded } from '../../core/constants.js';
+import { COLORS, shuffle, seeded } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame, starsFor, draggable } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, draggable, GoalBar, idleHint } from '../common/kit.js';
 import { txt, fitText } from '../../ui/text.js';
-import { toast, shake } from '../../ui/widgets.js';
+import { toast, shake, RoundBox } from '../../ui/widgets.js';
 
 // The Golden Record's cover: four science drawings explain how to play the record and where
 // it came from. Match each meaning card to its drawing (drag it, or tap a card then a drawing).
-const COVER = { x: 70, y: 112, s: 500 };
+const COVER = { x: 80, y: 176, s: 500 };
 const LAYOUT = { play: [0, 0], pictures: [1, 0], map: [0, 1], clock: [1, 1] };
 
 export class RecordCoverScene extends BaseScene {
@@ -24,7 +24,8 @@ export class RecordCoverScene extends BaseScene {
     this.state = 'intro';
     this.mistakes = 0;
     this.selected = null;
-    this.parts = this.T('parts', []);
+    this.parts = this.T('meanings', []);
+    this.goal = new GoalBar(this);
 
     // the gold cover with its four drawings
     const g = this.add.graphics();
@@ -32,7 +33,6 @@ export class RecordCoverScene extends BaseScene {
     g.fillRoundedRect(COVER.x + 6, COVER.y + 10, COVER.s, COVER.s, 18);
     g.fillGradientStyle(0xc9963c, 0xe8c27a, 0xa8742e, 0xd8ad52, 1);
     g.fillRoundedRect(COVER.x, COVER.y, COVER.s, COVER.s, 18);
-    txt(this, COVER.x + COVER.s / 2, COVER.y - 24, this.T('coverTitle', ''), { size: 18, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
     const q = COVER.s / 2;
     this.zones = {};
     Object.entries(LAYOUT).forEach(([id, [cx, cy]]) => {
@@ -48,8 +48,9 @@ export class RecordCoverScene extends BaseScene {
 
     // the meaning cards, in a mixed-up order
     this.cards = shuffle(this.parts).map((p, k) => {
-      const c = this.card(p, 900, 190 + k * 122);
+      const c = this.card(p, 900, 238 + k * 116);
       draggable(this, c, {
+        onGrab: () => this.state === 'play' && Speech.say(p.name),
         onDrop: (x, y) => {
           const z = Object.entries(this.zones).find(([, zz]) => Math.abs(x - zz.x) < q / 2 && Math.abs(y - zz.y) < q / 2);
           return z ? this.match(c, z[0]) : false;
@@ -58,9 +59,21 @@ export class RecordCoverScene extends BaseScene {
       });
       return c;
     });
+    // stuck? point at the drawing that goes with the chosen (or first) meaning
+    idleHint(this, () => {
+      const c = this.state === 'play' && (this.selected || this.cards.find((k) => k.enabled));
+      const z = c && this.zones[c.part.id];
+      return z ? { x: z.x, y: z.y - 60 } : null;
+    }, { delay: 12000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Read the cover!', help: 'Drag each meaning onto the drawing it explains.' }), { count: this.countText() });
     });
+  }
+
+  countText() {
+    return `${Object.values(this.zones).filter((z) => z.done).length} / ${this.parts.length}`;
   }
 
   // simple versions of the real drawings, in white lines like the engraving
@@ -107,14 +120,8 @@ export class RecordCoverScene extends BaseScene {
 
   card(p, x, y) {
     const c = this.add.container(x, y);
-    const g = this.add.graphics();
-    const draw = (stroke, fill = COLORS.panel) => {
-      g.clear();
-      g.fillStyle(fill, 1);
-      g.fillRoundedRect(-200, -48, 400, 96, 16);
-      g.lineStyle(3, stroke, 1);
-      g.strokeRoundedRect(-200, -48, 400, 96, 16);
-    };
+    const g = new RoundBox(this);
+    const draw = (stroke, fill = COLORS.panel) => g.draw(-200, -48, 400, 96, { fill, alpha: 1, radius: 16, stroke, strokeWidth: 3, shadow: false });
     draw(COLORS.stroke);
     const t = txt(this, 0, 0, p.name, { size: 22, weight: 800, origin: 0.5, align: 'center', wrap: 370, scale: false });
     fitText(t, 370, 84, 14);
@@ -165,7 +172,8 @@ export class RecordCoverScene extends BaseScene {
     z.ring.strokeRoundedRect(z.x - 118, z.y - 118, 236, 236, 14);
     c.draw(COLORS.green, 0x123a2c);
     this.tweens.add({ targets: c, alpha: 0.5, duration: 300 });
-    toast(this, c.part.info, { y: 660, sound: false, duration: 4200 });
+    this.goal.setCount(this.countText());
+    toast(this, c.part.info, { y: 664, sound: false, duration: 4200 });
     Speech.say([c.part.name, c.part.info]);
     if (Object.values(this.zones).every((zz) => zz.done)) this.win();
     return true;

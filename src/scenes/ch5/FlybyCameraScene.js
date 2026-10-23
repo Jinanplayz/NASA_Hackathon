@@ -1,18 +1,17 @@
-import Phaser from 'phaser';
 import { W, H, FULL, COLORS, CSS, DEPTH, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame } from '../common/kit.js';
+import { playIntro, finishGame, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
 import { toast, floatText } from '../../ui/widgets.js';
 
-// Jupiter flyby photographer: Jupiter, its ring and four big moons sweep past. Steer the
-// camera frame (it moves a bit slowly, like Voyager's scan platform) and press SNAP when a
-// target is inside it.
+// Jupiter flyby photographer: Jupiter, its ring and four big moons sweep past, each with a
+// glowing name tag. Steer the camera frame (it moves a bit slowly, like Voyager's scan
+// platform) and press SNAP when a target is inside it (the frame turns green).
 const FW = 190, FH = 140; // camera frame
 const FILM_Y = 650;
 
@@ -29,7 +28,8 @@ export class FlybyCameraScene extends BaseScene {
     this.misses = 0;
     this.got = new Set();
     this.speed = this.relaxed ? 58 : 78; // how fast the scene sweeps past (px per second)
-    this.goal = this.relaxed ? this.T('relaxedGoal', 4) : this.T('goal', 5);
+    this.need = this.relaxed ? this.T('relaxedGoal', 4) : this.T('goal', 5);
+    this.goal = new GoalBar(this);
     this.cfgTargets = Object.fromEntries(this.T('targets', []).map((t) => [t.id, t]));
 
     // the world that sweeps past (everything moves left together)
@@ -57,9 +57,19 @@ export class FlybyCameraScene extends BaseScene {
       })
     ];
     this.worldEnd = 3180 + 120;
+    // a glowing ring and a name tag on every target, so it's clear what to photograph
+    this.targets.forEach((t) => {
+      const info = this.cfgTargets[t.id] || { name: t.id };
+      const x = t.obj.x + t.dx, y = t.obj.y + t.dy;
+      const big = t.id === 'grs' ? 34 : t.id === 'ring' ? 30 : 44;
+      t.ring = this.add.circle(x, y, big).setStrokeStyle(3, COLORS.yellow, 0.9);
+      this.tweens.add({ targets: t.ring, scale: 1.15, alpha: 0.5, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      t.tag = txt(this, x, y + big + 16, info.name, { size: 17, weight: 800, color: CSS.yellow, origin: 0.5, scale: false, stroke: '#070b1d', strokeThickness: 5 });
+      this.world.add([t.ring, t.tag]);
+    });
 
     // the camera frame
-    this.frame = { x: W / 2 - 200, y: H / 2 - 40 };
+    this.frame = { x: W / 2 - 200, y: H / 2 };
     this.aim = { x: this.frame.x, y: this.frame.y };
     this.frameG = this.add.graphics().setDepth(DEPTH.ui);
     this.flash = this.add.rectangle(W / 2, H / 2, FULL.w, FULL.h, 0xffffff, 0).setDepth(DEPTH.ui + 10);
@@ -82,9 +92,24 @@ export class FlybyCameraScene extends BaseScene {
       this.keys = this.input.keyboard.addKeys('UP,DOWN,LEFT,RIGHT');
       this.input.keyboard.on('keydown-SPACE', () => this.snap());
     }
+    // stuck? point at the next target (or at SNAP when one is in the frame)
+    idleHint(this, () => {
+      if (this.state !== 'play') return null;
+      if (this.inside) return { x: this.snapBtn.x, y: this.snapBtn.y - 42 };
+      const t = this.targets.find((k) => !this.got.has(k.id) && this.targetPos(k).x > 60 && this.targetPos(k).x < W - 60);
+      if (!t) return null;
+      const p = this.targetPos(t);
+      return { x: p.x, y: p.y - 60 };
+    }, { delay: 5000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Photograph Jupiter!', help: 'Move the frame onto a yellow target. When it turns green, press SNAP!' }), { count: this.countText() });
     });
+  }
+
+  countText() {
+    return `${this.got.size} / ${this.targets.length}`;
   }
 
   targetPos(t) {
@@ -120,11 +145,14 @@ export class FlybyCameraScene extends BaseScene {
     });
     if (!hit) {
       this.misses++;
-      toast(this, this.T('missed', 'Missed it!'), { y: 100, color: COLORS.orange, sound: false, duration: 1600 });
+      toast(this, this.T('missed', 'Missed it!'), { y: 560, color: COLORS.orange, sound: false, speak: true, duration: 1800 });
       return;
     }
     this.got.add(hit.id);
     Sfx.play('success');
+    hit.ring.setVisible(false);
+    hit.tag.setColor(CSS.green).setText(`✓ ${hit.tag.text}`);
+    this.goal.setCount(this.countText());
     const info = this.cfgTargets[hit.id] || { name: hit.id, fact: '' };
     // a little copy of the photo on the film strip
     const i = this.got.size - 1;
@@ -133,7 +161,7 @@ export class FlybyCameraScene extends BaseScene {
     this.thumbs.add(th);
     this.drawFilm();
     floatText(this, fx, fy - FH / 2 - 10, info.name, CSS.yellow, 24);
-    toast(this, `${info.name}: ${info.fact}`, { y: 100, sound: false, duration: 3600 });
+    toast(this, `${info.name}: ${info.fact}`, { y: 560, sound: false, duration: 3600 });
     Speech.say([info.name, info.fact]);
     if (this.got.size >= this.targets.length) this.end();
   }
@@ -141,13 +169,13 @@ export class FlybyCameraScene extends BaseScene {
   async end() {
     if (this.state !== 'play') return;
     this.state = 'over';
-    if (this.got.size >= this.goal) {
+    if (this.got.size >= this.need) {
       Sfx.play('bigSuccess');
       const stars = this.got.size >= 6 && this.misses <= 2 ? 3 : this.got.size >= 5 ? 2 : 1;
       finishGame(this, { stars });
     } else {
       Sfx.play('error');
-      const r = await this.guide.say(this.T('notEnough', '').replace('{n}', this.got.size), { modal: true, position: 'top', nextLabel: 'OK' });
+      const r = await this.guide.say(this.T('notEnough', ''), { modal: true, position: 'top', nextLabel: 'OK' });
       if (r !== null) this.scene.restart(this.payload);
     }
   }
@@ -168,7 +196,7 @@ export class FlybyCameraScene extends BaseScene {
       if (k.DOWN.isDown) this.aim.y += step;
     }
     this.aim.x = clamp(this.aim.x, FW / 2, W - FW / 2);
-    this.aim.y = clamp(this.aim.y, 90 + FH / 2, FILM_Y - 60 - FH / 2);
+    this.aim.y = clamp(this.aim.y, 170 + FH / 2, FILM_Y - 60 - FH / 2);
     const max = (this.relaxed ? 900 : 650) * dt;
     const dx = this.aim.x - this.frame.x, dy = this.aim.y - this.frame.y, d = Math.hypot(dx, dy);
     if (d > 0.5) {
@@ -182,6 +210,7 @@ export class FlybyCameraScene extends BaseScene {
       const p = this.targetPos(t);
       return Math.abs(p.x - this.frame.x) < FW / 2 - 6 && Math.abs(p.y - this.frame.y) < FH / 2 - 6;
     });
+    this.inside = inside;
     const g = this.frameG;
     g.clear();
     const col = inside ? COLORS.green : 0xffffff;

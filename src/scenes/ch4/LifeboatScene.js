@@ -1,18 +1,18 @@
-import { W, COLORS, CSS, DEPTH, shuffle } from '../../core/constants.js';
+import { COLORS, CSS, DEPTH, shuffle } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
-import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame, starsFor, draggable } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, draggable, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt, fitText } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { ProgressBar, toast, shake, floatText } from '../../ui/widgets.js';
+import { ProgressBar, toast, shake, floatText, RoundBox, roundBox } from '../../ui/widgets.js';
 
 // Moving into the lifeboat: copy the guidance numbers into Aquarius's computer, send the
 // things the crew needs through the tunnel, then switch Odyssey off before its power runs out.
-const OD = { x: 40, y: 150, w: 430, h: 420 };
-const AQ = { x: 740, y: 150, w: 500, h: 420 };
+const OD = { x: 40, y: 176, w: 430, h: 420 };
+const AQ = { x: 740, y: 176, w: 500, h: 420 };
+const TUN_Y = OD.y + OD.h / 2; // middle of the tunnel
 
 export class LifeboatScene extends BaseScene {
   constructor() {
@@ -31,13 +31,23 @@ export class LifeboatScene extends BaseScene {
     this.cards = [];
 
     this.drawModules();
-    txt(this, W / 2, 92, this.T('powerLabel', 'Odyssey power left'), { size: 16, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
-    this.powerBar = new ProgressBar(this, W / 2 - 210, 106, 420, 18, { color: COLORS.yellow });
+    // Odyssey's battery, in the corner of its box
+    txt(this, OD.x + OD.w - 216, OD.y + 26, this.T('powerLabel', 'Power'), { size: 15, weight: 800, color: CSS.yellow, origin: [1, 0.5], scale: false });
+    this.powerBar = new ProgressBar(this, OD.x + OD.w - 206, OD.y + 18, 180, 16, { color: COLORS.yellow });
     this.powerBar.set(1, true);
-    this.task = txt(this, W / 2, 610, '', { size: 22, weight: 800, color: CSS.cyan, origin: 0.5, scale: false, align: 'center' }).setDepth(DEPTH.ui);
-    this.hint = txt(this, W / 2, 642, '', { size: 17, color: CSS.dim, origin: 0.5, scale: false, align: 'center', wrap: 1100 }).setDepth(DEPTH.ui);
+    this.goal = new GoalBar(this);
+    idleHint(this, () => this.hintTarget(), { delay: 8000 });
 
     playIntro(this).then((ok) => ok && this.startCopy());
+  }
+
+  hintTarget() {
+    if (this.state === 'copy' || this.state === 'move') {
+      const c = this.cards.find((k) => k.enabled && (this.state === 'copy' || k.item.correct));
+      return c ? { x: c.x, y: c.y - 50 } : null;
+    }
+    if (this.state === 'shutdown' && this.offBtn) return { x: this.offBtn.x, y: this.offBtn.y - 36 };
+    return null;
   }
 
   drawModules() {
@@ -54,10 +64,10 @@ export class LifeboatScene extends BaseScene {
     g.strokeRoundedRect(AQ.x, AQ.y, AQ.w, AQ.h, 30);
     // the tunnel between them
     g.fillStyle(0x10141f, 1);
-    g.fillRect(OD.x + OD.w, 320, AQ.x - OD.x - OD.w, 80);
+    g.fillRect(OD.x + OD.w, TUN_Y - 40, AQ.x - OD.x - OD.w, 80);
     g.lineStyle(3, 0x6b7290, 1);
-    g.strokeRect(OD.x + OD.w, 320, AQ.x - OD.x - OD.w, 80);
-    txt(this, (OD.x + OD.w + AQ.x) / 2, 360, this.T('tunnelLabel', 'Tunnel'), { size: 15, weight: 700, color: CSS.dim, origin: 0.5, scale: false });
+    g.strokeRect(OD.x + OD.w, TUN_Y - 40, AQ.x - OD.x - OD.w, 80);
+    txt(this, (OD.x + OD.w + AQ.x) / 2, TUN_Y + 58, this.T('tunnelLabel', 'Tunnel'), { size: 15, weight: 700, color: CSS.dim, origin: 0.5, scale: false });
     txt(this, OD.x + 24, OD.y + 16, this.T('odysseyLabel', 'Odyssey').toUpperCase(), { size: 18, weight: 800, color: '#cfd6e6', scale: false });
     txt(this, AQ.x + 24, AQ.y + 16, this.T('aquariusLabel', 'Aquarius').toUpperCase(), { size: 18, weight: 800, color: '#ffd98a', scale: false });
     this.odDim = this.add.rectangle(OD.x + OD.w / 2, OD.y + OD.h / 2, OD.w, OD.h, 0x000000, 0).setDepth(DEPTH.ui - 5);
@@ -66,30 +76,22 @@ export class LifeboatScene extends BaseScene {
     this.arrows.fillStyle(COLORS.cyan, 0.5);
     for (let k = 0; k < 3; k++) {
       const x = OD.x + OD.w + 40 + k * 70;
-      this.arrows.fillTriangle(x, 345, x, 375, x + 22, 360);
+      this.arrows.fillTriangle(x, TUN_Y - 15, x, TUN_Y + 15, x + 22, TUN_Y);
     }
     this.tweens.add({ targets: this.arrows, alpha: 0.3, duration: 700, yoyo: true, repeat: -1 });
   }
 
-  setTask(title, hint) {
-    this.task.setText(title);
-    this.hint.setText(hint);
+  setTask(key, fallback, n) {
+    this.goal.set(this.T(key, fallback), { count: `${this.T('stepLabel', 'Step')} ${n} / 3` });
   }
 
   // ---------- 1. guidance numbers ----------
   startCopy() {
     this.state = 'copy';
-    this.setTask(this.T('copyTitle', '1. Copy the guidance numbers'), this.T('copyHint', ''));
+    this.setTask('copyTask', { title: 'Copy the numbers!', help: 'Drag each number into the box with the same name.' }, 1);
     const angles = this.T('angles', []);
     // Odyssey's display
-    const dsky = (x, y, w, h, color) => {
-      const g = this.add.graphics();
-      g.fillStyle(0x0c120c, 1);
-      g.fillRoundedRect(x, y, w, h, 12);
-      g.lineStyle(3, color, 1);
-      g.strokeRoundedRect(x, y, w, h, 12);
-      return g;
-    };
+    const dsky = (x, y, w, h, color) => roundBox(this, x, y, w, h, { fill: 0x0c120c, alpha: 1, radius: 12, stroke: color, strokeWidth: 3, shadow: false });
     this.dskys = [dsky(OD.x + 30, OD.y + 60, OD.w - 60, 260, 0x9aa4bf), dsky(AQ.x + 40, AQ.y + 60, AQ.w - 80, 260, 0xd8ad52)];
     // empty boxes on Aquarius's computer, in a different order
     this.slots = shuffle(angles.map((a) => a.axis)).map((axis, k) => {
@@ -112,11 +114,7 @@ export class LifeboatScene extends BaseScene {
 
   numberCard(a, x, y) {
     const c = this.add.container(x, y);
-    const g = this.add.graphics();
-    g.fillStyle(0x163a1c, 1);
-    g.fillRoundedRect(-110, -28, 220, 56, 10);
-    g.lineStyle(2, 0x7dffb0, 1);
-    g.strokeRoundedRect(-110, -28, 220, 56, 10);
+    const g = this.add.existing(new RoundBox(this)).draw(-110, -28, 220, 56, { fill: 0x163a1c, alpha: 1, radius: 10, stroke: 0x7dffb0, strokeWidth: 2, shadow: false });
     const t = txt(this, 0, 0, `${a.axis.toUpperCase()}  ${a.value}`, { size: 24, weight: 800, color: '#7dffb0', origin: 0.5, scale: false });
     c.add([g, t]);
     c.setSize(220, 56);
@@ -157,7 +155,7 @@ export class LifeboatScene extends BaseScene {
     this.state = 'move';
     this.cards.forEach((c) => this.tweens.add({ targets: c, alpha: 0, duration: 300, onComplete: () => c.destroy() }));
     this.cards = [];
-    this.setTask(this.T('moveTitle', '2. Move to Aquarius'), this.T('moveHint', ''));
+    this.setTask('moveTask', { title: 'Move to Aquarius!', help: 'Drag the things the crew needs into Aquarius.' }, 2);
     // the computers are done with
     this.dskys.forEach((g) => this.tweens.add({ targets: g, alpha: 0, duration: 300, onComplete: () => g.destroy() }));
     this.slots.forEach((s) => {
@@ -180,11 +178,7 @@ export class LifeboatScene extends BaseScene {
 
   itemCard(it, x, y) {
     const c = this.add.container(x, y);
-    const g = this.add.graphics();
-    g.fillStyle(0x0b1230, 0.95);
-    g.fillRoundedRect(-58, -54, 116, 108, 14);
-    g.lineStyle(2, 0x3a4a92, 1);
-    g.strokeRoundedRect(-58, -54, 116, 108, 14);
+    const g = this.add.existing(new RoundBox(this)).draw(-58, -54, 116, 108, { fill: 0x0b1230, alpha: 0.95, radius: 14, stroke: 0x3a4a92, strokeWidth: 2, shadow: false });
     const icon = img(this, 0, -12, it.key, 0.72);
     const name = txt(this, 0, 36, it.name, { size: 14, weight: 700, origin: 0.5, align: 'center', wrap: 108, scale: false });
     fitText(name, 108, 34, 10);
@@ -216,7 +210,7 @@ export class LifeboatScene extends BaseScene {
     this.tweens.add({
       targets: c,
       x: [OD.x + OD.w - 20, AQ.x + 30, tx],
-      y: [360, 360, ty],
+      y: [TUN_Y, TUN_Y, ty],
       duration: 900,
       interpolation: 'catmull',
       ease: 'Sine.easeInOut'
@@ -238,8 +232,7 @@ export class LifeboatScene extends BaseScene {
       this.focus.remove(c);
       this.tweens.add({ targets: c, alpha: 0.35, duration: 300 });
     });
-    this.setTask('', this.T('shutdownHint', ''));
-    Speech.say(this.T('shutdownHint', ''));
+    this.setTask('offTask', { title: 'Power down Odyssey!', help: 'Press the red button to save its batteries for the trip home.' }, 3);
     this.offBtn = new Button(this, OD.x + OD.w / 2, OD.y + OD.h - 50, { width: 330, height: 64, label: this.T('shutdownLabel', 'Power down Odyssey'), icon: 'close', variant: 'danger', onClick: () => this.shutDown() }).setDepth(DEPTH.ui + 5);
     this.offBtn.pulse();
   }
@@ -251,7 +244,6 @@ export class LifeboatScene extends BaseScene {
     Sfx.play('powerUp');
     this.tweens.add({ targets: this.odDim, fillAlpha: 0.65, duration: 900 });
     this.tweens.add({ targets: this.arrows, alpha: 0, duration: 400 });
-    this.setTask('', '');
     const r = await this.guide.say(this.T('doneLine', ''), { modal: true, position: 'top' });
     if (r === null) return;
     const stars = Math.max(1, starsFor(this.mistakes, 0, 2) - (this.ranOut ? 1 : 0));

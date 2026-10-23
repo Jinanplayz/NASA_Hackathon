@@ -27,6 +27,10 @@ export function txt(scene, x, y, str, o = {}) {
     if (Array.isArray(o.origin)) t.setOrigin(o.origin[0], o.origin[1]);
     else t.setOrigin(o.origin);
   }
+  // Phaser redraws the whole text whenever its colour is set, even to the same colour, and
+  // screens that update every frame set it a lot: only pass real changes on
+  const setColor = t.setColor;
+  t.setColor = (color) => (color === t.style.color ? t : setColor.call(t, color));
   return t;
 }
 

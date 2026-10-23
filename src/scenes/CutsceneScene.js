@@ -8,7 +8,7 @@ import { starfield } from './common/bg.js';
 import { drawVisual } from './common/Visuals.js';
 import { txt, fitText } from '../ui/text.js';
 import { Button } from '../ui/Button.js';
-import { ProgressBar, drawPanel } from '../ui/widgets.js';
+import { ProgressBar, roundBox, RoundBox } from '../ui/widgets.js';
 
 // A narrated "video": a series of slides, each with an animated picture, a real NASA
 // photo, or a real NASA video clip. Slides move on by themselves after the narration,
@@ -41,11 +41,7 @@ export class CutsceneScene extends BaseScene {
     this.token = 0;
 
     // frame
-    const fg = this.add.graphics();
-    fg.fillStyle(0x000000, 0.35);
-    fg.fillRoundedRect(FX, FY + 6, FW, FH, 18);
-    fg.fillStyle(0x03050f, 1);
-    fg.fillRoundedRect(FX, FY, FW, FH, 18);
+    const fg = this.add.existing(new RoundBox(this)).draw(FX, FY, FW, FH, { fill: 0x03050f, alpha: 1, radius: 18, stroke: null, shadowAlpha: 0.35, shadowY: 6 });
     const border = this.add.graphics().setDepth(DEPTH.ui);
     border.lineStyle(3, COLORS.stroke, 1);
     border.strokeRoundedRect(FX, FY, FW, FH, 18);
@@ -55,8 +51,7 @@ export class CutsceneScene extends BaseScene {
     this.frameMask = mg.createGeometryMask();
 
     // text panel
-    const pg = this.add.graphics();
-    drawPanel(pg, PX, FY, PW, FH, { fill: COLORS.panel, radius: 18 });
+    const pg = roundBox(this, PX, FY, PW, FH, { fill: COLORS.panel, radius: 18 });
     this.yearChip = this.add.graphics().setDepth(DEPTH.ui);
     this.yearText = txt(this, PX + 22, FY + 22, '', { size: 18, weight: 800, color: CSS.dark, scale: false }).setDepth(DEPTH.ui + 1);
     this.heading = txt(this, PX + 22, FY + 64, '', { size: 28, weight: 800, color: CSS.yellow, wrap: PW - 44 }).setDepth(DEPTH.ui);
@@ -402,11 +397,7 @@ export class CutsceneScene extends BaseScene {
     this.hideStatus();
     const t = txt(this, 0, 0, message, { size: 19, weight: 800, origin: 0.5, color: CSS.yellow, scale: false });
     const w = t.width + 40, h = t.height + 16;
-    const bg = this.add.graphics();
-    bg.fillStyle(0x070b1d, 0.92);
-    bg.fillRoundedRect(-w / 2, -h / 2, w, h, h / 2);
-    bg.lineStyle(2, COLORS.yellow, 0.9);
-    bg.strokeRoundedRect(-w / 2, -h / 2, w, h, h / 2);
+    const bg = this.add.existing(new RoundBox(this)).draw(-w / 2, -h / 2, w, h, { fill: 0x070b1d, alpha: 0.92, radius: h / 2, stroke: COLORS.yellow, strokeWidth: 2, strokeAlpha: 0.9, shadow: false });
     this.statusText = this.add.container(FX + FW / 2, FY + FH - 30, [bg, t]).setDepth(DEPTH.ui);
     this.hiddenCaptions = [];
     const walk = (o) => {

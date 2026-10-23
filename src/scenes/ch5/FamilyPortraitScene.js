@@ -1,24 +1,25 @@
-import Phaser from 'phaser';
 import { W, H, FULL, COLORS, CSS, DEPTH, seeded, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame } from '../common/kit.js';
+import { starDots } from '../common/bg.js';
+import { playIntro, finishGame, GoalBar } from '../common/kit.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, floatText, toast } from '../../ui/widgets.js';
+import { floatText, toast, roundBox } from '../../ui/widgets.js';
 import { drawIcon } from '../../ui/icons.js';
 
 // The family portrait (February 14, 1990): look around a wide, dark sky and find the six
-// planets Voyager 1 photographed - tiny dots, with Earth hidden in a beam of sunlight.
+// planets Voyager 1 photographed, one at a time (the task bar gives a clue for each), with
+// Earth last: a pale blue dot hidden in a beam of sunlight.
 const SKY_W = 2400, SKY_H = 1300;
 const PLANETS = {
-  neptune: { x: 320, y: 840, r: 3, color: 0x6f9bff },
-  uranus: { x: 560, y: 470, r: 3, color: 0xa8f0f0 },
-  saturn: { x: 900, y: 720, r: 4, color: 0xe8d6a8 },
-  jupiter: { x: 1170, y: 520, r: 5, color: 0xf2e2c6 },
-  venus: { x: 1560, y: 590, r: 4, color: 0xffffff },
-  earth: { x: 1990, y: 820, r: 3, color: 0x9fd8ff }
+  neptune: { x: 320, y: 840, r: 6, color: 0x6f9bff },
+  uranus: { x: 560, y: 470, r: 6, color: 0xa8f0f0 },
+  saturn: { x: 900, y: 720, r: 7, color: 0xf2cf7a },
+  jupiter: { x: 1170, y: 520, r: 9, color: 0xf2e2c6 },
+  venus: { x: 1560, y: 590, r: 7, color: 0xffffff },
+  earth: { x: 1990, y: 820, r: 5, color: 0x9fd8ff }
 };
 const SUN = { x: 1760, y: 660 };
 
@@ -34,7 +35,8 @@ export class FamilyPortraitScene extends BaseScene {
     this.taps = 0;
     this.lastFind = 0;
     this.list = this.T('planets', []);
-    this.reach = this.relaxed ? 44 : 30;
+    this.reach = this.relaxed ? 60 : 46;
+    this.goal = new GoalBar(this);
 
     // the wide sky (dragged around)
     this.sky = this.add.container(-560, -330);
@@ -42,10 +44,12 @@ export class FamilyPortraitScene extends BaseScene {
     g.fillStyle(0x000000, 1);
     g.fillRect(0, 0, SKY_W, SKY_H);
     const rnd = seeded(31);
+    const stars = [];
     for (let i = 0; i < 700; i++) {
-      g.fillStyle(0xffffff, 0.15 + rnd() * 0.5);
-      g.fillCircle(rnd() * SKY_W, rnd() * SKY_H, rnd() < 0.05 ? 1.4 : 0.8);
+      const alpha = 0.15 + rnd() * 0.5, x = rnd() * SKY_W, y = rnd() * SKY_H;
+      stars.push({ x, y, alpha, size: rnd() < 0.05 ? 1 : 0 });
     }
+    const dots = starDots(this, stars);
     // beams of sunlight scattered inside the camera
     const beams = this.add.graphics();
     [[1640, 0.06], [1760, 0.1], [1990, 0.08], [2140, 0.05]].forEach(([x, a]) => {
@@ -56,14 +60,15 @@ export class FamilyPortraitScene extends BaseScene {
     });
     const sun = this.add.image(SUN.x, SUN.y, 'softDot').setDisplaySize(520, 520).setTint(0xfff1c8).setAlpha(0.85);
     const core = this.add.image(SUN.x, SUN.y, 'sun').setDisplaySize(260, 260);
-    this.sky.add([g, beams, sun, core]);
+    this.sky.add([g, dots, beams, sun, core]);
     Object.entries(PLANETS).forEach(([, p]) => {
+      // a soft twinkling glow, so planets stand out from the stars
+      const glow = this.add.image(p.x, p.y, 'softDot').setDisplaySize(p.r * 9, p.r * 9).setTint(p.color).setAlpha(0.55);
+      this.tweens.add({ targets: glow, alpha: 0.25, duration: 900 + p.r * 60, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
       const d = this.add.graphics();
-      d.fillStyle(p.color, 0.35);
-      d.fillCircle(p.x, p.y, p.r * 2.4);
       d.fillStyle(p.color, 1);
       d.fillCircle(p.x, p.y, p.r);
-      this.sky.add(d);
+      this.sky.add([glow, d]);
     });
     this.marks = this.add.graphics();
     this.hintRing = this.add.graphics();
@@ -75,13 +80,12 @@ export class FamilyPortraitScene extends BaseScene {
     ch.strokeCircle(W / 2 - 120, H / 2, 26);
 
     // the list of planets
-    const lg = this.add.graphics().setDepth(DEPTH.ui);
-    drawPanel(lg, 1010, 96, 250, 400, { fill: COLORS.panel, radius: 18, stroke: COLORS.cyan, strokeWidth: 3 });
-    txt(this, 1135, 116, this.T('listTitle', 'Find the planets'), { size: 18, weight: 800, color: CSS.yellow, origin: [0.5, 0], scale: false }).setDepth(DEPTH.ui);
+    const lg = roundBox(this, 1010, 176, 250, 380, { fill: COLORS.panel, radius: 18, stroke: COLORS.cyan, strokeWidth: 3 }).setDepth(DEPTH.ui);
+    txt(this, 1135, 194, this.T('listTitle', 'Find the planets'), { size: 18, weight: 800, color: CSS.yellow, origin: [0.5, 0], scale: false }).setDepth(DEPTH.ui);
     this.checks = this.add.graphics().setDepth(DEPTH.ui);
-    this.rows = this.list.map((pl, i) => txt(this, 1070, 168 + i * 52, pl.name, { size: 20, weight: 700, scale: false }).setDepth(DEPTH.ui));
+    this.rows = this.list.map((pl, i) => txt(this, 1070, 236 + i * 52, pl.name, { size: 20, weight: 700, scale: false }).setDepth(DEPTH.ui));
     this.drawList();
-    this.hintBtn = new Button(this, 1135, 540, { width: 220, height: 60, label: this.T('hintLabel', 'Hint'), icon: 'info', variant: 'secondary', onClick: () => this.hint() }).setDepth(DEPTH.ui);
+    this.hintBtn = new Button(this, 1135, 610, { width: 220, height: 64, label: this.T('hintLabel', 'Hint'), icon: 'info', variant: 'secondary', onClick: () => this.hint() }).setDepth(DEPTH.ui);
 
     // drag to look around; tap to look closer
     this.input.on('pointerdown', (p, over) => {
@@ -107,8 +111,18 @@ export class FamilyPortraitScene extends BaseScene {
       if (ok) {
         this.state = 'play';
         this.lastFind = this.time.now;
+        this.askNext();
       }
     });
+  }
+
+  // the next planet to look for, with a clue
+  askNext() {
+    const next = this.list.find((pl) => !this.found.has(pl.id));
+    if (!next) return;
+    this.wanted = next;
+    this.goal.set({ title: next.ask || next.name, help: this.T('lookHelp', 'Drag to look around the sky. Tap the planet when you spot it.') }, { count: `${this.found.size} / ${this.list.length}`, speak: false });
+    Speech.say(this.found.size ? next.ask : [next.ask, this.T('lookHelp', '')]);
   }
 
   moveSky(x, y) {
@@ -120,11 +134,11 @@ export class FamilyPortraitScene extends BaseScene {
     const g = this.checks;
     g.clear();
     this.list.forEach((pl, i) => {
-      const y = 180 + i * 52, done = this.found.has(pl.id);
-      g.fillStyle(done ? COLORS.green : 0x2a3566, 1);
+      const y = 248 + i * 52, done = this.found.has(pl.id);
+      g.fillStyle(done ? COLORS.green : pl === this.wanted ? COLORS.yellow : 0x2a3566, 1);
       g.fillCircle(1044, y, 13);
       if (done) drawIcon(g, 'check', 1044, y, 16, COLORS.bg);
-      this.rows[i].setColor(done ? CSS.green : CSS.text);
+      this.rows[i].setColor(done ? CSS.green : pl === this.wanted ? CSS.yellow : CSS.text);
     });
   }
 
@@ -135,7 +149,7 @@ export class FamilyPortraitScene extends BaseScene {
     const hit = this.list.find((pl) => !this.found.has(pl.id) && PLANETS[pl.id] && Math.hypot(PLANETS[pl.id].x - sx, PLANETS[pl.id].y - sy) < this.reach);
     if (!hit) {
       Sfx.play('click');
-      toast(this, this.T('nothing', 'Just stars there.'), { y: 100, sound: false, duration: 1200, size: 18 });
+      toast(this, this.T('nothing', 'Just stars there.'), { y: 664, sound: false, duration: 1200, size: 18 });
       return;
     }
     const p = PLANETS[hit.id];
@@ -146,15 +160,24 @@ export class FamilyPortraitScene extends BaseScene {
     this.marks.lineStyle(2, COLORS.green, 0.9);
     this.marks.strokeCircle(p.x, p.y, 18);
     floatText(this, x, y - 30, hit.name, CSS.green, 24);
-    toast(this, hit.fact, { y: 100, sound: false, duration: 2600 });
-    Speech.say(hit.fact);
+    toast(this, hit.fact, { y: 664, sound: false, duration: 2600 });
     this.drawList();
-    if (this.found.size >= this.list.length) this.win();
+    if (this.found.size >= this.list.length) {
+      Speech.say(hit.fact);
+      this.win();
+    } else {
+      // say what it was, then ask for the next one
+      Speech.say(hit.fact).then(() => this.state === 'play' && this.askNext());
+      const next = this.list.find((pl) => !this.found.has(pl.id));
+      this.wanted = next;
+      this.drawList();
+      this.goal.set({ title: next.ask || next.name, help: this.T('lookHelp', '') }, { count: `${this.found.size} / ${this.list.length}`, speak: false });
+    }
   }
 
   hint() {
     if (this.state !== 'play') return;
-    const next = this.list.find((pl) => !this.found.has(pl.id));
+    const next = this.wanted || this.list.find((pl) => !this.found.has(pl.id));
     if (!next) return;
     const p = PLANETS[next.id];
     this.hintRing.clear();
@@ -165,7 +188,7 @@ export class FamilyPortraitScene extends BaseScene {
     this.tweens.add({ targets: this.hintRing, alpha: 0.2, duration: 500, yoyo: true, repeat: 5 });
     // glide the view towards it
     this.tweens.add({ targets: this.sky, x: clamp(W / 2 - 120 - p.x, FULL.x + FULL.w - SKY_W, FULL.x), y: clamp(H / 2 - p.y, FULL.y + FULL.h - SKY_H, FULL.y), duration: 700, ease: 'Sine.easeInOut' });
-    toast(this, this.T('hint', ''), { y: 100, sound: false, duration: 2000 });
+    toast(this, this.T('hint', ''), { y: 664, sound: false, duration: 2000 });
   }
 
   async win() {
@@ -189,7 +212,7 @@ export class FamilyPortraitScene extends BaseScene {
       this.moveSky(this.sky.x + (k.LEFT.isDown ? v : 0) - (k.RIGHT.isDown ? v : 0), this.sky.y + (k.UP.isDown ? v : 0) - (k.DOWN.isDown ? v : 0));
     }
     // stuck for a while? show a hint by itself
-    if (time - this.lastFind > 30000) {
+    if (time - this.lastFind > 22000) {
       this.lastFind = time;
       this.hint();
     }

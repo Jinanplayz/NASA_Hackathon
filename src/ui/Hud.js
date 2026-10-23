@@ -5,6 +5,7 @@ import { Speech } from '../core/Speech.js';
 import { txt } from './text.js';
 import { Button, iconButton } from './Button.js';
 import { toast } from './widgets.js';
+import { bake, RoundBox } from './paint.js';
 
 // Top bar: chapter + activity name on the left, step dots, and quick buttons on the right.
 export class Hud {
@@ -19,12 +20,8 @@ export class Hud {
     const label = txt(scene, 30, 16, chapterLabel, { size: 14, weight: 700, color: CSS.cyan, scale: false });
     const name = txt(scene, 30, 34, stepName, { size: 20, weight: 700, scale: false });
     const pillW = Math.max(label.width, name.width) + 40;
-    const g = scene.add.graphics();
-    g.fillStyle(0x070b1d, 0.72);
-    g.fillRoundedRect(10, 8, pillW, 56, 18);
-    g.lineStyle(2, COLORS.stroke, 0.9);
-    g.strokeRoundedRect(10, 8, pillW, 56, 18);
-    this.root.add([g, label, name]);
+    const pill = new RoundBox(scene).draw(10, 8, pillW, 56, { fill: 0x070b1d, alpha: 0.72, radius: 18, strokeAlpha: 0.9, shadow: false });
+    this.root.add([pill, label, name]);
 
     // step dots
     if (steps.length && o.showSteps !== false) {
@@ -41,6 +38,7 @@ export class Hud {
         dots.fillCircle(startX + i * gap, 36, cur ? 7 : 5);
       }
       this.root.add(dots);
+      bake(scene, dots, startX - 16, 22, gap * (n - 1) + 32, 28);
     }
 
     // right-side buttons
@@ -73,8 +71,9 @@ export class Hud {
     this.unsub = Settings.on((k, v) => {
       if (k === 'readAloud' && this.voiceBtn.active) showVoice(v);
     });
-    menuBtn.setDepth(DEPTH.hud + 1);
-    this.voiceBtn.setDepth(DEPTH.hud + 1);
+    // (above Captain Nova's dimmed backdrop, so the menu and voice buttons always work)
+    menuBtn.setDepth(DEPTH.guide + 2);
+    this.voiceBtn.setDepth(DEPTH.guide + 2);
     this.buttons = [menuBtn, this.voiceBtn];
     scene.events.once('shutdown', () => this.unsub());
   }

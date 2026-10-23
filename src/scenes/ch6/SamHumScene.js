@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
-import { COLORS, CSS, DEPTH } from '../../core/constants.js';
+import { COLORS, CSS } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame } from '../common/kit.js';
+import { playIntro, finishGame, GoalBar, idleHint } from '../common/kit.js';
 import { marsBackdrop } from '../common/mars.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
-import { drawPanel, floatText } from '../../ui/widgets.js';
+import { floatText, roundBox } from '../../ui/widgets.js';
 
 // Curiosity's first birthday on Mars (August 5, 2013): engineers made the SAM instrument
 // vibrate at different speeds so it hummed "Happy Birthday". Tap each note as it reaches
@@ -46,8 +46,8 @@ export class SamHumScene extends BaseScene {
     txt(this, 320, 380, 'SAM', { size: 18, weight: 800, color: '#ffffff', origin: 0.5, scale: false, stroke: '#3a1a0a', strokeThickness: 5 });
 
     // the note track
+    roundBox(this, 680, 84, 440, 600, { fill: 0x0b1230, radius: 18, stroke: COLORS.stroke, strokeWidth: 3, alpha: 0.92 });
     const g = this.add.graphics();
-    drawPanel(g, 680, 84, 440, 600, { fill: 0x0b1230, radius: 18, stroke: COLORS.stroke, strokeWidth: 3, alpha: 0.92 });
     LANES.forEach((x, i) => {
       g.lineStyle(2, LANE_COL[i], 0.25);
       g.lineBetween(x, TOP, x, HIT + 50);
@@ -77,22 +77,27 @@ export class SamHumScene extends BaseScene {
       this.focus.add(c);
       return c;
     });
-    this.roundText = txt(this, 900, 96, '', { size: 18, weight: 800, color: CSS.yellow, origin: [0.5, 0], scale: false }).setDepth(DEPTH.ui);
-    this.scoreText = txt(this, 60, 96, '', { size: 20, weight: 800, color: '#ffffff', scale: false, stroke: '#3a1a0a', strokeThickness: 5 }).setDepth(DEPTH.ui);
+    // (the task bar sits on the left, above the rover, next to the note track)
+    this.goal = new GoalBar(this, { x: 20, w: 640 });
     if (this.input.keyboard) {
       ['ONE', 'TWO', 'THREE'].forEach((k, i) => this.input.keyboard.on(`keydown-${k}`, () => this.press(i)));
       this.input.keyboard.on('keydown-LEFT', () => this.press(0));
       this.input.keyboard.on('keydown-DOWN', () => this.press(1));
       this.input.keyboard.on('keydown-RIGHT', () => this.press(2));
     }
-    this.updateHud();
+    // stuck? point at the pad for the next note
+    idleHint(this, () => {
+      if (this.state !== 'play') return null;
+      const next = this.notes.find((n) => !n.done && n.at - this.t < 1.2 && n.at - this.t > -0.2);
+      return next ? { x: this.pads[next.lane].x, y: this.pads[next.lane].y - 46 } : null;
+    }, { delay: 5000 });
     playIntro(this).then((ok) => {
       if (ok) this.startRound(0);
     });
   }
 
   updateHud() {
-    this.scoreText.setText(`${this.T('hitsLabel', 'Notes hummed')}: ${this.hits}`);
+    if (this.goal) this.goal.setCount(`♪ ${this.hits}`);
   }
 
   startRound(r) {
@@ -100,7 +105,7 @@ export class SamHumScene extends BaseScene {
     const bpm = (this.relaxed ? 72 : 84) - (r === 0 ? 8 : 0);
     const beat = 60 / bpm;
     const song = r === 0 ? SONG.slice(0, 12) : SONG;
-    this.roundText.setText(r === 0 ? this.T('practiceLabel', 'Practice: the first two lines') : this.T('songLabel', 'The whole song!'));
+    this.goal.set(r === 0 ? this.T('practiceTask', { title: 'Practise the first two lines!', help: 'Tap the pad when its note reaches the white line.' }) : this.T('songTask', { title: 'Now the whole song!', help: 'Tap the pad when its note reaches the white line.' }), { count: `♪ ${this.hits}`, speak: r === 0 });
     this.noteLayer.removeAll(true);
     let time = 1.2;
     this.notes = song.map(([n, beats]) => {

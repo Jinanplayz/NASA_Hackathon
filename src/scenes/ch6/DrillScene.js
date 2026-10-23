@@ -3,15 +3,15 @@ import { COLORS, CSS, DEPTH, clamp, shuffle } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor, draggable, InfoPanel } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, draggable, InfoPanel, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt, fitText } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, toast, shake, floatText } from '../../ui/widgets.js';
+import { toast, shake, floatText, roundBox } from '../../ui/widgets.js';
 
 // Curiosity's first drill hole (February 2013). Pick a good rock to drill, drill 6.4 cm down
 // keeping the pressure in the green, then pour the powder into the rover's two labs.
-const RX = 70, RY = 230, RW = 600, RH = 420; // the rock, cut open so we can see inside
+const RX = 70, RY = 322, RW = 600, RH = 378; // the rock, cut open so we can see inside
 const DEPTH_CM = 6.4, PX_PER_CM = 56;
 const ZONE = [0.42, 0.74];
 // how hard each layer is (deeper = further down the list)
@@ -31,21 +31,29 @@ export class DrillScene extends BaseScene {
     this.holding = false;
     this.stuckT = 0;
     this.delivered = {};
-    this.info = new InfoPanel(this, 760, 96, 480, 200, { title: '', text: '', size: 18 });
+    this.info = new InfoPanel(this, 760, 176, 480, 170, { title: '', text: '', size: 18 });
+    this.info.g.setVisible(false);
+    this.goal = new GoalBar(this);
     this.choose();
+    // stuck? point at the drill button, or the powder
+    idleHint(this, () => {
+      if (this.state === 'drill' && !this.holding) return { x: this.drillBtn.x, y: this.drillBtn.y - 44 };
+      if (this.state === 'deliver' && this.scoop) return { x: this.scoop.x, y: this.scoop.y - 40 };
+      return null;
+    }, { delay: 6000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'choose';
+      if (!ok) return;
+      this.state = 'choose';
+      this.goal.set(this.T('chooseTask', { title: 'Pick a rock to drill!', help: 'Choose a solid rock that water once flowed through.' }), { count: '1 / 3' });
     });
   }
 
   // ---------- 1. choose the rock ----------
   choose() {
-    this.info.show(this.T('chooseTitle', 'Which rock?'), this.T('chooseText', ''));
     this.cards = shuffle(this.T('rocks', [])).map((r, i) => {
       const x = 150 + i * 235, y = 410;
       const c = this.add.container(x, y);
-      const g = this.add.graphics();
-      drawPanel(g, -105, -170, 210, 340, { fill: COLORS.panel, radius: 16, stroke: COLORS.stroke, strokeWidth: 3 });
+      const g = roundBox(this, -105, -170, 210, 340, { fill: COLORS.panel, radius: 16, stroke: COLORS.stroke, strokeWidth: 3 });
       const pic = img(this, 0, -90, r.art, 1.25);
       const name = txt(this, 0, -14, r.name, { size: 19, weight: 800, color: CSS.yellow, origin: [0.5, 0], align: 'center', wrap: 186, scale: false });
       const clue = txt(this, 0, name.y + name.height + 10, r.clue, { size: 16, weight: 600, origin: [0.5, 0], align: 'center', wrap: 186, scale: false, lineSpacing: 3 });
@@ -70,12 +78,14 @@ export class DrillScene extends BaseScene {
       Sfx.play('error');
       shake(this, c, 8);
       c.setAlpha(0.45);
+      this.info.g.setVisible(true);
       this.info.show(r.name, r.why, { titleColor: CSS.orange });
       Speech.say(r.why);
       return;
     }
     Sfx.play('success');
     this.state = 'between';
+    this.info.g.setVisible(true);
     this.info.show(r.name, r.why, { titleColor: CSS.green });
     Speech.say(r.why);
     this.tweens.add({ targets: c, scale: 1.08, duration: 200, yoyo: true });
@@ -117,9 +127,8 @@ export class DrillScene extends BaseScene {
     this.chips = this.add.particles(0, 0, 'softDot', { speed: { min: 40, max: 140 }, angle: { min: 200, max: 340 }, gravityY: 300, lifespan: 700, scale: { start: 0.08, end: 0.02 }, tint: [0xb5562c, 0x8d8a86], frequency: 40, emitting: false });
 
     // pressure gauge and the drill button
-    const gx = 760, gy = 330, gh = 260;
-    const pg = this.add.graphics();
-    drawPanel(pg, gx, gy - 20, 480, gh + 60, { fill: COLORS.panel, radius: 16, stroke: COLORS.stroke, strokeWidth: 3 });
+    const gx = 760, gy = 386, gh = 250;
+    const pg = roundBox(this, gx, gy - 20, 480, gh + 60, { fill: COLORS.panel, radius: 16, stroke: COLORS.stroke, strokeWidth: 3 });
     txt(this, gx + 24, gy - 6, this.T('pressureLabel', 'Pressure'), { size: 18, weight: 800, color: CSS.cyan, scale: false });
     this.gauge = { x: gx + 40, y: gy + 26, w: 50, h: gh - 40 };
     this.gaugeG = this.add.graphics();
@@ -134,8 +143,8 @@ export class DrillScene extends BaseScene {
       this.input.keyboard.on('keydown-SPACE', () => (this.holding = true));
       this.input.keyboard.on('keyup-SPACE', () => (this.holding = false));
     }
-    this.info.show(this.T('drillTitle', 'Drill!'), this.T('drillText', ''));
-    Speech.say(this.T('drillText', ''));
+    this.info.show(this.T('drillTitle', 'Drill!'), this.T('drillFact', ''));
+    this.goal.set(this.T('drillTask', { title: 'Hold to drill!', help: 'Keep the pressure needle in the green zone.' }), { count: '2 / 3' });
     this.state = 'drill';
     this.drawGauge();
   }
@@ -192,14 +201,13 @@ export class DrillScene extends BaseScene {
     this.drillBox.setVisible(false);
     this.hintText.setText('');
     const names = this.T('labs', {});
-    const deck = this.add.graphics().setDepth(DEPTH.ui - 5);
-    drawPanel(deck, 760, 96, 480, 200, { fill: 0xe9ecf2, radius: 16, stroke: 0x9aa1ae, strokeWidth: 3 });
+    const deck = roundBox(this, 760, 176, 480, 190, { fill: 0xe9ecf2, radius: 16, stroke: 0x9aa1ae, strokeWidth: 3 }).setDepth(DEPTH.ui - 5);
     this.info.g.setVisible(false);
     this.info.title.setVisible(false);
     this.info.body.setVisible(false);
-    txt(this, 1000, 110, this.T('deckLabel', "Curiosity's deck"), { size: 16, weight: 800, color: '#3a3f4b', origin: [0.5, 0], scale: false }).setDepth(DEPTH.ui - 4);
+    txt(this, 1000, 188, this.T('deckLabel', "Curiosity's deck"), { size: 16, weight: 800, color: '#3a3f4b', origin: [0.5, 0], scale: false }).setDepth(DEPTH.ui - 4);
     this.inlets = ['chemin', 'sam'].map((k, i) => {
-      const x = 880 + i * 240, y = 200;
+      const x = 880 + i * 240, y = 284;
       const c = this.add.container(x, y).setDepth(DEPTH.ui - 4);
       const g = this.add.graphics();
       g.fillStyle(0x3a3f4b, 1);
@@ -223,8 +231,7 @@ export class DrillScene extends BaseScene {
     pile.destroy();
     this.scoop = scoop;
     this.state = 'deliver';
-    Speech.say(this.T('deliverText', ''));
-    toast(this, this.T('deliverText', 'Drag the powder into both labs: CheMin and SAM.'), { y: 330, sound: false, duration: 4000 });
+    this.goal.set(this.T('deliverTask', { title: 'Feed the labs!', help: "Drag the powder into both of Curiosity's labs: CheMin and SAM." }), { count: '3 / 3' });
     draggable(this, scoop, {
       onDrop: (x, y) => {
         const inlet = this.inlets.find((c) => Math.abs(c.x - x) < 90 && Math.abs(c.y - y) < 70);

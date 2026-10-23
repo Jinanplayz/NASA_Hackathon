@@ -1,13 +1,12 @@
 import Phaser from 'phaser';
 import { W, FULL, COLORS, CSS, DEPTH } from '../../core/constants.js';
-import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { img } from '../../art/core.js';
 import { txt, fitText } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, toast, cameraShake, shake } from '../../ui/widgets.js';
+import { toast, cameraShake, shake, roundBox, RoundBox } from '../../ui/widgets.js';
 import { drawIcon } from '../../ui/icons.js';
 
 // Launch countdown: copy arrow sequences (keys, arrow buttons or swipes) to complete
@@ -52,9 +51,9 @@ export class LaunchSequenceScene extends BaseScene {
     this.lights = this.add.graphics();
 
     // console
-    const cg = this.add.graphics();
-    drawPanel(cg, PX, PY, PW, PH, { fill: 0x0b1230, radius: 24, stroke: COLORS.cyan, alpha: 0.95 });
+    const cg = roundBox(this, PX, PY, PW, PH, { fill: 0x0b1230, radius: 24, stroke: COLORS.cyan, alpha: 0.95 });
     txt(this, PX + 28, PY + 20, this.T('barTitle', 'Launch sequence'), { size: 20, weight: 800, color: CSS.yellow, scale: false });
+    this.barBoxes = this.steps.map(() => this.add.existing(new RoundBox(this)));
     this.bar = this.add.graphics();
     this.stepTexts = this.steps.map((s, i) => {
       const w = (PW - 56) / this.steps.length;
@@ -112,12 +111,7 @@ export class LaunchSequenceScene extends BaseScene {
       const x = PX + 28 + w * i;
       const done = i < this.round;
       const cur = i === this.round && this.state !== 'intro';
-      g.fillStyle(done ? COLORS.green : cur ? 0x2a3f8a : 0x1b275a, 1);
-      g.fillRoundedRect(x + 3, PY + 58, w - 6, 38, 10);
-      if (cur) {
-        g.lineStyle(3, COLORS.yellow, 1);
-        g.strokeRoundedRect(x + 3, PY + 58, w - 6, 38, 10);
-      }
+      this.barBoxes[i].draw(x + 3, PY + 58, w - 6, 38, { fill: done ? COLORS.green : cur ? 0x2a3f8a : 0x1b275a, alpha: 1, radius: 10, stroke: cur ? COLORS.yellow : null, strokeWidth: 3, shadow: false });
       if (done) drawIcon(g, 'check', x + w / 2, PY + 77, 22, COLORS.bg);
       this.stepTexts[i].setColor(done ? CSS.green : cur ? CSS.text : CSS.dim);
     }
@@ -149,14 +143,19 @@ export class LaunchSequenceScene extends BaseScene {
     const size = 74, gap = 14;
     this.seq.forEach((d, i) => {
       const x = (i - (n - 1) / 2) * (size + gap);
-      const g = this.add.graphics();
       const st = state[i] || (i < this.pos ? 'ok' : '');
-      g.fillStyle(st === 'ok' ? COLORS.green : st === 'bad' ? COLORS.red : i === this.pos ? 0x2a3f8a : 0x1b275a, 1);
-      g.fillRoundedRect(x - size / 2, -size / 2, size, size, 16);
-      g.lineStyle(3, i === this.pos && !st ? COLORS.yellow : 0xffffff, i === this.pos && !st ? 1 : 0.3);
-      g.strokeRoundedRect(x - size / 2, -size / 2, size, size, 16);
+      const box = new RoundBox(this).draw(x - size / 2, -size / 2, size, size, {
+        fill: st === 'ok' ? COLORS.green : st === 'bad' ? COLORS.red : i === this.pos ? 0x2a3f8a : 0x1b275a,
+        alpha: 1,
+        radius: 16,
+        stroke: i === this.pos && !st ? COLORS.yellow : 0xffffff,
+        strokeWidth: 3,
+        strokeAlpha: i === this.pos && !st ? 1 : 0.3,
+        shadow: false
+      });
+      const g = this.add.graphics();
       drawIcon(g, d, x, 0, 38, st ? COLORS.bg : 0xffffff);
-      this.tiles.add(g);
+      this.tiles.add([box, g]);
     });
   }
 

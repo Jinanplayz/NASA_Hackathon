@@ -140,5 +140,3 @@ export function seeded(seed = 1) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-
-export const isTouch = () => window.matchMedia?.('(pointer: coarse)').matches || 'ontouchstart' in window;

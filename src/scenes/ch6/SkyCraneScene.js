@@ -3,12 +3,12 @@ import { W, FULL, COLORS, CSS, DEPTH, clamp, seeded } from '../../core/constants
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, GoalBar, idleHint } from '../common/kit.js';
 import { marsBackdrop } from '../common/mars.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { toast, cameraShake, floatText } from '../../ui/widgets.js';
+import { toast, cameraShake, floatText, roundBox } from '../../ui/widgets.js';
 
 // Curiosity (2012) was too heavy for airbags, so it was lowered to the ground on cables from a
 // rocket-powered "sky crane". Steer the crane over the safe, flat spot and keep the rover from
@@ -16,7 +16,8 @@ import { toast, cameraShake, floatText } from '../../ui/widgets.js';
 const GROUND = 640;
 const ROPE = 150; // cable length when fully lowered
 const ROVER_H = 128; // from the cable hook to the bottom of the wheels
-const G = 320, ACC = 260, DESCENT = 18;
+const G = 320, ACC = 260, DESCENT = 14;
+const START_Y = 180; // where the crane starts (below the task bar)
 const SPOTS = [[640, 860], [880, 1080], [380, 600]];
 
 export class SkyCraneScene extends BaseScene {
@@ -63,12 +64,14 @@ export class SkyCraneScene extends BaseScene {
     this.rover = img(this, 0, 0, 'curiosity', 0.75).setOrigin(0.5, 0.1).setDepth(4);
     this.dust = this.add.particles(0, 0, 'softDot', { speed: { min: 60, max: 180 }, angle: { min: 180, max: 360 }, lifespan: 900, scale: { start: 0.25, end: 0.6 }, alpha: { start: 0.45, end: 0 }, tint: 0xd09060, frequency: 40, emitting: false }).setDepth(3);
 
-    // HUD
-    this.altText = txt(this, 60, 96, '', { size: 26, weight: 800, color: '#ffffff', scale: false, stroke: '#3a1a0a', strokeThickness: 6 }).setDepth(DEPTH.ui);
-    this.swingText = txt(this, 60, 134, '', { size: 18, weight: 800, color: '#ffffff', scale: false, stroke: '#3a1a0a', strokeThickness: 5 }).setDepth(DEPTH.ui);
+    // HUD: the task, and the height and swing just under it (clear of the landing spot)
+    this.goal = new GoalBar(this);
+    const hg = roundBox(this, 400, 172, 480, 54, { fill: 0x0b1230, radius: 16, alpha: 0.88 }).setDepth(DEPTH.ui - 1);
+    this.altText = txt(this, 424, 199, '', { size: 21, weight: 800, color: '#ffffff', origin: [0, 0.5], scale: false }).setDepth(DEPTH.ui);
+    this.swingText = txt(this, 856, 199, '', { size: 20, weight: 800, color: '#ffffff', origin: [1, 0.5], scale: false }).setDepth(DEPTH.ui);
     this.leftBtn = this.holdButton(110, 650, 'left', -1);
     this.rightBtn = this.holdButton(270, 650, 'right', 1);
-    this.cutBtn = new Button(this, W - 180, 650, { width: 300, height: 76, size: 26, label: this.T('cutLabel', 'Cut the cables!'), icon: 'close', variant: 'danger', onClick: () => this.cut() });
+    this.cutBtn = new Button(this, W - 180, 650, { width: 300, height: 76, size: 26, label: this.T('cutLabel', 'Cut the cables!'), icon: 'close', variant: 'danger', onClick: () => this.cut() }).setDepth(DEPTH.ui);
     this.cutBtn.setVisible(false).setEnabled(false);
     this.input.on('pointerup', () => (this.move = 0));
     if (this.input.keyboard) {
@@ -79,13 +82,24 @@ export class SkyCraneScene extends BaseScene {
       this.input.keyboard.on('keydown-SPACE', () => this.cut());
     }
     this.setup();
+    // stuck? point at the arrow that steers towards the safe spot (or at Cut)
+    idleHint(this, () => {
+      if (this.state === 'landed') return { x: this.cutBtn.x, y: this.cutBtn.y - 44 };
+      if (this.state !== 'fly' || this.move) return null;
+      const mid = (this.spot[0] + this.spot[1]) / 2;
+      if (Math.abs(this.sx - mid) < 70) return null;
+      const b = mid > this.sx ? this.rightBtn : this.leftBtn;
+      return { x: b.x, y: b.y - 46 };
+    }, { delay: 2500 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'fly';
+      if (!ok) return;
+      this.state = 'fly';
+      this.goal.set(this.T('task', { title: 'Lower Curiosity onto the green spot!', help: 'Hold the arrows to steer. Move gently, so it doesn\'t swing.' }));
     });
   }
 
   holdButton(x, y, icon, dir) {
-    const b = new Button(this, x, y, { width: 140, height: 76, icon, variant: 'secondary', sound: null });
+    const b = new Button(this, x, y, { width: 140, height: 76, icon, variant: 'secondary', sound: null }).setDepth(DEPTH.ui);
     b.off('pointerup');
     b.on('pointerdown', () => (this.move = dir));
     b.activate = () => {
@@ -99,7 +113,7 @@ export class SkyCraneScene extends BaseScene {
   setup() {
     this.spot = SPOTS[this.attempt % SPOTS.length];
     this.sx = this.spot[0] > 600 ? 260 : 1020;
-    this.sy = 70;
+    this.sy = START_Y;
     this.vx = 0;
     this.ax = 0;
     this.theta = 0;
@@ -164,12 +178,13 @@ export class SkyCraneScene extends BaseScene {
       cameraShake(this, 300, 0.01);
       this.state = 'crashed';
       const msg = !onSpot ? this.T('missSpot', 'Ouch! The wheels came down on rocks. Try again!') : this.T('tooSwingy', 'Bump! The rover was swinging too much. Try again!');
-      toast(this, msg, { y: 210, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
+      toast(this, msg, { y: 250, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
       this.time.delayedCall(2400, () => {
         if (this._leaving) return;
         this.attempt++;
         this.setup();
         this.state = 'fly';
+        this.goal.set(this.T('task', { title: 'Lower Curiosity onto the green spot!' }), { speak: false });
       });
       return;
     }
@@ -182,10 +197,11 @@ export class SkyCraneScene extends BaseScene {
     this.cutBtn.setVisible(true).setEnabled(true).pulse();
     this.leftBtn.setVisible(false);
     this.rightBtn.setVisible(false);
+    this.goal.set(this.T('cutTask', { title: 'Wheels down! Cut the cables!', help: 'Press the red button, quick!' }));
     this.cutTimer = this.time.delayedCall(this.relaxed ? 3500 : 2500, () => {
       if (this.state !== 'landed') return;
       this.mistakes++;
-      toast(this, this.T('cutLate', 'Too slow! The crane started to drag the rover. The computer cut the cables.'), { y: 210, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
+      toast(this, this.T('cutLate', 'Too slow! The crane started to drag the rover. The computer cut the cables.'), { y: 250, color: COLORS.orange, sound: false, speak: true, duration: 2600 });
       this.tweens.add({ targets: this.rover, x: this.rover.x + 20, duration: 200, yoyo: true });
       this.cut(true);
     });

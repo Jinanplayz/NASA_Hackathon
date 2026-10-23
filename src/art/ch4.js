@@ -373,8 +373,113 @@ function battery(c, w, h, body) {
   c.stroke();
 }
 
+// ---------- the chain of problems (the investigation's picture cards) ----------
+// a round oxygen tank
+function tank(c, x, y, r, glow) {
+  if (glow) {
+    c.fillStyle = radial(c, x, y, r * 0.2, r * 1.7, [[0, 'rgba(255,140,40,0.9)'], [1, 'rgba(255,140,40,0)']]);
+    circle(c, x, y, r * 1.7);
+    c.fill();
+  }
+  c.fillStyle = radial(c, x - r * 0.35, y - r * 0.35, r * 0.1, r * 1.35, [[0, '#ffffff'], [0.5, glow ? '#ffc58a' : '#c9ced8'], [1, glow ? '#c45a1e' : '#6b7385']]);
+  circle(c, x, y, r);
+  c.fill();
+  c.fillStyle = '#4a5160';
+  roundRect(c, x - 4, y - r - 10, 8, 12, 2);
+  c.fill();
+}
+
+function ccDrop(c) {
+  // the tank slipping down, with motion lines, above the factory floor
+  c.fillStyle = '#5a6278';
+  c.fillRect(8, 82, 84, 8);
+  c.save();
+  c.translate(52, 50);
+  c.rotate(0.35);
+  tank(c, 0, 0, 22, false);
+  c.restore();
+  c.strokeStyle = 'rgba(255,255,255,0.8)';
+  c.lineWidth = 3;
+  c.lineCap = 'round';
+  [[22, 18, 22, 34], [30, 10, 30, 26], [80, 16, 80, 32]].forEach(([a, b, d, e]) => {
+    c.beginPath();
+    c.moveTo(a, b);
+    c.lineTo(d, e);
+    c.stroke();
+  });
+}
+
+function ccHeat(c) {
+  tank(c, 42, 56, 26, true);
+  // a clock: left on for hours
+  c.fillStyle = '#ffffff';
+  circle(c, 78, 24, 17);
+  c.fill();
+  c.strokeStyle = '#1b2a5c';
+  c.lineWidth = 3;
+  c.beginPath();
+  c.moveTo(78, 24);
+  c.lineTo(78, 13);
+  c.moveTo(78, 24);
+  c.lineTo(86, 28);
+  c.stroke();
+}
+
+function ccMelt(c) {
+  // a little switch, melted shut, with a lightning bolt
+  c.fillStyle = '#3a3f4b';
+  roundRect(c, 18, 40, 64, 40, 8);
+  c.fill();
+  c.fillStyle = '#e07b39';
+  roundRect(c, 34, 30, 32, 22, 6);
+  c.fill();
+  c.fillStyle = '#e07b39';
+  [[38, 52, 6, 14], [52, 52, 5, 20], [62, 52, 4, 10]].forEach(([x, y, w, h]) => {
+    roundRect(c, x, y, w, h, 2);
+    c.fill();
+  });
+  c.fillStyle = '#ffd166';
+  poly(c, [[60, 4], [44, 30], [54, 30], [46, 48], [70, 20], [58, 20]]);
+  c.fill();
+}
+
+function ccSpark(c) {
+  // the fan inside the tank, and a spark
+  tank(c, 44, 56, 30, false);
+  c.fillStyle = '#4a5160';
+  for (let k = 0; k < 3; k++) {
+    c.save();
+    c.translate(44, 56);
+    c.rotate((k * Math.PI * 2) / 3);
+    c.beginPath();
+    c.ellipse(0, -11, 6, 12, 0, 0, Math.PI * 2);
+    c.fill();
+    c.restore();
+  }
+  c.fillStyle = '#ffd166';
+  poly(c, [[80, 8], [84, 22], [96, 20], [86, 30], [92, 42], [80, 34], [70, 42], [74, 30], [64, 22], [76, 22]]);
+  c.fill();
+}
+
+function ccBoom(c) {
+  // the burst: a bright star of fire and smoke
+  c.fillStyle = radial(c, 50, 50, 4, 48, [[0, '#fff6c8'], [0.35, '#ffd166'], [0.7, '#ff7a2f'], [1, 'rgba(255,90,40,0.6)']]);
+  const pts = [];
+  for (let k = 0; k < 16; k++) {
+    const a = (k / 16) * Math.PI * 2, r = k % 2 ? 22 : 46;
+    pts.push([50 + Math.cos(a) * r, 50 + Math.sin(a) * r]);
+  }
+  poly(c, pts);
+  c.fill();
+}
+
 export function buildCh4Art(scene) {
   const icon = (key, fn) => makeTex(scene, key, 100, 100, (c) => fn(c));
+  icon('ccDrop', ccDrop);
+  icon('ccHeat', ccHeat);
+  icon('ccMelt', ccMelt);
+  icon('ccSpark', ccSpark);
+  icon('ccBoom', ccBoom);
   icon('liCrew', crew);
   icon('liChecklist', checklist);
   icon('liFood', food);

@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import { W, H, FULL, COLORS, CSS, DEPTH, TEX, lerpColor, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
-import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';

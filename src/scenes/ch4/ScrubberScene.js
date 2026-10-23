@@ -1,19 +1,20 @@
-import { W, COLORS, CSS, DEPTH, shuffle, clamp } from '../../core/constants.js';
+import { COLORS, CSS, DEPTH, shuffle, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { blueprint } from '../common/bg.js';
-import { playIntro, finishGame, starsFor, draggable } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, draggable, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt, fitText } from '../../ui/text.js';
-import { drawPanel, toast, shake, floatText } from '../../ui/widgets.js';
+import { toast, shake, floatText, roundBox, RoundBox } from '../../ui/widgets.js';
 
-// "Square peg, round hole": follow Houston's instructions and build the 'mailbox' adapter
-// from things on board, before the carbon dioxide meter reaches the danger zone.
-const BENCH = { x: 470, y: 330 };
-const METER = { x: 70, y: 150, w: 56, h: 380 };
-const LIST = { x: 820, y: 96, w: 430, h: 300 };
+// "Square peg, round hole": follow Houston's instructions (shown one at a time in the task bar)
+// and build the 'mailbox' adapter from things on board, before the carbon dioxide meter reaches
+// the danger zone.
+const BENCH = { x: 480, y: 410 };
+const METER = { x: 70, y: 226, w: 56, h: 340 };
+const TRAY = { x: 820, y: 176, w: 430, h: 470 };
 const DANGER = 15, START = 7, MAXV = 17;
 
 export class ScrubberScene extends BaseScene {
@@ -35,8 +36,7 @@ export class ScrubberScene extends BaseScene {
     this.steps = this.T('steps', []);
 
     // CO2 meter
-    const mg = this.add.graphics();
-    drawPanel(mg, METER.x - 40, METER.y - 56, METER.w + 80, METER.h + 100, { fill: 0x0b1230, radius: 18 });
+    const mg = roundBox(this, METER.x - 40, METER.y - 56, METER.w + 80, METER.h + 100, { fill: 0x0b1230, radius: 18 });
     txt(this, METER.x + METER.w / 2, METER.y - 34, this.T('co2Label', 'CO2'), { size: 15, weight: 800, color: CSS.cyan, origin: 0.5, align: 'center', wrap: 130, scale: false });
     this.meterG = this.add.graphics();
     this.co2Text = txt(this, METER.x + METER.w / 2, METER.y + METER.h + 24, '', { size: 18, weight: 800, origin: 0.5, scale: false });
@@ -56,22 +56,15 @@ export class ScrubberScene extends BaseScene {
     this.build.add([this.layers.hose, this.layers.filter, this.layers.cardboard, this.layers.bag, this.layers.tape]);
     this.glow = this.add.graphics();
 
-    // Houston's instructions
-    const lg = this.add.graphics();
-    drawPanel(lg, LIST.x, LIST.y, LIST.w, LIST.h, { fill: COLORS.panel, radius: 18, stroke: COLORS.cyan, strokeWidth: 3 });
-    txt(this, LIST.x + 20, LIST.y + 16, this.T('listTitle', 'Instructions'), { size: 20, weight: 800, color: CSS.yellow, scale: false });
-    this.lines = this.steps.map((s, k) => {
-      const t = txt(this, LIST.x + 56, LIST.y + 58 + k * 47, s.text, { size: 16, wrap: LIST.w - 76, scale: false, color: CSS.dim });
-      fitText(t, LIST.w - 76, 44, 11);
-      const n = txt(this, LIST.x + 32, LIST.y + 58 + k * 47 + 10, String(k + 1), { size: 18, weight: 800, origin: 0.5, scale: false, color: CSS.dim });
-      return { t, n };
-    });
+    // Houston's instructions, one at a time
+    this.goal = new GoalBar(this);
 
     // the tray of things on board
-    txt(this, LIST.x + 20, LIST.y + LIST.h + 18, this.T('trayTitle', 'Things on board'), { size: 18, weight: 800, color: CSS.cyan, scale: false });
+    const tg = roundBox(this, TRAY.x, TRAY.y, TRAY.w, TRAY.h, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 2 });
+    txt(this, TRAY.x + 20, TRAY.y + 14, this.T('trayTitle', 'Things on board'), { size: 20, weight: 800, color: CSS.cyan, scale: false });
     this.items = shuffle(this.T('items', [])).map((it, k) => {
-      const col = k % 4, row = Math.floor(k / 4);
-      const c = this.itemCard(it, LIST.x + 56 + col * 107, LIST.y + LIST.h + 102 + row * 116);
+      const col = k % 3, row = Math.floor(k / 3);
+      const c = this.itemCard(it, TRAY.x + 78 + col * 137, TRAY.y + 116 + row * 134);
       draggable(this, c, {
         onDrop: (x, y) => (Math.abs(x - BENCH.x) < 230 && Math.abs(y - BENCH.y) < 200 ? this.use(c) : false),
         onTap: () => this.use(c)
@@ -79,35 +72,38 @@ export class ScrubberScene extends BaseScene {
       return c;
     });
 
-    this.highlight();
     this.drawMeter();
+    // stuck? point at the thing Houston asks for
+    idleHint(this, () => {
+      const want = this.state === 'play' && this.steps[this.step];
+      const c = want && this.items.find((k) => k.enabled && k.item.id === want.item);
+      return c ? { x: c.x, y: c.y - 62 } : null;
+    }, { delay: 8000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.highlight();
     });
   }
 
   itemCard(it, x, y) {
     const c = this.add.container(x, y);
-    const g = this.add.graphics();
-    g.fillStyle(0x0b1230, 0.95);
-    g.fillRoundedRect(-50, -52, 100, 104, 12);
-    g.lineStyle(2, 0x3a4a92, 1);
-    g.strokeRoundedRect(-50, -52, 100, 104, 12);
-    const icon = img(this, 0, -12, it.key, 0.62);
-    const name = txt(this, 0, 34, it.name, { size: 13, weight: 700, origin: 0.5, align: 'center', wrap: 94, scale: false });
-    fitText(name, 94, 30, 10);
+    const g = this.add.existing(new RoundBox(this)).draw(-62, -58, 124, 116, { fill: 0x0b1230, alpha: 0.95, radius: 14, stroke: 0x3a4a92, strokeWidth: 2, shadow: false });
+    const icon = img(this, 0, -14, it.key, 0.72);
+    const name = txt(this, 0, 38, it.name, { size: 15, weight: 700, origin: 0.5, align: 'center', wrap: 116, scale: false });
+    fitText(name, 116, 34, 11);
     c.add([g, icon, name]);
-    c.setSize(100, 104);
+    c.setSize(124, 116);
     c.item = it;
     return c;
   }
 
+  // show (and read out) Houston's next instruction
   highlight() {
-    this.lines.forEach((l, k) => {
-      const color = k < this.step ? CSS.green : k === this.step ? CSS.text : CSS.dim;
-      l.t.setColor(color);
-      l.n.setText(k < this.step ? '✓' : String(k + 1)).setColor(k < this.step ? CSS.green : k === this.step ? CSS.yellow : CSS.dim);
-    });
+    const s = this.steps[this.step];
+    if (!s) return;
+    this.goal.set({ title: s.text, help: this.T('dragHelp', 'Drag it onto the filter on the bench.') }, { count: `${this.step + 1} / ${this.steps.length}`, speak: false });
+    Speech.say(this.step === 0 ? [s.text, this.T('dragHelp', 'Drag it onto the filter on the bench.')] : s.text);
   }
 
   use(c) {
@@ -127,8 +123,8 @@ export class ScrubberScene extends BaseScene {
       }
       floatText(this, BENCH.x, BENCH.y - 150, '✓', CSS.green, 44);
       this.step++;
-      this.highlight();
       if (this.step >= this.steps.length) this.win();
+      else this.time.delayedCall(500, () => this.state === 'play' && this.highlight());
       return true;
     }
     this.mistakes++;
@@ -136,7 +132,7 @@ export class ScrubberScene extends BaseScene {
     Sfx.play('error');
     shake(this, c, 8);
     const why = it.why || this.T('wrongStep', 'Not yet!');
-    toast(this, why, { y: 100, color: COLORS.orange, sound: false, speak: true, duration: 3200 });
+    toast(this, why, { y: 664, color: COLORS.orange, sound: false, speak: true, duration: 3200 });
     c.goHome();
     return true;
   }
@@ -186,9 +182,9 @@ export class ScrubberScene extends BaseScene {
     im.alt = photo.alt || '';
     im.onerror = () => this.photoDom && this.setDomVisible(this.photoDom, false);
     el.appendChild(im);
-    this.photoDom = this.addDom(W - 340, 330, el);
+    this.photoDom = this.addDom(TRAY.x + 65, TRAY.y + 70, el);
     this.photoDom.pointerEvents = 'none';
-    txt(this, W - 190, 642, photo.credit || Content.ui('photoCredit', 'Photo: NASA'), { size: 13, color: CSS.dim, origin: 0.5, scale: false }).setDepth(DEPTH.ui);
+    txt(this, TRAY.x + TRAY.w / 2, TRAY.y + 396, photo.credit || Content.ui('photoCredit', 'Photo: NASA'), { size: 13, color: CSS.dim, origin: 0.5, align: 'center', wrap: TRAY.w - 30, scale: false }).setDepth(DEPTH.ui);
     // hide the tray behind the photo
     this.items.forEach((c) => c.setVisible(false));
   }
@@ -209,7 +205,7 @@ export class ScrubberScene extends BaseScene {
     this.glow.clear();
     if (this.state === 'play') {
       this.glow.lineStyle(3, COLORS.yellow, 0.4 + Math.sin(time / 250) * 0.3);
-      this.glow.strokeRoundedRect(BENCH.x - 190, BENCH.y - 170, 380, 340, 20);
+      this.glow.strokeRoundedRect(BENCH.x - 190, BENCH.y - 160, 380, 320, 20);
     }
   }
 }

@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
-import { COLORS, CSS } from '../core/constants.js';
+import { COLORS, CSS, TEX } from '../core/constants.js';
 import { Sfx } from '../core/Sfx.js';
 import { txt } from './text.js';
 import { drawIcon } from './icons.js';
+import { paintTexture, boxParts, setBox } from './paint.js';
 
 const VARIANTS = {
   primary: { fill: COLORS.cyan, hover: 0x7fe0ff, text: CSS.dark, icon: COLORS.bg, stroke: null },
@@ -13,6 +14,19 @@ const VARIANTS = {
   ghost: { fill: 0x0b1230, hover: 0x18214d, text: CSS.text, icon: COLORS.white, stroke: 0x3a4a92, fillAlpha: 0.75 },
   outline: { fill: 0x0a1a4a, hover: 0x15307a, text: CSS.text, icon: COLORS.white, stroke: COLORS.cyan, fillAlpha: 0.85 }
 };
+
+// Button shapes (see RoundBox in paint.js) and icons are painted once into textures that every
+// button shares: drawn with a Graphics they were redrawn on every frame, which made screens with
+// many buttons slow.
+function iconTexture(scene, name, size, color, a) {
+  const key = `btnIcon|${name}|${size}|${color}|${a}`;
+  if (scene.textures.exists(key)) return key;
+  const g = scene.make.graphics({}, false);
+  drawIcon(g, name, 0, 0, size, color, a);
+  paintTexture(scene, key, g, -size, -size, size * 2, size * 2, TEX);
+  g.destroy();
+  return key;
+}
 
 export class Button extends Phaser.GameObjects.Container {
   constructor(scene, x, y, opts = {}) {
@@ -36,9 +50,12 @@ export class Button extends Phaser.GameObjects.Container {
     this.pressed = false;
     this.hovered = false;
 
-    this.bg = scene.add.graphics();
+    this.bg = boxParts(scene);
     this.add(this.bg);
-    this.iconG = scene.add.graphics();
+    // (a container, so screens can still move or flip the icon)
+    this.iconG = scene.make.container({ add: false });
+    this.iconImg = scene.make.image({ key: '__DEFAULT', add: false }).setScale(1 / TEX);
+    this.iconG.add(this.iconImg);
     this.add(this.iconG);
     this.labelText = txt(scene, 0, 0, o.label, { size: o.size, weight: 700, origin: 0.5, scale: o.scaleText ?? false, align: 'center' });
     this.add(this.labelText);
@@ -74,34 +91,32 @@ export class Button extends Phaser.GameObjects.Container {
   }
 
   redraw() {
+    // (nothing to do once the button's screen has closed)
+    if (!this.scene) return;
     const o = this.opts;
     const v = VARIANTS[o.variant] || VARIANTS.primary;
     const w = o.width, h = o.height;
     const fill = o.color ?? (this.hovered ? v.hover : v.fill);
-    this.bg.clear();
     const a = this.enabled ? 1 : 0.4;
-    // soft shadow
-    this.bg.fillStyle(0x000000, 0.25 * a);
-    this.bg.fillRoundedRect(-w / 2, -h / 2 + 4, w, h, o.radius);
-    this.bg.fillStyle(fill, (v.fillAlpha ?? 1) * a);
-    this.bg.fillRoundedRect(-w / 2, -h / 2, w, h, o.radius);
-    // top highlight
-    this.bg.fillStyle(0xffffff, 0.12 * a);
-    // (corner sizes limited to the highlight's own height, so pill-shaped buttons look right too)
-    const hr = Math.min(o.radius - 4, h * 0.21);
-    this.bg.fillRoundedRect(-w / 2 + 4, -h / 2 + 3, w - 8, h * 0.42, { tl: hr, tr: hr, bl: Math.min(6, hr), br: Math.min(6, hr) });
-    if (v.stroke || o.stroke) {
-      this.bg.lineStyle(2, o.stroke ?? v.stroke, a);
-      this.bg.strokeRoundedRect(-w / 2, -h / 2, w, h, o.radius);
-    }
-    this.iconG.clear();
+    // a soft shadow, the fill, a light band across the top and (some variants) an outline
+    setBox(this.bg, -w / 2, -h / 2, w, h, {
+      radius: o.radius,
+      fill,
+      alpha: (v.fillAlpha ?? 1) * a,
+      stroke: v.stroke || o.stroke ? o.stroke ?? v.stroke : null,
+      strokeAlpha: a,
+      shadowAlpha: 0.25 * a,
+      shadowY: 4,
+      highlight: 0.12 * a
+    });
     const hasLabel = !!o.label;
     if (o.icon) {
       const iconColor = o.iconColor ?? v.icon;
       const ix = hasLabel ? -w / 2 + 18 + o.iconSize / 2 : 0;
-      drawIcon(this.iconG, o.icon, ix, 0, o.iconSize, iconColor, a);
+      this.iconImg.setTexture(iconTexture(this.scene, o.icon, o.iconSize, iconColor, a)).setX(ix).setVisible(true);
       this.labelText.setX(hasLabel ? (o.iconSize + 10) / 2 : 0);
     } else {
+      this.iconImg.setVisible(false);
       this.labelText.setX(0);
     }
     // changing a text's colour or size redraws it, so only do it when something changed

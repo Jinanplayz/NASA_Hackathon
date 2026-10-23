@@ -6,16 +6,16 @@ import { Flow } from '../core/Flow.js';
 import { BaseScene } from './BaseScene.js';
 import { starfield } from './common/bg.js';
 import { img } from '../art/core.js';
-import { txt } from '../ui/text.js';
+import { txt, fitText } from '../ui/text.js';
 import { Button, iconButton } from '../ui/Button.js';
-import { panel, drawPanel } from '../ui/widgets.js';
+import { panel, RoundBox } from '../ui/widgets.js';
 import { drawIcon } from '../ui/icons.js';
 
-// Mission map: a row of chapter cards that slides left and right (drag or swipe it, use the
-// arrow buttons, the arrow keys or the mouse wheel). Pick a chapter, then start it or jump to
-// one of its activities.
-const CW = 370, CH = 420, GAP = 30, STEP = CW + GAP;
-const ART_H = 180;
+// Mission map: every chapter on one screen as a picture card. Up to three chapters get big
+// cards in a row; more chapters are laid out as a tidy grid (four on top, the rest below).
+// Pick a chapter, then start it or jump to one of its activities.
+const BIG = { w: 370, h: 420, gap: 30, artH: 180, art: 1 };
+const SMALL = { w: 288, h: 288, gap: 16, artH: 120, art: 0.68 };
 
 export class ChapterSelectScene extends BaseScene {
   constructor() {
@@ -24,52 +24,27 @@ export class ChapterSelectScene extends BaseScene {
 
   create() {
     this.setupStage({ hud: false });
-    // (Phaser reuses this screen when it is opened again: start from a clean slate)
-    this.cards = [];
-    this.drag = null;
-    this.modalOpen = false;
     starfield(this, { count: 180 });
 
-    txt(this, W / 2, 56, Content.ui('chooseChapter', 'Choose your mission'), { size: 40, weight: 800, origin: 0.5, color: CSS.yellow, scale: false });
+    txt(this, W / 2, 50, Content.ui('chooseChapter', 'Choose your mission'), { size: 40, weight: 800, origin: 0.5, color: CSS.yellow, scale: false });
     iconButton(this, 44, 44, 'home', () => Flow.home(this)).setDepth(DEPTH.ui);
     iconButton(this, W - 44, 44, 'sliders', () => this.openSettings()).setDepth(DEPTH.ui);
 
     const chapters = Content.game.chapters;
-    const playable = Content.playableChapters();
-    const soon = chapters.filter((c) => c.comingSoon || !Content.chapter(c.id));
-    this.cardY = soon.length ? 326 : 350;
 
-    // start with the chapter the player came from (or the first one not finished yet) in view
-    const focusIndex = Math.max(0, playable.findIndex((c) => c.id === this.payload.focus));
-    const firstOpen = playable.findIndex((c) => !Progress.isChapterDone(c.id));
-    const startAt = this.payload.focus ? focusIndex : Math.max(0, firstOpen);
-    this.maxPos = Math.max(0, playable.length - 3);
-    this.pos = this.target = Phaser.Math.Clamp(startAt - 1, 0, this.maxPos);
-
-    // the chapter cards
-    playable.forEach((c, i) => this.cards.push(this.makeCard(c, i)));
-    this.placeCards();
-
-    // only needed when there are more chapters than fit on the screen
-    if (this.maxPos > 0) {
-      this.prevBtn = iconButton(this, 36, this.cardY, 'back', () => this.scrollBy(-1), { width: 56, height: 96 }).setDepth(DEPTH.ui + 5);
-      this.nextBtn = iconButton(this, W - 36, this.cardY, 'next', () => this.scrollBy(1), { width: 56, height: 96 }).setDepth(DEPTH.ui + 5);
-      this.dots = this.add.graphics().setDepth(DEPTH.ui);
-      this.setupScrolling();
-    }
-
-    // coming soon strip
-    if (soon.length) {
-      txt(this, W / 2, 576, Content.ui('comingSoon', 'Coming soon'), { size: 18, weight: 700, origin: 0.5, color: CSS.dim, scale: false });
-      const sw = 230, sgap = 14;
-      const sx = W / 2 - ((soon.length - 1) * (sw + sgap)) / 2;
-      soon.forEach((c, i) => {
-        const x = sx + i * (sw + sgap);
-        const g = this.add.graphics();
-        drawPanel(g, x - sw / 2, 594, sw, 100, { fill: 0x10183a, stroke: 0x28356e, radius: 16, alpha: 0.9 });
-        drawIcon(g, 'lock', x - sw / 2 + 28, 644, 26, 0x5b6aa3);
-        txt(this, x - sw / 2 + 52, 620, c.title, { size: 17, weight: 700, color: '#c9d0ee', scale: false, wrap: sw - 64 });
-        txt(this, x - sw / 2 + 52, 664, c.years || '', { size: 14, color: CSS.dim, scale: false });
+    if (chapters.length <= 3) {
+      // a few chapters: big cards in one row
+      const startX = W / 2 - ((chapters.length - 1) * (BIG.w + BIG.gap)) / 2;
+      chapters.forEach((c, i) => this.makeCard(c, startX + i * (BIG.w + BIG.gap), 340, BIG, i));
+    } else {
+      // more chapters: two rows (the top row gets the extra card when the count is odd)
+      const perRow = Math.min(4, Math.ceil(chapters.length / 2));
+      const rows = [chapters.slice(0, perRow), chapters.slice(perRow, perRow * 2)];
+      const ys = [100 + SMALL.h / 2, 100 + SMALL.h + SMALL.gap + SMALL.h / 2];
+      let index = 0;
+      rows.forEach((row, r) => {
+        const startX = W / 2 - ((row.length - 1) * (SMALL.w + SMALL.gap)) / 2;
+        row.forEach((c, i) => this.makeCard(c, startX + i * (SMALL.w + SMALL.gap), ys[r], SMALL, index++));
       });
     }
 
@@ -79,170 +54,80 @@ export class ChapterSelectScene extends BaseScene {
     }
   }
 
-  // ---------- sliding row of cards ----------
-  setupScrolling() {
-    const top = this.cardY - CH / 2, bottom = this.cardY + CH / 2;
-    this.input.on('pointerdown', (p) => {
-      if (this.modalOpen || p.worldY < top || p.worldY > bottom) return;
-      this.drag = { x: p.worldX, pos: this.pos, moved: false, t: performance.now(), v: 0, lastX: p.worldX, lastT: performance.now() };
-    });
-    this.input.on('pointermove', (p) => {
-      const d = this.drag;
-      if (!d || !p.isDown) return;
-      const dx = p.worldX - d.x;
-      if (!d.moved && Math.abs(dx) > 12) {
-        d.moved = true;
-        // a drag is not a tap: don't let the button under the finger fire when it lets go
-        this.cards.forEach((card) => card.buttons.forEach((b) => (b.pressed = false)));
-      }
-      if (!d.moved) return;
-      const now = performance.now();
-      const dt = Math.max(1, now - d.lastT);
-      d.v = d.v * 0.6 + ((d.lastX - p.worldX) / STEP / dt) * 1000 * 0.4; // cards per second
-      d.lastX = p.worldX;
-      d.lastT = now;
-      // a little stretch past the first and last cards
-      let pos = d.pos - dx / STEP;
-      if (pos < 0) pos *= 0.35;
-      if (pos > this.maxPos) pos = this.maxPos + (pos - this.maxPos) * 0.35;
-      this.pos = this.target = pos;
-    });
-    this.input.on('pointerup', () => {
-      const d = this.drag;
-      this.drag = null;
-      if (!d || !d.moved) return;
-      // a quick flick carries on to the next card
-      const flick = Phaser.Math.Clamp(d.v * 0.25, -1.5, 1.5);
-      this.target = Phaser.Math.Clamp(Math.round(this.pos + flick), 0, this.maxPos);
-    });
-    this.input.on('wheel', (p, over, dx, dy) => {
-      if (this.modalOpen) return;
-      const d = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-      if (Math.abs(d) > 4) this.scrollBy(d > 0 ? 1 : -1);
-    });
-    if (this.input.keyboard) {
-      this.input.keyboard.on('keydown-LEFT', () => !this.modalOpen && this.scrollBy(-1));
-      this.input.keyboard.on('keydown-RIGHT', () => !this.modalOpen && this.scrollBy(1));
-    }
-  }
-
-  scrollBy(n) {
-    this.target = Phaser.Math.Clamp(Math.round(this.target) + n, 0, this.maxPos);
-  }
-
-  update(time, delta) {
-    if (!this.cards.length) return;
-    if (!this.drag && Math.abs(this.target - this.pos) > 0.0005) {
-      // ease towards the chosen card
-      const k = 1 - Math.pow(0.0005, Math.min(0.05, delta / 1000));
-      this.pos += (this.target - this.pos) * k;
-      if (Math.abs(this.target - this.pos) < 0.0005) this.pos = this.target;
-      this.placeCards();
-    } else if (this.drag && this.drag.moved) {
-      this.placeCards();
-    }
-  }
-
-  placeCards() {
-    // cards 0..2 of the view sit at the same places as the old three-card layout
-    const left = W / 2 - STEP;
-    this.cards.forEach((card, i) => {
-      const x = left + (i - this.pos) * STEP;
-      const off = Math.abs(i - this.pos - 1); // 0 = middle of the view, 1 = left/right card
-      const inView = off < 1.5;
-      card.cont.x = x;
-      card.art.x = x;
-      card.mask.x = x - card.homeX;
-      // cards sliding out of view fade away
-      const a = Phaser.Math.Clamp(1 - (off - 1.05) / 0.9, 0, 1);
-      card.cont.setAlpha(card.shown * a);
-      card.art.setAlpha(card.shownArt * a);
-      card.cont.setVisible(a > 0.01);
-      card.art.setVisible(a > 0.01);
-      card.buttons.forEach((b) => {
-        b.setVisible(inView);
-        if (b.input) b.input.enabled = inView && !this.modalOpen;
-      });
-    });
-    if (this.prevBtn) {
-      this.prevBtn.setVisible(this.target > 0.01);
-      this.nextBtn.setVisible(this.target < this.maxPos - 0.01);
-    }
-    if (this.dots) {
-      const n = this.cards.length;
-      this.dots.clear();
-      const dy = this.cardY + CH / 2 + 18;
-      for (let i = 0; i < n; i++) {
-        const near = 1 - Phaser.Math.Clamp(Math.abs(i - this.pos - 1) - 0.5, 0, 1);
-        this.dots.fillStyle(near > 0.5 ? COLORS.yellow : 0x3a4470, 1);
-        this.dots.fillCircle(W / 2 + (i - (n - 1) / 2) * 22, dy, 5 + near * 2);
-      }
-    }
-  }
-
-  makeCard(c, index) {
-    const w = CW, h = CH, y = this.cardY;
-    const homeX = W / 2 - STEP + index * STEP;
-    const done = Progress.isChapterDone(c.id);
-    const steps = Content.chapter(c.id).steps;
-    const count = Progress.doneCount(c.id);
-    const cont = this.add.container(homeX, y);
-    const g = this.add.graphics();
-    drawPanel(g, -w / 2, -h / 2, w, h, { fill: COLORS.panel, stroke: done ? COLORS.green : COLORS.stroke, strokeWidth: 3, radius: 24 });
+  makeCard(c, x, y, size, index) {
+    const { w, h, artH } = size;
+    const big = size === BIG;
+    const locked = c.comingSoon || !Content.chapter(c.id);
+    const done = !locked && Progress.isChapterDone(c.id);
+    const steps = locked ? [] : Content.chapter(c.id).steps;
+    const count = locked ? 0 : Progress.doneCount(c.id);
+    const cont = this.add.container(x, y);
+    const box = new RoundBox(this).draw(-w / 2, -h / 2, w, h, { fill: locked ? 0x10183a : COLORS.panel, stroke: done ? COLORS.green : locked ? 0x28356e : COLORS.stroke, strokeWidth: 3, radius: big ? 24 : 20 });
     // art area
+    const pad = big ? 14 : 12;
+    const g = this.add.graphics();
     g.fillStyle(0x070b1d, 1);
-    g.fillRoundedRect(-w / 2 + 14, -h / 2 + 14, w - 28, ART_H, 16);
-    cont.add(g);
+    g.fillRoundedRect(-w / 2 + pad, -h / 2 + pad, w - pad * 2, artH, 16);
+    cont.add([box, g]);
     // picture (kept outside the card container so it can be clipped with a mask)
     const art = this.chapterArt(c.art || c.id);
-    art.setPosition(homeX, y - h / 2 + 104).setDepth(DEPTH.ui - 1);
+    art.setScale(size.art);
+    art.setPosition(x, y - h / 2 + pad + artH / 2 + (big ? 0 : 4)).setDepth(DEPTH.ui - 1).setAlpha(0);
+    this.tweens.add({ targets: art, alpha: locked ? 0.35 : 1, duration: 400, delay: index * 90 + 150 });
     // clip the picture to its rounded box
-    const mask = this.make.graphics({ add: false });
-    mask.fillStyle(0xffffff, 1);
-    mask.fillRoundedRect(homeX - w / 2 + 14, y - h / 2 + 14, w - 28, ART_H, 16);
-    art.setMask(mask.createGeometryMask());
+    const mg = this.make.graphics({ add: false });
+    mg.fillStyle(0xffffff, 1);
+    mg.fillRoundedRect(x - w / 2 + pad, y - h / 2 + pad, w - pad * 2, artH, 16);
+    art.setMask(mg.createGeometryMask());
 
-    const num = txt(this, -w / 2 + 22, -h / 2 + 206, (c.label || `Chapter ${index + 1}`).toUpperCase(), { size: 15, weight: 700, color: CSS.cyan, scale: false });
-    const title = txt(this, -w / 2 + 22, -h / 2 + 228, c.title, { size: 26, weight: 800, scale: false, wrap: w - 44 });
-    const sub = txt(this, -w / 2 + 22, title.y + title.height + 4, c.subtitle || '', { size: 16, color: CSS.dim, scale: false, wrap: w - 44 });
+    // a badge on the picture: finished, how far along, or locked
+    const badgeText = locked ? Content.ui('comingSoon', 'Coming soon') : done ? Content.ui('completed', 'Completed!') : count ? `${count} / ${steps.length}` : '';
+    if (badgeText) {
+      const bt = txt(this, 0, 0, badgeText, { size: big ? 15 : 13, weight: 800, color: done ? '#06281a' : '#ffffff', origin: 0.5, scale: false });
+      const bw = bt.width + 22, bh = big ? 28 : 24;
+      const bx = w / 2 - pad - 8 - bw / 2, by = -h / 2 + pad + 8 + bh / 2;
+      const bg = this.add.existing(new RoundBox(this)).draw(bx - bw / 2, by - bh / 2, bw, bh, { fill: done ? COLORS.green : locked ? 0x28356e : 0x1b2a63, alpha: 0.95, radius: bh / 2, stroke: null, shadow: false });
+      bt.setPosition(bx, by);
+      const badge = this.add.container(x, y, [bg, bt]).setDepth(DEPTH.ui).setAlpha(0);
+      this.tweens.add({ targets: badge, alpha: 1, duration: 300, delay: index * 90 + 300 });
+    }
+
+    const top = -h / 2 + pad + artH;
+    const num = txt(this, -w / 2 + 20, top + (big ? 12 : 10), (c.label || `Chapter ${index + 1}`).toUpperCase(), { size: big ? 15 : 13, weight: 700, color: CSS.cyan, scale: false });
+    const title = txt(this, -w / 2 + 20, num.y + num.height + 2, c.title, { size: big ? 26 : 21, weight: 800, scale: false, color: locked ? '#c9d0ee' : CSS.text });
+    fitText(title, w - 40, big ? 64 : 28, 15);
+    const sub = txt(this, -w / 2 + 20, title.y + title.height + 3, locked ? c.years || '' : c.subtitle || '', { size: big ? 16 : 14, color: CSS.dim, scale: false, wrap: w - 40, lineSpacing: 2 });
+    fitText(sub, w - 40, big ? 60 : 36, 11);
     cont.add([num, title, sub]);
-
-    const status = done ? Content.ui('completed', 'Completed!') : count ? `${count}/${steps.length} ${Content.ui('activitiesDone', 'activities done')}` : c.years || '';
-    const st = txt(this, -w / 2 + 22, sub.y + sub.height + 6, status, { size: 15, weight: 700, color: done ? CSS.green : CSS.dim, scale: false });
-    cont.add(st);
-
-    // (the buttons ride inside the card, so they slide with it)
-    const play = new Button(this, -52, h / 2 - 44, {
-      width: w - 150,
-      height: 56,
-      label: done || count ? Content.ui('playAgain', 'Play') : Content.ui('play', 'Play'),
-      icon: 'play',
-      onClick: () => Flow.start(this, c.id, 0)
-    });
-    const list = new Button(this, w / 2 - 58, h / 2 - 44, {
-      width: 90,
-      height: 56,
-      icon: 'menu',
-      variant: 'secondary',
-      onClick: () => this.openActivities(c)
-    });
-    cont.add([play, list]);
+    if (locked) {
+      drawIcon(g, 'lock', 0, h / 2 - 40, 30, 0x5b6aa3);
+    } else {
+      const bh = big ? 56 : 48;
+      const listW = big ? 90 : 66;
+      const play = new Button(this, -w / 2 + pad + (w - pad * 3 - listW) / 2, h / 2 - pad - bh / 2, {
+        width: w - pad * 3 - listW,
+        height: bh,
+        size: big ? 24 : 21,
+        iconSize: big ? 26 : 22,
+        label: Content.ui('play', 'Play'),
+        icon: 'play',
+        onClick: () => Flow.start(this, c.id, 0)
+      });
+      const list = new Button(this, w / 2 - pad - listW / 2, h / 2 - pad - bh / 2, {
+        width: listW,
+        height: bh,
+        iconSize: big ? 26 : 22,
+        icon: 'menu',
+        variant: 'secondary',
+        onClick: () => this.openActivities(c)
+      });
+      cont.add([play, list]);
+    }
     cont.setDepth(DEPTH.ui - 1);
-
     // fade in, one card after another
-    const card = { cont, art, mask, homeX, buttons: [play, list], shown: 0, shownArt: 0 };
-    const order = Math.max(0, index - Math.floor(this.pos));
-    this.tweens.addCounter({ from: 0, to: 1, duration: 400, delay: order * 120, ease: 'Cubic.easeOut', onUpdate: (t) => {
-      card.shown = t.getValue();
-      card.offY = 30 * (1 - card.shown);
-      cont.y = y + card.offY;
-      this.placeCards();
-    } });
-    this.tweens.addCounter({ from: 0, to: 1, duration: 400, delay: order * 120 + 150, onUpdate: (t) => {
-      card.shownArt = t.getValue();
-      this.placeCards();
-    } });
-    return card;
+    cont.setAlpha(0);
+    cont.y += 30;
+    this.tweens.add({ targets: cont, alpha: 1, y, duration: 400, delay: index * 90, ease: 'Cubic.easeOut' });
   }
 
   chapterArt(kind) {
@@ -346,26 +231,22 @@ export class ChapterSelectScene extends BaseScene {
 
   openActivities(c) {
     const steps = Content.chapter(c.id).steps;
-    // the cards underneath stay still and can't be pressed while the list is open
-    this.modalOpen = true;
-    this.drag = null;
-    this.placeCards();
     const root = this.add.container(0, 0).setDepth(DEPTH.modal);
     const dim = this.add.rectangle(W / 2, H / 2, FULL.w, FULL.h, 0x000000, 0.65).setInteractive();
     root.add(dim);
-    const cols = 2;
+    // long chapters get three columns, so every activity fits with room to tap
+    const cols = steps.length > 16 ? 3 : 2;
     const rows = Math.ceil(steps.length / cols);
-    // long chapters get a taller list with slimmer rows, so every activity fits
-    const pw = 880, ph = rows > 8 ? 668 : 620;
+    const pw = cols === 3 ? 1060 : 880, ph = rows > 8 ? 668 : 620;
     root.add(panel(this, W / 2 - pw / 2, H / 2 - ph / 2, pw, ph, { stroke: COLORS.cyan, strokeWidth: 3, radius: 26 }));
     root.add(txt(this, W / 2, H / 2 - ph / 2 + 40, c.title, { size: 30, weight: 800, origin: 0.5, color: CSS.yellow, scale: false }));
     root.add(txt(this, W / 2, H / 2 - ph / 2 + 76, Content.ui('pickActivity', 'Jump to any activity:'), { size: 18, origin: 0.5, color: CSS.dim, scale: false }));
     const buttons = [];
     const gapY = Math.min(58, (ph - 200) / rows);
-    const bw = 400, bh = Math.min(50, gapY - 7);
+    const bw = cols === 3 ? 326 : 400, bh = Math.min(50, gapY - 7);
     steps.forEach((s, i) => {
       const col = i % cols, rowI = Math.floor(i / cols);
-      const x = W / 2 + (col === 0 ? -bw / 2 - 10 : bw / 2 + 10);
+      const x = W / 2 + (col - (cols - 1) / 2) * (bw + 20);
       const y = H / 2 - ph / 2 + 128 + rowI * gapY;
       const doneStep = Progress.isStepDone(c.id, i);
       const b = new Button(this, x, y, {
@@ -395,8 +276,6 @@ export class ChapterSelectScene extends BaseScene {
         buttons.forEach((b) => b.destroy());
         close.destroy();
         root.destroy();
-        this.modalOpen = false;
-        this.placeCards();
       }
     });
     close.setDepth(DEPTH.modal + 1);

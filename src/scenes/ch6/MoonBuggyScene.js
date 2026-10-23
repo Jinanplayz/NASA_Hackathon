@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
-import { W, H, FULL, COLORS, CSS, DEPTH, seeded } from '../../core/constants.js';
+import { W, FULL, COLORS, CSS, DEPTH, seeded } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor } from '../common/kit.js';
+import { starDots } from '../common/bg.js';
+import { playIntro, finishGame, starsFor, GoalBar } from '../common/kit.js';
 import { img, makeTex } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
@@ -75,12 +76,13 @@ export class MoonBuggyScene extends BaseScene {
     this.stops = this.T('stops', []);
 
     // sky: stars and Earth
-    const sg = this.add.graphics();
     const rnd = seeded(4);
+    const stars = [];
     for (let i = 0; i < 160; i++) {
-      sg.fillStyle(0xffffff, 0.3 + rnd() * 0.6);
-      sg.fillCircle(FULL.x + rnd() * FULL.w, FULL.y + rnd() * (GROUND - FULL.y - 120), rnd() < 0.1 ? 1.6 : 0.9);
+      const alpha = 0.3 + rnd() * 0.6, x = FULL.x + rnd() * FULL.w, y = FULL.y + rnd() * (GROUND - FULL.y - 120);
+      stars.push({ x, y, alpha, size: rnd() < 0.1 ? 2 : 1 });
     }
+    starDots(this, stars);
     img(this, 900, 150, 'earthSmall', 0.5);
     this.far = this.add.tileSprite(W / 2, GROUND - 90, FULL.w, 220, 'moonHillsFar');
     this.near = this.add.tileSprite(W / 2, GROUND - 60, FULL.w, 200, 'moonHillsNear');
@@ -96,10 +98,10 @@ export class MoonBuggyScene extends BaseScene {
     this.buildCourse();
 
     // HUD
-    const hy = 96;
-    this.stopLabel = txt(this, 60, hy, '', { size: 20, weight: 800, color: CSS.yellow, scale: false }).setDepth(DEPTH.ui);
-    this.bar = new ProgressBar(this, 60, hy + 34, 360, 14, { color: COLORS.cyan });
-    this.bumpText = txt(this, 60, hy + 58, '', { size: 17, weight: 700, color: CSS.dim, scale: false }).setDepth(DEPTH.ui);
+    const hy = 176;
+    this.goal = new GoalBar(this);
+    this.bar = new ProgressBar(this, 60, hy, 360, 14, { color: COLORS.cyan });
+    this.bumpText = txt(this, 60, hy + 24, '', { size: 17, weight: 700, color: CSS.dim, scale: false }).setDepth(DEPTH.ui);
     this.speedText = txt(this, W - 60, hy, '', { size: 20, weight: 800, color: CSS.cyan, origin: [1, 0], scale: false }).setDepth(DEPTH.ui);
     this.jumpBtn = new Button(this, W - 150, 650, { width: 230, height: 78, size: 30, label: this.T('jumpLabel', 'Jump!'), icon: 'up', variant: 'warn', onClick: () => this.jump() });
     this.input.on('pointerdown', (p, over) => {
@@ -166,6 +168,9 @@ export class MoonBuggyScene extends BaseScene {
   go() {
     if (this._leaving) return;
     this.state = 'drive';
+    const s = this.stops[this.stopIndex];
+    if (s) this.goal.set({ title: s.ask || s.name, help: this.T('jumpHelp', 'Tap Jump to hop over craters and boulders.') }, { count: `${this.stopIndex + 1} / ${this.stops.length}`, speak: false });
+    if (s) Speech.say(this.stopIndex === 0 ? [s.ask, this.T('jumpHelp', '')] : s.ask);
     this.tweens.addCounter({ from: this.speed, to: this.cruise, duration: 900, onUpdate: (tw) => (this.speed = tw.getValue()) });
     this.dust.start();
   }
@@ -177,9 +182,7 @@ export class MoonBuggyScene extends BaseScene {
   }
 
   updateHud() {
-    const s = this.stops[this.stopIndex];
     const segStart = this.stopIndex * SEG;
-    this.stopLabel.setText(s ? `${this.T('nextLabel', 'Next stop')}: ${s.name}` : this.T('homeLabel', 'Back to the lunar module'));
     this.bar.set(Math.min(1, (this.dist - segStart) / SEG), true);
     this.bumpText.setText(`${this.T('bumpsLabel', 'Bumps')}: ${this.bumps}`);
     this.speedText.setText(`${Math.round((this.speed / 270) * 12)} km/h`);

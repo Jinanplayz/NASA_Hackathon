@@ -1,17 +1,17 @@
 import Phaser from 'phaser';
-import { COLORS, CSS, DEPTH, clamp } from '../../core/constants.js';
+import { COLORS, CSS, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, draggable, InfoPanel } from '../common/kit.js';
+import { playIntro, finishGame, draggable, InfoPanel, GoalBar, idleHint } from '../common/kit.js';
 import { MIRROR_CELLS, hexCenter } from '../../art/ch7.js';
 import { txt } from '../../ui/text.js';
-import { Slider, drawPanel, ProgressBar, floatText } from '../../ui/widgets.js';
+import { Slider, ProgressBar, floatText, roundBox } from '../../ui/widgets.js';
 
 // When Webb first looked at a star, each of its 18 mirror segments made its own blurry copy
 // of it. Engineers nudged the segments with tiny motors until all 18 copies sat on top of each
 // other, then focused them into one sharp star. Do the same!
-const V = { x: 60, y: 96, w: 700, h: 560 };
+const V = { x: 60, y: 176, w: 700, h: 500 };
 const C = { x: V.x + V.w / 2, y: V.y + V.h / 2 };
 
 export class MirrorAlignScene extends BaseScene {
@@ -25,8 +25,7 @@ export class MirrorAlignScene extends BaseScene {
     this.stacked = 0;
     this.focusT = 0;
     this.focusTime = 0;
-    const g = this.add.graphics();
-    drawPanel(g, V.x - 8, V.y - 8, V.w + 16, V.h + 16, { fill: 0x000000, radius: 12, stroke: 0x46516b, strokeWidth: 3 });
+    const g = roundBox(this, V.x - 8, V.y - 8, V.w + 16, V.h + 16, { fill: 0x000000, radius: 12, stroke: 0x46516b, strokeWidth: 3 });
     txt(this, V.x + 12, V.y + V.h - 28, this.T('cameraLabel', "Webb's camera"), { size: 14, weight: 800, color: '#8b93a8', scale: false });
     // the target in the middle
     this.target = this.add.graphics();
@@ -40,8 +39,8 @@ export class MirrorAlignScene extends BaseScene {
     // 18 blurry copies of the star, spread out in the pattern of the mirror segments
     const rnd = Phaser.Math.RND;
     this.dots = MIRROR_CELLS.map(({ q, r }, i) => {
-      const p = hexCenter(q, r, 62);
-      const x = C.x + p.x * 1.05 + rnd.between(-18, 18), y = C.y + p.y * 1.05 + rnd.between(-18, 18);
+      const p = hexCenter(q, r, 58);
+      const x = C.x + p.x * 1.05 + rnd.between(-16, 16), y = C.y + p.y * 1.0 + rnd.between(-14, 14);
       const c = this.add.container(x, y);
       const glow = this.add.image(0, 0, 'softDot').setScale(0.55).setTint(0xcfe0ff).setAlpha(0.8).setBlendMode(Phaser.BlendModes.ADD);
       const n = txt(this, 0, 22, String(i + 1), { size: 12, weight: 800, color: '#8b93a8', origin: 0.5, scale: false });
@@ -55,24 +54,32 @@ export class MirrorAlignScene extends BaseScene {
       return c;
     });
 
-    this.info = new InfoPanel(this, 800, 96, 440, 290, { title: this.T('panelTitle', 'Line up the mirrors'), text: this.T('panelText', ''), size: 18 });
-    this.countText = txt(this, 1020, 420, '', { size: 20, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
+    this.info = new InfoPanel(this, 800, 176, 440, 230, { title: '', text: '', size: 18 });
+    this.info.g.setVisible(false);
+    this.goal = new GoalBar(this);
     // focus controls (used once the copies are stacked)
-    this.focusLabel = txt(this, 1020, 480, this.T('focusLabel', 'Focus'), { size: 18, weight: 800, color: CSS.cyan, origin: 0.5, scale: false }).setVisible(false);
-    this.slider = new Slider(this, 1020, 530, 380, 0, (v) => this.setFocus(v), 50);
+    this.focusLabel = txt(this, 1020, 456, this.T('focusLabel', 'Focus'), { size: 20, weight: 800, color: CSS.cyan, origin: 0.5, scale: false }).setVisible(false);
+    this.slider = new Slider(this, 1020, 506, 380, 0, (v) => this.setFocus(v), 50);
     this.slider.setVisible(false);
-    this.sharpBar = new ProgressBar(this, 830, 590, 380, 14, { color: COLORS.green });
+    this.sharpBar = new ProgressBar(this, 830, 566, 380, 16, { color: COLORS.green });
     this.sharpBar.g.setVisible(false);
-    this.sharpText = txt(this, 1020, 620, '', { size: 16, weight: 700, color: CSS.dim, origin: [0.5, 0], scale: false }).setVisible(false);
+    this.sharpText = txt(this, 1020, 596, '', { size: 18, weight: 700, color: CSS.dim, origin: [0.5, 0], scale: false }).setVisible(false);
     this.best = 0.35 + Math.random() * 0.4;
-    this.updateCount();
+    // stuck? point at a copy that isn't lined up yet (or the focus knob)
+    idleHint(this, () => {
+      if (this.state === 'focus') return { x: this.slider.x - this.slider.w / 2 + this.slider.w * this.slider.value, y: 486 };
+      const d = this.state === 'stack' && this.dots.find((k) => !k.done);
+      return d ? { x: d.x, y: d.y - 30 } : null;
+    }, { delay: 7000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'stack';
+      if (!ok) return;
+      this.state = 'stack';
+      this.goal.set(this.T('task', { title: 'Line up the 18 stars!', help: 'Tap each blurry copy of the star (or drag it) to move it into the green circle.' }), { count: '0 / 18' });
     });
   }
 
   updateCount() {
-    this.countText.setText(`${this.T('stackedLabel', 'Copies lined up')}: ${this.stacked} / 18`);
+    this.goal.setCount(`${this.stacked} / 18`);
   }
 
   stack(c) {
@@ -88,8 +95,12 @@ export class MirrorAlignScene extends BaseScene {
     this.stacked++;
     this.updateCount();
     const facts = this.T('facts', []);
-    const k = [6, 12].indexOf(this.stacked);
-    if (k >= 0 && facts[k]) this.info.show(this.T('panelTitle', 'Line up the mirrors'), facts[k]);
+    const k = [3, 9, 15].indexOf(this.stacked);
+    if (k >= 0 && facts[k]) {
+      this.info.g.setVisible(true);
+      this.info.show(this.T('panelTitle', 'Line up the mirrors'), facts[k]);
+      Speech.say(facts[k]);
+    }
     if (this.stacked >= 18) this.time.delayedCall(700, () => this.startFocus());
     return true;
   }
@@ -108,8 +119,10 @@ export class MirrorAlignScene extends BaseScene {
     this.slider.setVisible(true);
     this.sharpBar.g.setVisible(true);
     this.sharpText.setVisible(true);
-    this.info.show(this.T('focusTitle', 'Now focus!'), this.T('focusText', ''));
-    Speech.say(this.T('focusText', ''));
+    this.info.g.setVisible(false);
+    this.info.title.setText('');
+    this.info.body.setText('');
+    this.goal.set(this.T('focusTask', { title: 'Now focus!', help: 'Move the focus slider until the star is super sharp, then hold it there.' }), { count: '' });
     this.setFocus(0);
   }
 

@@ -3,12 +3,12 @@ import { W, COLORS, CSS, DEPTH, clamp, lerpColor } from '../../core/constants.js
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, GoalBar, idleHint } from '../common/kit.js';
 import { marsBackdrop } from '../common/mars.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { ProgressBar, drawPanel, toast, floatText } from '../../ui/widgets.js';
+import { ProgressBar, toast, floatText, roundBox } from '../../ui/widgets.js';
 
 // Spirit and Opportunity ran on sunlight. Dust slowly covered their solar panels, but now and
 // then a dust devil (a little whirlwind) swept them clean! Drive to the rocks to study them,
@@ -75,15 +75,14 @@ export class DustDevilScene extends BaseScene {
     this.ring = this.add.graphics().setDepth(DEPTH.ui);
 
     // HUD: battery, dust and the rocks studied
-    const hg = this.add.graphics().setDepth(DEPTH.ui - 1);
-    drawPanel(hg, 40, 84, 420, 150, { fill: 0x0b1230, radius: 16, stroke: COLORS.stroke, strokeWidth: 2 });
-    txt(this, 60, 98, this.T('batteryLabel', 'Battery'), { size: 17, weight: 800, color: CSS.green, scale: false }).setDepth(DEPTH.ui);
-    this.batBar = new ProgressBar(this, 170, 104, 270, 16, { color: COLORS.green });
-    txt(this, 60, 130, this.T('dustLabel', 'Dust on panels'), { size: 17, weight: 800, color: CSS.orange, scale: false }).setDepth(DEPTH.ui);
-    this.dustBar = new ProgressBar(this, 220, 136, 220, 16, { color: 0xb5703a });
-    this.sciText = txt(this, 60, 164, '', { size: 17, weight: 800, color: CSS.yellow, scale: false }).setDepth(DEPTH.ui);
-    this.solText = txt(this, 60, 194, '', { size: 15, weight: 700, color: CSS.dim, scale: false }).setDepth(DEPTH.ui);
-    this.winterText = txt(this, W - 60, 100, '', { size: 20, weight: 800, color: '#bfe3ff', origin: [1, 0], scale: false, stroke: '#0b1230', strokeThickness: 5 }).setDepth(DEPTH.ui);
+    const hg = roundBox(this, 40, 176, 420, 96, { fill: 0x0b1230, radius: 16, stroke: COLORS.stroke, strokeWidth: 2 }).setDepth(DEPTH.ui - 1);
+    txt(this, 60, 190, this.T('batteryLabel', 'Battery'), { size: 17, weight: 800, color: CSS.green, scale: false }).setDepth(DEPTH.ui);
+    this.batBar = new ProgressBar(this, 170, 196, 270, 16, { color: COLORS.green });
+    txt(this, 60, 224, this.T('dustLabel', 'Dust on panels'), { size: 17, weight: 800, color: CSS.orange, scale: false }).setDepth(DEPTH.ui);
+    this.dustBar = new ProgressBar(this, 220, 230, 220, 16, { color: 0xb5703a });
+    this.solText = txt(this, 60, 250, '', { size: 14, weight: 700, color: CSS.dim, scale: false }).setDepth(DEPTH.ui);
+    this.winterText = txt(this, W - 60, 186, '', { size: 22, weight: 800, color: '#bfe3ff', origin: [1, 0], scale: false, stroke: '#0b1230', strokeThickness: 5 }).setDepth(DEPTH.ui);
+    this.goal = new GoalBar(this);
 
     // controls: hold to drive
     this.leftBtn = this.holdButton(110, 650, 'left', -1);
@@ -96,13 +95,32 @@ export class DustDevilScene extends BaseScene {
       this.input.keyboard.on('keyup-RIGHT', () => this.move > 0 && (this.move = 0));
     }
     this.updateHud();
+    // stuck? point at the right-hand drive button (or, in winter, until on the slope)
+    idleHint(this, () => {
+      if (this.state !== 'play' || this.move) return null;
+      if (this.winter === 1 && this.onSlope()) return null;
+      const next = this.rocks.find((r) => !r.done);
+      if (next && Math.abs(next.x - this.x) < 60) return null;
+      const right = !next || next.x > this.x || (this.winter === 1 && this.x < SLOPE[0]);
+      const b = right ? this.rightBtn : this.leftBtn;
+      return { x: b.x, y: b.y - 46 };
+    }, { delay: 6000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.showTask();
     });
   }
 
+  // what to do now: drive to the next flag, or (in winter) park on the sunny slope
+  showTask(speak = true) {
+    const count = `${this.studied} / ${ROCKS.length}`;
+    if (this.winter === 1) this.goal.set(this.T('winterTask', { title: 'Park on the sunny slope!', help: 'Wait there until spring comes.' }), { count, speak });
+    else this.goal.set(this.T('task', { title: 'Drive to the next flag!', help: 'Hold the right arrow to drive. Stop next to the flag to study the rock.' }), { count, speak });
+  }
+
   holdButton(x, y, icon, dir) {
-    const b = new Button(this, x, y, { width: 140, height: 76, icon, variant: 'secondary', sound: null });
+    const b = new Button(this, x, y, { width: 140, height: 76, icon, variant: 'secondary', sound: null }).setDepth(DEPTH.ui);
     b.off('pointerup');
     b.on('pointerdown', () => (this.move = dir));
     b.activate = () => {
@@ -127,7 +145,6 @@ export class DustDevilScene extends BaseScene {
     this.batBar.set(this.battery, true);
     this.batBar.color = this.battery < 0.25 ? COLORS.red : COLORS.green;
     this.dustBar.set(this.dust, true);
-    this.sciText.setText(`${this.T('studiedLabel', 'Rocks studied')}: ${this.studied} / ${ROCKS.length}`);
     this.solText.setText(`${this.T('solLabel', 'Sol')} ${this.sols}`);
     this.winterText.setText(this.winter === 1 ? `${this.T('winterLabel', 'Winter')}: ${Math.ceil(this.winterLeft)} s` : '');
   }
@@ -154,7 +171,7 @@ export class DustDevilScene extends BaseScene {
     floatText(this, this.rover.x, this.rover.y - 150, this.T('cleanLabel', 'Clean!'), CSS.yellow, 30);
     if (!this.toldClean) {
       this.toldClean = true;
-      toast(this, this.T('cleanFact', ''), { y: 270, sound: false, speak: true, duration: 4200 });
+      toast(this, this.T('cleanFact', ''), { y: 360, sound: false, speak: true, duration: 4200 });
     }
   }
 
@@ -166,7 +183,8 @@ export class DustDevilScene extends BaseScene {
     rock.flag.setFillStyle(COLORS.green);
     const facts = this.T('rockFacts', []);
     const i = this.rocks.indexOf(rock);
-    if (facts[i]) toast(this, facts[i], { y: 270, sound: false, speak: true, duration: 4200 });
+    if (facts[i]) toast(this, facts[i], { y: 360, sound: false, speak: true, duration: 4200 });
+    this.goal.setCount(`${this.studied} / ${ROCKS.length}`);
     if (this.studied === 4 && !this.winter) this.startWinter();
     if (this.studied >= ROCKS.length) this.win();
   }
@@ -179,6 +197,7 @@ export class DustDevilScene extends BaseScene {
     this.pausedForTalk = false;
     if (r === null) return;
     Sfx.play('chime');
+    this.showTask(false);
   }
 
   async outOfPower() {
@@ -187,7 +206,7 @@ export class DustDevilScene extends BaseScene {
     this.state = 'asleep';
     this.move = 0;
     Sfx.play('error');
-    toast(this, this.T('outOfPower', 'Out of power! The rover sleeps until the Sun charges it a little.'), { y: 270, color: COLORS.orange, sound: false, speak: true, duration: 3200 });
+    toast(this, this.T('outOfPower', 'Out of power! The rover sleeps until the Sun charges it a little.'), { y: 360, color: COLORS.orange, sound: false, speak: true, duration: 3200 });
     this.tweens.add({ targets: this.rover, alpha: 0.5, duration: 400, yoyo: true, repeat: 3 });
     await new Promise((r) => this.time.delayedCall(3200, r));
     if (this._leaving) return;
@@ -230,7 +249,7 @@ export class DustDevilScene extends BaseScene {
       this.dust = clamp(this.dust + (this.relaxed ? 0.022 : 0.028) * dt, 0, 1);
       if (this.battery < 0.25 && !this.warnedLow) {
         this.warnedLow = true;
-        toast(this, this.T('lowBattery', 'Battery low! Stop and let the Sun charge it, or catch a dust devil.'), { y: 270, color: COLORS.orange, sound: 'alarm', speak: true, duration: 3200 });
+        toast(this, this.T('lowBattery', 'Battery low! Stop and let the Sun charge it, or catch a dust devil.'), { y: 360, color: COLORS.orange, sound: 'alarm', speak: true, duration: 3200 });
       }
       if (this.battery > 0.4) this.warnedLow = false;
       if (this.battery <= 0) this.outOfPower();
@@ -240,7 +259,8 @@ export class DustDevilScene extends BaseScene {
         if (this.winterLeft <= 0) {
           this.winter = 2;
           Sfx.play('chime');
-          toast(this, this.T('springLine', 'Spring is here! Back to work.'), { y: 270, sound: false, speak: true, duration: 2600 });
+          toast(this, this.T('springLine', 'Spring is here! Back to work.'), { y: 360, sound: false, speak: true, duration: 2600 });
+          this.showTask(false);
         }
       }
       // dust devils

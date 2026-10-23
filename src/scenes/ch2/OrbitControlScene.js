@@ -6,7 +6,7 @@ import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
-import { toast, dialog, floatText, pointerArrow } from '../../ui/widgets.js';
+import { toast, dialog, floatText, pointerArrow, RoundBox } from '../../ui/widgets.js';
 import { live } from '../../core/voiceText.js';
 import { Speech, estimateMs } from '../../core/Speech.js';
 
@@ -112,11 +112,7 @@ export class OrbitControlScene extends BaseScene {
     // what the TVs are for
     const title = txt(this, 0, 0, this.T('tvsTitle', 'What satellites did next'), { size: 15, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
     const tw = title.width + 36;
-    const tg = this.add.graphics();
-    tg.fillStyle(0x0b1230, 0.95);
-    tg.fillRoundedRect(-tw / 2, -15, tw, 30, 15);
-    tg.lineStyle(2, COLORS.yellow, 0.8);
-    tg.strokeRoundedRect(-tw / 2, -15, tw, 30, 15);
+    const tg = this.add.existing(new RoundBox(this)).draw(-tw / 2, -15, tw, 30, { fill: 0x0b1230, alpha: 0.95, radius: 15, stroke: COLORS.yellow, strokeWidth: 2, strokeAlpha: 0.8, shadow: false });
     this.tvTitle = this.add.container(W / 2, BAR_Y - 26, [tg, title]).setDepth(DEPTH.ui + 2);
     this.tvs = this.T('tvs', []).map((tv, i, arr) => {
       const x = 110 + i * ((W - 220) / Math.max(1, arr.length - 1));

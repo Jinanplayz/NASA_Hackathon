@@ -3,10 +3,10 @@ import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame, starsFor } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, GoalBar, idleHint } from '../common/kit.js';
 import { WebbDiagram } from '../common/webbDiagram.js';
 import { txt, fitText } from '../../ui/text.js';
-import { drawPanel, toast, floatText } from '../../ui/widgets.js';
+import { toast, floatText, roundBox } from '../../ui/widgets.js';
 
 // Unfolding Webb in space took two weeks, one careful step at a time. Follow the checklist:
 // each step, tap the part of Webb that has to unfold next.
@@ -31,16 +31,16 @@ export class DeployPartsScene extends BaseScene {
     this.makeZones();
 
     // the checklist
-    const pg = this.add.graphics();
-    drawPanel(pg, 790, 90, 450, 560, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
-    txt(this, 1015, 106, this.T('checklistTitle', 'Unfolding checklist'), { size: 20, weight: 800, color: CSS.yellow, origin: [0.5, 0], scale: false });
+    const pg = roundBox(this, 790, 176, 450, 490, { fill: COLORS.panel, radius: 18, stroke: COLORS.stroke, strokeWidth: 3 });
+    txt(this, 1015, 190, this.T('checklistTitle', 'Unfolding checklist'), { size: 20, weight: 800, color: CSS.yellow, origin: [0.5, 0], scale: false });
     const steps = this.T('steps', []);
     this.lines = ORDER.map((p, i) => {
-      const t = txt(this, 812, 150 + i * 46, `${steps[i] ? steps[i].day : ''}  ${steps[i] ? steps[i].task : p}`, { size: 16, weight: 700, color: CSS.dim, scale: false, wrap: 410 });
+      const t = txt(this, 812, 228 + i * 42, `${steps[i] ? steps[i].day : ''}  ${steps[i] ? steps[i].task : p}`, { size: 16, weight: 700, color: CSS.dim, scale: false, wrap: 410 });
       fitText(t, 410, 42, 12);
       return t;
     });
-    this.factText = txt(this, 812, 482, '', { size: 16, weight: 600, color: CSS.text, scale: false, wrap: 410, lineSpacing: 4 });
+    this.factText = txt(this, 812, 530, '', { size: 16, weight: 600, color: CSS.text, scale: false, wrap: 410, lineSpacing: 4 });
+    this.goal = new GoalBar(this);
     // keyboard: arrows pick a part, ENTER/SPACE taps it
     this.cursor = -1;
     if (this.input.keyboard) {
@@ -57,6 +57,13 @@ export class DeployPartsScene extends BaseScene {
       this.input.keyboard.on('keydown-SPACE', go);
     }
     this.showStep();
+    // stuck? point at the part that unfolds next
+    idleHint(this, () => {
+      if (this.state !== 'play' || this.busy) return null;
+      const want = ORDER[this.step];
+      const a = this.webb.hitAreas().find((k) => k.part === want || (k.part === 'sunshield' && (want === 'pallets' || want === 'shield')));
+      return a ? { x: a.x, y: a.y - a.h / 2 } : null;
+    }, { delay: 10000 });
     playIntro(this).then((ok) => {
       if (ok) {
         this.state = 'play';
@@ -78,9 +85,12 @@ export class DeployPartsScene extends BaseScene {
     this.lines.forEach((t, i) => t.setColor(i < this.step ? '#9dffcf' : i === this.step ? CSS.yellow : CSS.dim).setFontStyle(i === this.step ? 'bold' : 'normal'));
   }
 
+  // the task bar shows (and reads) the next step of the checklist
   sayStep() {
     const s = this.T('steps', [])[this.step];
-    if (s) Speech.say(s.task);
+    if (!s) return;
+    this.goal.set({ title: s.task, help: this.T('tapHelp', 'Tap that part of Webb to unfold it.') }, { count: `${this.step + 1} / ${ORDER.length}`, speak: false });
+    Speech.say(this.step === 0 ? [s.task, this.T('tapHelp', '')] : s.task);
   }
 
   async tapPart(part) {
@@ -92,10 +102,9 @@ export class DeployPartsScene extends BaseScene {
       this.mistakes++;
       this.wrongHere++;
       Sfx.play('error');
-      const shown = part === 'sunshield' ? names.sunshield : names[part];
-      toast(this, this.T('wrong', "That's the {part}. Read the checklist again!").replace('{part}', shown || part), { y: 690, color: COLORS.orange, sound: false, duration: 2200 });
-      // after two wrong taps, the right part lights up
-      if (this.wrongHere >= 2) {
+      toast(this, this.T('notThatOne', 'Not that part! Look at the checklist and try again.'), { y: 690, color: COLORS.orange, sound: false, speak: true, duration: 2200 });
+      // after a wrong tap, the right part lights up
+      if (this.wrongHere >= 1) {
         this.webb.hi = want === 'pallets' || want === 'shield' ? 'sunshield' : want;
         this.webb.draw();
       }
@@ -109,7 +118,7 @@ export class DeployPartsScene extends BaseScene {
     this.busy = false;
     if (this._leaving) return;
     Sfx.play('success');
-    floatText(this, DX, 140, '✓', CSS.green, 32);
+    floatText(this, DX, 200, '✓', CSS.green, 32);
     const s = this.T('steps', [])[this.step];
     this.factText.setText(s ? s.fact : '');
     if (s && s.fact) Speech.say(s.fact);

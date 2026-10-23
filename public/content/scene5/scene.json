@@ -38,7 +38,10 @@
       {
         "heading": "A tour of the giants",
         "text": "Here is NASA's picture of the planets and moons the two Voyager spacecraft visited. Voyager 1 would fly past Jupiter and Saturn, then head for the stars.",
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA01483/PIA01483~medium.jpg", "alt": "A montage of the planets and moons the Voyagers visited" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA01483/PIA01483~medium.jpg",
+          "alt": "A montage of the planets and moons the Voyagers visited"
+        },
         "credit": "Image: NASA/JPL · The Voyager tour",
         "visual": "grandTour"
       },
@@ -53,61 +56,166 @@
 
   "launchWindow": {
     "intro": [
-      "Planets move around the Sun at different speeds. To visit Jupiter AND Saturn, Voyager had to leave when both would be in the right place by the time it got there.",
-      "Drag the year slider. The see-through planets show where Jupiter and Saturn will be when Voyager arrives. When both land on the path, press Launch!"
+      "Planets move around the Sun at different speeds. To visit Jupiter AND Saturn, Voyager had to leave when both would be in just the right place by the time it got there!"
     ],
     "yearLabel": "Launch year",
     "launchLabel": "Launch!",
-    "names": { "earth": "Earth", "jupiter": "Jupiter", "saturn": "Saturn", "uranus": "Uranus", "neptune": "Neptune" },
-    "ghostHint": "Where the planet will be when Voyager arrives",
-    "notYet": "Not lined up yet. Keep sliding!",
+    "names": {
+      "earth": "Earth",
+      "jupiter": "Jupiter",
+      "saturn": "Saturn"
+    },
     "doneLine": "1977: the perfect window! A line-up like this happens only about once every 175 years. Voyager 2's path even carried on to Uranus and Neptune: the Grand Tour!",
     "resultTitle": "Launch window found!",
-    "resultText": "Space missions wait for launch windows: times when the planets are in just the right places."
+    "resultText": "Space missions wait for launch windows: times when the planets are in just the right places.",
+    "task": {
+      "title": "Line up the planets!",
+      "help": "Slide the year until Jupiter and Saturn sit in the yellow circles."
+    },
+    "readyTask": {
+      "title": "Lined up!",
+      "help": "Both planets are in place. Press Launch!"
+    }
   },
 
   "goldenRecord": {
     "intro": [
-      "The Golden Record is a message from Earth. A team led by astronomer Carl Sagan chose sounds, music, greetings and pictures to put on it.",
-      "Which of these are really on the Golden Record? Drag them onto the record, or tap them. If something isn't on it, I'll tell you why."
+      "The Golden Record is a message from Earth, in case anyone out there ever finds Voyager. A team led by astronomer Carl Sagan chose what to put on it."
     ],
     "recordLabel": "THE SOUNDS OF EARTH",
-    "progressLabel": "On the record",
     "items": [
-      { "id": "greetings", "key": "grGreeting", "name": "Hello in 55 languages", "on": true, "sound": "hello", "info": "Greetings in 55 languages, from ancient ones to modern ones." },
-      { "id": "whales", "key": "grWhale", "name": "Whale songs", "on": true, "sound": "whale", "info": "Humpback whale songs: a hello from another kind of animal." },
-      { "id": "thunder", "key": "grThunder", "name": "Thunder and rain", "on": true, "sound": "thunder", "info": "The sounds of nature: thunder, wind, rain, waves and more." },
-      { "id": "baby", "key": "grBaby", "name": "A baby crying", "on": true, "info": "The sounds of people: a baby crying, laughter, footsteps and a heartbeat." },
-      { "id": "music", "key": "grGuitar", "name": "Rock and roll music", "on": true, "sound": "music", "info": "90 minutes of music from all over the world, from Bach and Beethoven to Chuck Berry's 'Johnny B. Goode'." },
-      { "id": "kiss", "key": "grKiss", "name": "A kiss", "on": true, "info": "Yes, really: the sound of a kiss is on the record!" },
-      { "id": "photos", "key": "grPhotos", "name": "115 pictures", "on": true, "info": "Pictures of people, animals, cities, food and our planet, stored as sound on the record." },
-      { "id": "map", "key": "grMap", "name": "A map to find Earth", "on": true, "info": "The cover has a map that uses pulsars, spinning stars, to show where our Sun is." },
-      { "id": "phone", "key": "grPhone", "name": "A smartphone", "on": false, "why": "Smartphones didn't exist yet in 1977!" },
-      { "id": "dino", "key": "grDino", "name": "A dinosaur bone", "on": false, "why": "The record only holds sounds and pictures, not real objects." },
-      { "id": "pizza", "key": "grPizza", "name": "A pizza", "on": false, "why": "No food on board! It would never last billions of years." },
-      { "id": "game", "key": "grGame", "name": "A video game", "on": false, "why": "There are no games on it. Home video games were brand new in 1977!" }
+      {
+        "id": "greetings",
+        "key": "grGreeting",
+        "name": "Hello in 55 languages",
+        "on": true,
+        "sound": "hello",
+        "info": "Greetings in 55 languages, from ancient ones to modern ones."
+      },
+      {
+        "id": "whales",
+        "key": "grWhale",
+        "name": "Whale songs",
+        "on": true,
+        "sound": "whale",
+        "info": "Humpback whale songs: a hello from another kind of animal."
+      },
+      {
+        "id": "thunder",
+        "key": "grThunder",
+        "name": "Thunder and rain",
+        "on": true,
+        "sound": "thunder",
+        "info": "The sounds of nature: thunder, wind, rain, waves and more."
+      },
+      {
+        "id": "baby",
+        "key": "grBaby",
+        "name": "A baby crying",
+        "on": true,
+        "info": "The sounds of people: a baby crying, laughter, footsteps and a heartbeat."
+      },
+      {
+        "id": "music",
+        "key": "grGuitar",
+        "name": "Rock and roll music",
+        "on": true,
+        "sound": "music",
+        "info": "90 minutes of music from all over the world, from Bach and Beethoven to Chuck Berry's 'Johnny B. Goode'."
+      },
+      {
+        "id": "kiss",
+        "key": "grKiss",
+        "name": "A kiss",
+        "on": true,
+        "info": "Yes, really: the sound of a kiss is on the record!"
+      },
+      {
+        "id": "photos",
+        "key": "grPhotos",
+        "name": "115 pictures",
+        "on": true,
+        "info": "Pictures of people, animals, cities, food and our planet, stored as sound on the record."
+      },
+      {
+        "id": "map",
+        "key": "grMap",
+        "name": "A map to find Earth",
+        "on": true,
+        "info": "The cover has a map that uses pulsars, spinning stars, to show where our Sun is."
+      },
+      {
+        "id": "phone",
+        "key": "grPhone",
+        "name": "A smartphone",
+        "on": false,
+        "why": "Smartphones didn't exist yet in 1977!"
+      },
+      {
+        "id": "dino",
+        "key": "grDino",
+        "name": "A dinosaur bone",
+        "on": false,
+        "why": "The record only holds sounds and pictures, not real objects."
+      },
+      {
+        "id": "pizza",
+        "key": "grPizza",
+        "name": "A pizza",
+        "on": false,
+        "why": "No food on board! It would never last billions of years."
+      },
+      {
+        "id": "game",
+        "key": "grGame",
+        "name": "A video game",
+        "on": false,
+        "why": "There are no games on it. Home video games were brand new in 1977!"
+      }
     ],
     "doneLine": "That's Earth's greatest hits! The records are made of gold-plated copper, and they should last a billion years or more out in space.",
     "resultTitle": "Record complete!",
-    "resultText": "If anyone out there ever finds Voyager, the Golden Record will tell them who we are."
+    "resultText": "If anyone out there ever finds Voyager, the Golden Record will tell them who we are.",
+    "task": {
+      "title": "Fill the Golden Record!",
+      "help": "Drag the things that are really on it onto the record."
+    }
   },
 
   "recordCover": {
     "intro": [
-      "An alien wouldn't know how to play a record! So the cover has instructions, drawn in pictures and science instead of words.",
-      "Match each meaning to the right drawing on the cover. Drag a meaning onto a drawing, or tap a meaning and then a drawing."
-    ],
-    "coverTitle": "The Golden Record's cover",
-    "parts": [
-      { "id": "play", "name": "How to play the record", "info": "The record and its needle, seen from above and from the side, and how long one turn should take." },
-      { "id": "pictures", "name": "How to see the pictures", "info": "These wavy lines explain how to turn sounds back into pictures, line by line, like an old TV." },
-      { "id": "map", "name": "Where Earth is", "info": "Lines to 14 pulsars, spinning stars that flash like lighthouses, point to our Sun." },
-      { "id": "clock", "name": "A clock for the whole universe", "info": "Two hydrogen atoms. Hydrogen is everywhere, so a tiny flip it makes can be a unit of time any scientist would understand." }
+      "An alien wouldn't know how to play a record! So the cover has instructions, drawn in pictures and science instead of words."
     ],
     "wrong": "Not that one! Look at the shapes again.",
     "doneLine": "You read the cover! Even billions of years from now, a clever alien could work out how to play the record and where it came from.",
     "resultTitle": "Message decoded!",
-    "resultText": "Scientists wrote the instructions in maths and science, because they hoped those would be the same everywhere in the universe."
+    "resultText": "Scientists wrote the instructions in maths and science, because they hoped those would be the same everywhere in the universe.",
+    "task": {
+      "title": "Read the cover!",
+      "help": "Drag each meaning onto the drawing it explains."
+    },
+    "meanings": [
+      {
+        "id": "play",
+        "name": "How to play the record",
+        "info": "The record and its needle, seen from above and from the side, and how long one turn should take."
+      },
+      {
+        "id": "pictures",
+        "name": "How to see the pictures",
+        "info": "These wavy lines explain how to turn sounds back into pictures, line by line, like an old TV."
+      },
+      {
+        "id": "map",
+        "name": "Where Earth is",
+        "info": "Lines to 14 pulsars, spinning stars that flash like lighthouses, point to our Sun."
+      },
+      {
+        "id": "clock",
+        "name": "A clock for the whole universe",
+        "info": "Two hydrogen atoms. Hydrogen is everywhere, so a tiny flip it makes can be a unit of time any scientist would understand."
+      }
+    ]
   },
 
   "voyagerReveal": {
@@ -115,10 +223,22 @@
     "title": "Voyager 1",
     "subtitle": "A robot explorer about the size of a small car",
     "stats": [
-      { "label": "Dish antenna", "value": "3.7 m (12 feet) wide, always pointed at Earth" },
-      { "label": "Power", "value": "3 nuclear batteries that turn heat into electricity" },
-      { "label": "Computer memory", "value": "About 69 kilobytes: less than one phone photo" },
-      { "label": "Launched", "value": "September 5, 1977 · Titan-Centaur rocket" }
+      {
+        "label": "Dish antenna",
+        "value": "3.7 m (12 feet) wide, always pointed at Earth"
+      },
+      {
+        "label": "Power",
+        "value": "3 nuclear batteries that turn heat into electricity"
+      },
+      {
+        "label": "Computer memory",
+        "value": "About 69 kilobytes: less than one phone photo"
+      },
+      {
+        "label": "Launched",
+        "value": "September 5, 1977 · Titan-Centaur rocket"
+      }
     ],
     "line": "Meet Voyager 1! Its big dish talks to Earth, and its long arms keep the instruments away from the rest of the spacecraft. Drag to spin it, then let's launch!",
     "continue": "Launch!"
@@ -130,14 +250,20 @@
         "year": "September 5, 1977",
         "heading": "Liftoff!",
         "text": "Voyager 1 launched from Cape Canaveral, Florida, on a Titan-Centaur rocket.",
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA21747/PIA21747~medium.jpg", "alt": "The Titan-Centaur rocket carrying Voyager 1 lifting off" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA21747/PIA21747~medium.jpg",
+          "alt": "The Titan-Centaur rocket carrying Voyager 1 lifting off"
+        },
         "credit": "Photo: NASA/JPL-Caltech · Voyager 1 lifts off",
         "visual": "voyagerLaunch"
       },
       {
         "heading": "Two Voyagers",
         "text": "Its twin, Voyager 2, had launched first, on August 20. But Voyager 1 took a faster path, so it would reach Jupiter first.",
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA21744/PIA21744~medium.jpg", "alt": "Voyager 2's rocket lifting off" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA21744/PIA21744~medium.jpg",
+          "alt": "Voyager 2's rocket lifting off"
+        },
         "credit": "Photo: NASA/JPL-Caltech · Voyager 2 lifts off",
         "visual": "twoVoyagers"
       },
@@ -145,7 +271,10 @@
         "year": "September 18, 1977",
         "heading": "Looking back",
         "text": "On its way out, Voyager 1 took the first ever picture of Earth and the Moon together in one frame, from more than 11 million km (7 million miles) away.",
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA00013/PIA00013~orig.jpg", "alt": "A crescent Earth and a crescent Moon in one picture" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA00013/PIA00013~orig.jpg",
+          "alt": "A crescent Earth and a crescent Moon in one picture"
+        },
         "credit": "Photo: NASA/JPL · Earth and Moon, by Voyager 1",
         "visual": "grandTour"
       },
@@ -160,39 +289,72 @@
 
   "flyby": {
     "intro": [
-      "March 1979: Voyager 1 is racing past Jupiter, the biggest planet of all! Its cameras sit on a moving platform, and you're in charge of pointing them.",
-      "Move the camera frame with your finger, the mouse or the arrow keys. When a target is inside the frame, press SNAP! Try to get at least 5 of the 6 targets."
+      "March 1979: Voyager 1 is racing past Jupiter, the biggest planet of all! Its cameras sit on a moving platform, and you're in charge of pointing them."
     ],
     "snapLabel": "SNAP!",
     "goal": 5,
     "relaxedGoal": 4,
     "filmLabel": "Photos",
-    "missed": "Missed it! Keep the target inside the frame when you snap.",
+    "missed": "Missed it! Wait until the frame turns green, then snap.",
     "targets": [
-      { "id": "grs", "name": "Great Red Spot", "fact": "A giant storm bigger than Earth, swirling for more than 150 years." },
-      { "id": "io", "name": "Io", "fact": "A moon covered in volcanoes! Voyager 1 found the first active volcanoes beyond Earth." },
-      { "id": "europa", "name": "Europa", "fact": "An icy moon covered in cracks. Scientists now think an ocean hides under its ice." },
-      { "id": "ganymede", "name": "Ganymede", "fact": "The biggest moon in the solar system: it's even bigger than the planet Mercury." },
-      { "id": "callisto", "name": "Callisto", "fact": "One of the most cratered places in the whole solar system." },
-      { "id": "ring", "name": "Jupiter's ring", "fact": "A thin, faint ring of dust. Voyager 1 discovered it!" }
+      {
+        "id": "grs",
+        "name": "Great Red Spot",
+        "fact": "A giant storm bigger than Earth, swirling for more than 150 years."
+      },
+      {
+        "id": "io",
+        "name": "Io",
+        "fact": "A moon covered in volcanoes! Voyager 1 found the first active volcanoes beyond Earth."
+      },
+      {
+        "id": "europa",
+        "name": "Europa",
+        "fact": "An icy moon covered in cracks. Scientists now think an ocean hides under its ice."
+      },
+      {
+        "id": "ganymede",
+        "name": "Ganymede",
+        "fact": "The biggest moon in the solar system: it's even bigger than the planet Mercury."
+      },
+      {
+        "id": "callisto",
+        "name": "Callisto",
+        "fact": "One of the most cratered places in the whole solar system."
+      },
+      {
+        "id": "ring",
+        "name": "Jupiter's ring",
+        "fact": "A thin, faint ring of dust. Voyager 1 discovered it!"
+      }
     ],
-    "notEnough": "Only {n} photos. Let's fly past again and try for more!",
+    "notEnough": "Not enough photos this time. Let's fly past again and try to get more!",
     "resultTitle": "Amazing photos!",
-    "resultText": "Voyager 1 sent back thousands of pictures of Jupiter and its moons, showing them up close for the very first time."
+    "resultText": "Voyager 1 sent back thousands of pictures of Jupiter and its moons, showing them up close for the very first time.",
+    "task": {
+      "title": "Photograph Jupiter!",
+      "help": "Move the frame onto a yellow target. When it turns green, press SNAP!"
+    }
   },
 
   "ioPlume": {
     "intro": [
-      "Days after passing Jupiter, navigation engineer Linda Morabito was checking a photo of the moon Io. It had been made extra bright on purpose, to show the stars behind it.",
-      "Slide the brightness up and look closely around the edge of Io. Tap the strange cloud when you find it!"
+      "Days after passing Jupiter, engineer Linda Morabito was checking a photo of the moon Io. It had been made extra bright on purpose, to show the stars behind it. Then she noticed something strange..."
     ],
     "brightLabel": "Brightness",
-    "hint": "Look along Io's edge...",
     "notThere": "Nothing there. Try somewhere along the edge of Io.",
     "tooDark": "Too dark to see anything! Turn the brightness up first.",
     "found": "You found it! It was a giant volcanic plume, about 300 km (190 miles) high: the first erupting volcano ever seen beyond Earth!",
     "resultTitle": "Discovery!",
-    "resultText": "Io has hundreds of volcanoes. Jupiter's gravity squeezes and stretches it, which heats it up inside."
+    "resultText": "Io has hundreds of volcanoes. Jupiter's gravity squeezes and stretches it, which heats it up inside.",
+    "brightTask": {
+      "title": "Turn up the brightness!",
+      "help": "Slide the brightness up to see faint things."
+    },
+    "findTask": {
+      "title": "Find the volcano cloud!",
+      "help": "Look along Io's edge and tap the faint cloud."
+    }
   },
 
   "jupiter": {
@@ -201,14 +363,20 @@
         "year": "March 1979",
         "heading": "The Great Red Spot",
         "text": "Voyager 1's photos showed the Great Red Spot swirling like a giant hurricane, with smaller storms spinning around it.",
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA00022/PIA00022~medium.jpg", "alt": "Jupiter's Great Red Spot with swirling clouds" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA00022/PIA00022~medium.jpg",
+          "alt": "Jupiter's Great Red Spot with swirling clouds"
+        },
         "credit": "Photo: NASA/JPL · The Great Red Spot, by Voyager 1",
         "visual": "jupiterSpin"
       },
       {
         "heading": "Volcanoes on Io",
         "text": "Here is the real picture: a volcano erupting into space, glowing blue at Io's edge on the left. Io is the most volcanic place in the solar system.",
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA00010/PIA00010~orig.jpg", "alt": "Io with a blue volcanic plume rising from its edge" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA00010/PIA00010~orig.jpg",
+          "alt": "Io with a blue volcanic plume rising from its edge"
+        },
         "credit": "Photo: NASA/JPL · A volcano erupting on Io, by Voyager 1",
         "visual": "ioVolcano"
       },
@@ -224,19 +392,39 @@
   "colorFilters": {
     "intro": [
       "November 1980: Saturn! But Voyager's cameras could only take black-and-white photos. So how did we get colour pictures?",
-      "Each colour picture was made from three black-and-white photos, taken through different coloured filters. Drag each photo into the colour channel that matches its filter, to rebuild Saturn's true colours!"
+      "Each colour picture was made from three black-and-white photos, taken through orange, green and blue filters."
     ],
     "photos": [
-      { "id": "orange", "name": "Orange filter", "channel": "red" },
-      { "id": "green", "name": "Green filter", "channel": "green" },
-      { "id": "blue", "name": "Blue filter", "channel": "blue" }
+      {
+        "id": "orange",
+        "name": "Orange filter",
+        "channel": "red"
+      },
+      {
+        "id": "green",
+        "name": "Green filter",
+        "channel": "green"
+      },
+      {
+        "id": "blue",
+        "name": "Blue filter",
+        "channel": "blue"
+      }
     ],
-    "channels": { "red": "Red", "green": "Green", "blue": "Blue" },
+    "channels": {
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue"
+    },
     "previewLabel": "Colour picture",
     "wrongMix": "Those colours look strange! Match each filter to its colour channel.",
     "falseColor": "Fun fact: scientists sometimes mix the channels differently on purpose, called 'false colour', to make hidden details stand out!",
     "resultTitle": "True colours!",
-    "resultText": "Many space pictures are made this way, even today: black-and-white photos through filters, combined into colour."
+    "resultText": "Many space pictures are made this way, even today: black-and-white photos through filters, combined into colour.",
+    "task": {
+      "title": "Colour in Saturn!",
+      "help": "Drag each filter photo into a colour box. Orange goes in red."
+    }
   },
 
   "saturn": {
@@ -245,14 +433,20 @@
         "year": "November 1980",
         "heading": "Saturn up close",
         "text": "Voyager 1 found that Saturn's rings are made of thousands of thin ringlets, with strange dark 'spokes' and a twisted outer ring.",
-        "image": { "src": "https://images-assets.nasa.gov/image/ARC-1980-AC80-7003/ARC-1980-AC80-7003~medium.jpg", "alt": "Saturn and its rings photographed by Voyager 1" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/ARC-1980-AC80-7003/ARC-1980-AC80-7003~medium.jpg",
+          "alt": "Saturn and its rings photographed by Voyager 1"
+        },
         "credit": "Photo: NASA · Saturn, by Voyager 1",
         "visual": "saturnRings"
       },
       {
         "heading": "Titan's mystery haze",
         "text": "Voyager 1 flew close to Titan, Saturn's biggest moon. It found a thick orange haze, mostly nitrogen like Earth's air, hiding the ground below.",
-        "image": { "src": "https://images-assets.nasa.gov/image/ARC-1980-AC80-7007/ARC-1980-AC80-7007~medium.jpg", "alt": "Titan, a fuzzy orange ball hidden in haze" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/ARC-1980-AC80-7007/ARC-1980-AC80-7007~medium.jpg",
+          "alt": "Titan, a fuzzy orange ball hidden in haze"
+        },
         "credit": "Photo: NASA · Titan, by Voyager 1",
         "visual": "titanHaze"
       },
@@ -267,48 +461,93 @@
 
   "dsn": {
     "intro": [
-      "Voyager talks to Earth through NASA's Deep Space Network: giant dish antennas in California, Spain and Australia, spread around the world.",
-      "As Earth spins, each dish turns away from Voyager. Tap the next dish that can see Voyager to pass the signal on, before the link breaks!"
+      "Voyager talks to Earth through giant dish antennas in California, Spain and Australia, spread around the world. As Earth spins, each dish turns away from Voyager!"
     ],
     "stations": [
-      { "id": "goldstone", "name": "Goldstone", "place": "California, USA" },
-      { "id": "madrid", "name": "Madrid", "place": "Spain" },
-      { "id": "canberra", "name": "Canberra", "place": "Australia" }
+      {
+        "id": "goldstone",
+        "name": "Goldstone",
+        "place": "California, USA"
+      },
+      {
+        "id": "madrid",
+        "name": "Madrid",
+        "place": "Spain"
+      },
+      {
+        "id": "canberra",
+        "name": "Canberra",
+        "place": "Australia"
+      }
     ],
     "toVoyager": "To Voyager 1",
     "dataLabel": "Data received",
     "canSee": "Can see Voyager",
-    "lost": "Signal lost! Pass it on to the next dish sooner.",
-    "notVisible": "That dish is facing away from Voyager right now.",
+    "lost": "Signal lost! Tap a dish in the green zone.",
+    "notVisible": "That dish is facing away from Voyager. Pick one in the green zone!",
     "factLines": [
       "Voyager's radio uses about 20 watts, about as much as a fridge light bulb.",
       "The biggest Deep Space Network dishes are 70 m (230 feet) wide, to catch the faint signal.",
       "A message to Voyager 1 now takes almost a whole day to arrive!"
     ],
     "resultTitle": "Data received!",
-    "resultText": "With three sites spread around the world, one of them can always see Voyager, so it never has to stop talking to us."
+    "resultText": "With three sites spread around the world, one of them can always see Voyager, so it never has to stop talking to us.",
+    "task": {
+      "title": "Keep talking to Voyager!",
+      "help": "When your dish leaves the green zone, tap the next dish in the zone."
+    }
   },
 
   "portrait": {
     "intro": [
-      "February 14, 1990. Before its cameras were switched off for good, Voyager 1 turned around for one last look home: a family portrait of the planets.",
-      "Drag to look around the dark sky, and tap each planet when you spot it. They're tiny! Hint: one of them sits inside a beam of sunlight..."
+      "February 14, 1990. Before its cameras were switched off for good, Voyager 1 turned around for one last look home: a family portrait of the planets!"
     ],
     "listTitle": "Find the planets",
     "hintLabel": "Hint",
     "planets": [
-      { "id": "venus", "name": "Venus", "fact": "Bright Venus, close to the Sun." },
-      { "id": "earth", "name": "Earth", "fact": "Earth: a tiny pale blue dot, caught in a beam of sunlight." },
-      { "id": "jupiter", "name": "Jupiter", "fact": "Jupiter, the giant." },
-      { "id": "saturn", "name": "Saturn", "fact": "Saturn, the ringed planet." },
-      { "id": "uranus", "name": "Uranus", "fact": "Uranus, the sideways planet." },
-      { "id": "neptune", "name": "Neptune", "fact": "Neptune, the farthest planet." }
+      {
+        "id": "jupiter",
+        "name": "Jupiter",
+        "ask": "Find Jupiter! It's the biggest, brightest dot.",
+        "fact": "Jupiter, the giant."
+      },
+      {
+        "id": "saturn",
+        "name": "Saturn",
+        "ask": "Find Saturn! Look for a golden-yellow dot.",
+        "fact": "Saturn, the ringed planet."
+      },
+      {
+        "id": "venus",
+        "name": "Venus",
+        "ask": "Find Venus! It shines brightly, close to the Sun.",
+        "fact": "Bright Venus, close to the Sun."
+      },
+      {
+        "id": "uranus",
+        "name": "Uranus",
+        "ask": "Find Uranus! It's a small blue-green dot.",
+        "fact": "Uranus, the sideways planet."
+      },
+      {
+        "id": "neptune",
+        "name": "Neptune",
+        "ask": "Find Neptune! It's a small blue dot, far from the Sun.",
+        "fact": "Neptune, the farthest planet."
+      },
+      {
+        "id": "earth",
+        "name": "Earth",
+        "ask": "Last one: find Earth! It's a pale blue dot, inside a beam of sunlight.",
+        "fact": "Earth: a tiny pale blue dot, caught in a beam of sunlight."
+      }
     ],
     "nothing": "Just stars there. Keep looking!",
-    "hint": "Need help? Look for the glowing ring.",
+    "hint": "Look for the glowing ring!",
     "doneLine": "You found the whole family! Mercury and Mars were lost in the Sun's glare, and Pluto was too small to see. That tiny dot in the sunbeam is Earth, seen from about 6 billion km (3.7 billion miles) away.",
     "resultTitle": "Family portrait!",
-    "resultText": "The real portrait was made from 60 photos. It was the first picture of our solar system taken from outside."
+    "resultText": "The real portrait was made from 60 photos. It was the first picture of our solar system taken from outside.",
+    "lookHelp": "Drag to look around the sky. Tap the planet when you spot it."
   },
 
   "paleBlueDot": {
@@ -317,7 +556,10 @@
         "year": "February 14, 1990",
         "heading": "The Pale Blue Dot",
         "text": "Here is NASA's real photo, updated in 2020. Earth is the tiny bright speck inside the beam of sunlight, just right of the middle.",
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA23645/PIA23645~medium.jpg", "alt": "Earth as a tiny dot inside a beam of scattered sunlight" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA23645/PIA23645~medium.jpg",
+          "alt": "Earth as a tiny dot inside a beam of scattered sunlight"
+        },
         "credit": "Image: NASA/JPL-Caltech · Pale Blue Dot Revisited",
         "visual": "paleDot"
       },
@@ -338,35 +580,46 @@
 
   "memoryFix": {
     "intro": [
-      "November 2023: Voyager 1 suddenly started sending gibberish! Engineers found one broken memory chip in a computer that is almost 50 years old.",
-      "Move the pieces of code out of the broken red cells into empty memory. Every move is a message that takes almost a day to reach Voyager, so use as few moves as you can!"
+      "November 2023: Voyager 1 suddenly started sending gibberish! Engineers found one broken memory chip, in a computer that is almost 50 years old.",
+      "Every change is a radio message that takes almost a day to reach Voyager, so use as few moves as you can!"
     ],
     "memoryTitle": "Voyager 1's memory",
     "brokenLabel": "Broken chip",
     "movesLabel": "Messages sent",
     "daysLabel": "Days waiting",
     "sendLabel": "Send to Voyager",
-    "blocked": "That spot is taken or broken. Find empty, healthy memory.",
+    "blocked": "That spot won't work. Try a green spot!",
     "stillBroken": "Some code is still on the broken chip!",
     "sending": "Sending... the message travels for almost a day...",
     "doneLine": "It worked! In April 2024, after months of careful work, the team got readable data from Voyager 1 again. You'll see them celebrate in a moment!",
     "resultTitle": "Voyager is back!",
-    "resultText": "Fixing a 47-year-old computer from 24 billion km away: one of the most amazing repairs ever."
+    "resultText": "Fixing a 47-year-old computer from 24 billion km away: one of the most amazing repairs ever.",
+    "task": {
+      "title": "Rescue the code!",
+      "help": "Drag each piece off the red broken chip into empty memory. Then press Send."
+    },
+    "sendTask": {
+      "title": "All safe! Press Send.",
+      "help": "Send the new memory plan to Voyager."
+    }
   },
 
   "heliopause": {
     "intro": [
-      "The Sun blows a wind of tiny particles in every direction. It makes a giant bubble around the planets, called the heliosphere. Where does the bubble end?",
-      "Watch Voyager 1's data as it flies outwards. When the particles from the Sun drop away AND the cosmic rays from the galaxy jump up, press 'Edge!' Careful: there are a few fake-outs first!"
+      "The Sun blows a wind of tiny particles in every direction. It makes a giant bubble around the planets. Where does the bubble end? Let's watch Voyager 1's data as it flies outwards!"
     ],
     "sunLabel": "Particles from the Sun",
     "galaxyLabel": "Cosmic rays from the galaxy",
     "edgeLabel": "Edge!",
-    "early": "Not yet! The Sun's particles came back. That was a fake-out.",
-    "late": "You waited too long! Let's watch that part again.",
-    "good": "August 25, 2012: Voyager 1 left the Sun's bubble and entered interstellar space!",
     "resultTitle": "Interstellar space!",
-    "resultText": "Voyager 1 became the first human-made object ever to reach the space between the stars."
+    "resultText": "Voyager 1 became the first human-made object ever to reach the space between the stars.",
+    "task": {
+      "title": "Find the edge of the Sun's bubble!",
+      "help": "Press Edge! when the yellow line drops AND the blue line jumps up, and they stay there."
+    },
+    "fakeOut": "Not yet! The Sun's particles came back. That was a fake-out.",
+    "tooLate": "You waited too long! Let's watch that part again.",
+    "edgeFound": "August 25, 2012: Voyager 1 left the Sun's bubble and entered interstellar space!"
   },
 
   "interstellar": {
@@ -384,7 +637,10 @@
       {
         "heading": "The Sun's bubble",
         "text": "This picture shows the bubble made by the Sun's wind, and both Voyagers. Voyager 2 crossed out too, in November 2018.",
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA22566/PIA22566~orig.jpg", "alt": "The heliosphere bubble with Voyager 1 and Voyager 2 at its edge" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA22566/PIA22566~orig.jpg",
+          "alt": "The heliosphere bubble with Voyager 1 and Voyager 2 at its edge"
+        },
         "credit": "Image: NASA/JPL-Caltech · The heliosphere and the two Voyagers",
         "visual": "heliosphere"
       },
@@ -413,14 +669,36 @@
         "title": "Mission report: Voyager 1",
         "kind": "stats",
         "stats": [
-          { "label": "Launch", "value": "September 5, 1977" },
-          { "label": "Jupiter", "value": "Closest on March 5, 1979" },
-          { "label": "Saturn", "value": "Closest on November 12, 1980" },
-          { "label": "Pale Blue Dot", "value": "February 14, 1990" },
-          { "label": "Interstellar space", "value": "August 25, 2012" },
-          { "label": "Distance now", "value": "More than 25 billion km (15 billion miles)" }
+          {
+            "label": "Launch",
+            "value": "September 5, 1977"
+          },
+          {
+            "label": "Jupiter",
+            "value": "Closest on March 5, 1979"
+          },
+          {
+            "label": "Saturn",
+            "value": "Closest on November 12, 1980"
+          },
+          {
+            "label": "Pale Blue Dot",
+            "value": "February 14, 1990"
+          },
+          {
+            "label": "Interstellar space",
+            "value": "August 25, 2012"
+          },
+          {
+            "label": "Distance now",
+            "value": "More than 25 billion km (15 billion miles)"
+          }
         ],
-        "image": { "src": "https://images-assets.nasa.gov/image/PIA14113/PIA14113~orig.jpg", "alt": "Voyager and its Golden Record", "credit": "Image: NASA/JPL-Caltech · Voyager and the Golden Record" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/PIA14113/PIA14113~orig.jpg",
+          "alt": "Voyager and its Golden Record",
+          "credit": "Image: NASA/JPL-Caltech · Voyager and the Golden Record"
+        },
         "fallback": "voyager",
         "say": "Voyager 1 launched in 1977, flew past Jupiter and Saturn, took the Pale Blue Dot picture in 1990, and reached interstellar space in 2012."
       },
@@ -428,13 +706,41 @@
         "title": "Voyager 1's journey",
         "kind": "timeline",
         "items": [
-          { "year": "1977", "name": "Launch", "text": "The two Voyagers set off." },
-          { "year": "1979", "name": "Jupiter", "text": "Volcanoes on Io and a ring." },
-          { "year": "1980", "name": "Saturn & Titan", "text": "Ringlets and an orange haze." },
-          { "year": "1990", "name": "Pale Blue Dot", "text": "A last look back at home." },
-          { "year": "1998", "name": "Farthest ever", "text": "The most distant spacecraft." },
-          { "year": "2012", "name": "Interstellar", "text": "Out of the Sun's bubble." },
-          { "year": "2024", "name": "Fixed!", "text": "Repaired from far away." }
+          {
+            "year": "1977",
+            "name": "Launch",
+            "text": "The two Voyagers set off."
+          },
+          {
+            "year": "1979",
+            "name": "Jupiter",
+            "text": "Volcanoes on Io and a ring."
+          },
+          {
+            "year": "1980",
+            "name": "Saturn & Titan",
+            "text": "Ringlets and an orange haze."
+          },
+          {
+            "year": "1990",
+            "name": "Pale Blue Dot",
+            "text": "A last look back at home."
+          },
+          {
+            "year": "1998",
+            "name": "Farthest ever",
+            "text": "The most distant spacecraft."
+          },
+          {
+            "year": "2012",
+            "name": "Interstellar",
+            "text": "Out of the Sun's bubble."
+          },
+          {
+            "year": "2024",
+            "name": "Fixed!",
+            "text": "Repaired from far away."
+          }
         ],
         "say": "In almost fifty years, Voyager 1 has visited two giant planets, looked back at Earth, and travelled farther than anything we have ever built."
       },
@@ -442,10 +748,26 @@
         "title": "What Voyager taught us",
         "kind": "tech",
         "items": [
-          { "name": "Planet slingshots", "art": "jupiter", "text": "Gravity assists from planets save years of travel. Many missions use them today." },
-          { "name": "Volcano worlds", "art": "io", "text": "Io showed that moons can be hot and active, not just cold, dead rocks." },
-          { "name": "Hidden oceans", "art": "europa", "text": "Voyager's photos of Europa gave the first clues of an ocean under the ice." },
-          { "name": "The Sun's bubble", "art": "voyager", "text": "The Voyagers are the only spacecraft that have flown out through the edge of the heliosphere." }
+          {
+            "name": "Planet slingshots",
+            "art": "jupiter",
+            "text": "Gravity assists from planets save years of travel. Many missions use them today."
+          },
+          {
+            "name": "Volcano worlds",
+            "art": "io",
+            "text": "Io showed that moons can be hot and active, not just cold, dead rocks."
+          },
+          {
+            "name": "Hidden oceans",
+            "art": "europa",
+            "text": "Voyager's photos of Europa gave the first clues of an ocean under the ice."
+          },
+          {
+            "name": "The Sun's bubble",
+            "art": "voyager",
+            "text": "The Voyagers are the only spacecraft that have flown out through the edge of the heliosphere."
+          }
         ],
         "say": "Voyager taught us about planet slingshots, volcanic moons, hidden oceans, and the edge of the Sun's bubble."
       }

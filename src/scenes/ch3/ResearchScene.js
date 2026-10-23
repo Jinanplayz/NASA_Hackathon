@@ -5,7 +5,7 @@ import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { blueprint } from '../common/bg.js';
 import { txt, fitText } from '../../ui/text.js';
-import { drawPanel, shake, floatText } from '../../ui/widgets.js';
+import { shake, floatText, roundBox, RoundBox } from '../../ui/widgets.js';
 import { starPoints } from '../../ui/icons.js';
 
 // Click around the (lying-down) Saturn V to discover the research behind five parts,
@@ -58,9 +58,8 @@ export class ResearchScene extends BaseScene {
     });
 
     // info panel
-    const pg = this.add.graphics();
-    drawPanel(pg, 24, PY, 764, H - PY - 14, { fill: COLORS.panel, radius: 20 });
-    drawPanel(pg, 800, PY, 456, H - PY - 14, { fill: 0x0e1840, radius: 20 });
+    roundBox(this, 24, PY, 764, H - PY - 14, { fill: COLORS.panel, radius: 20 });
+    roundBox(this, 800, PY, 456, H - PY - 14, { fill: 0x0e1840, radius: 20 });
     this.title = txt(this, 48, PY + 18, '', { size: 26, weight: 800, color: CSS.yellow, scale: false });
     this.facts = this.add.container(48, PY + 62);
     this.hint = txt(this, 406, PY + 140, this.T('panelHint', ''), { size: 22, color: CSS.dim, origin: 0.5, align: 'center', wrap: 640 });
@@ -101,7 +100,7 @@ export class ResearchScene extends BaseScene {
   makeCatButton(cat, x, y) {
     const w = 424, h = 78;
     const c = this.add.container(x, y);
-    const g = this.add.graphics();
+    const g = new RoundBox(this);
     const stars = this.add.graphics();
     for (let k = 0; k < 3; k++) {
       stars.fillStyle(k < cat.stars ? COLORS.yellow : 0x2a3566, 1);
@@ -124,12 +123,14 @@ export class ResearchScene extends BaseScene {
   drawCat(c, state = '') {
     const g = c.g;
     const { w, h } = c;
-    g.clear();
-    const fill = state === 'right' ? 0x14432c : state === 'wrong' ? 0x4a1624 : state === 'hover' && c.enabled ? 0x26357a : COLORS.panel2;
-    g.fillStyle(fill, c.enabled ? 1 : 0.5);
-    g.fillRoundedRect(-w / 2, -h / 2, w, h, 16);
-    g.lineStyle(state === 'right' || state === 'wrong' ? 4 : 2, state === 'right' ? COLORS.green : state === 'wrong' ? COLORS.red : COLORS.stroke, 1);
-    g.strokeRoundedRect(-w / 2, -h / 2, w, h, 16);
+    g.draw(-w / 2, -h / 2, w, h, {
+      fill: state === 'right' ? 0x14432c : state === 'wrong' ? 0x4a1624 : state === 'hover' && c.enabled ? 0x26357a : COLORS.panel2,
+      alpha: c.enabled ? 1 : 0.5,
+      radius: 16,
+      stroke: state === 'right' ? COLORS.green : state === 'wrong' ? COLORS.red : COLORS.stroke,
+      strokeWidth: state === 'right' || state === 'wrong' ? 4 : 2,
+      shadow: false
+    });
   }
 
   setCatsEnabled(on) {

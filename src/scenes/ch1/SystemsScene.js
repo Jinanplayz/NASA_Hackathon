@@ -9,7 +9,7 @@ import { starfield } from '../common/bg.js';
 import { loadThree } from '../../three/loader.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, toast } from '../../ui/widgets.js';
+import { toast, roundBox, RoundBox } from '../../ui/widgets.js';
 import { drawIcon } from '../../ui/icons.js';
 
 // Scroll through the 8 major systems of a spaceship, each shown as a detailed 3D model.
@@ -31,8 +31,8 @@ export class SystemsScene extends BaseScene {
     this.current = -1;
 
     // 3D viewport background (drawn under the transparent 3D canvas)
+    roundBox(this, VX, VY, VW, VH, { fill: 0x0b1230, radius: 20 });
     const vg = this.add.graphics();
-    drawPanel(vg, VX, VY, VW, VH, { fill: 0x0b1230, radius: 20 });
     vg.lineStyle(1, 0x2a4a9a, 0.3);
     for (let x = VX + 30; x < VX + VW; x += 40) vg.lineBetween(x, VY + 10, x, VY + VH - 10);
     for (let y = VY + 30; y < VY + VH; y += 40) vg.lineBetween(VX + 10, y, VX + VW - 10, y);
@@ -57,8 +57,7 @@ export class SystemsScene extends BaseScene {
     });
 
     // info panel
-    const ig = this.add.graphics();
-    drawPanel(ig, IX, IY, IW, IH, { fill: COLORS.panel, radius: 20 });
+    const ig = roundBox(this, IX, IY, IW, IH, { fill: COLORS.panel, radius: 20 });
     this.infoAccent = this.add.graphics();
     this.infoIcon = this.add.image(IX + 58, IY + 58, 'sys_propulsion').setScale(0.8 / TEX);
     this.infoNum = txt(this, IX + 112, IY + 24, '', { size: 15, weight: 700, color: CSS.cyan, scale: false });
@@ -84,9 +83,8 @@ export class SystemsScene extends BaseScene {
     this.setupInput();
     this.select(0, false);
 
-    this.guide.sequence(this.T('intro', []), { modal: false }).then(() => {
-      this.showHint();
-    });
+    // (tapping a system cuts the intro short; the hint still follows, unless the screen has closed)
+    this.guide.sequence(this.T('intro', []), { modal: false }).then(() => here() && this.showHint());
   }
 
   showHint() {
@@ -107,7 +105,7 @@ export class SystemsScene extends BaseScene {
     this.strip.setMask(mg.createGeometryMask());
     this.cards = this.items.map((it, i) => {
       const c = this.add.container(i * (CARD_W + GAP) + CARD_W / 2, CARD_H / 2 + 2);
-      const g = this.add.graphics();
+      const g = new RoundBox(this);
       const icon = this.add.image(0, -22, it.icon).setScale(0.62 / TEX);
       const name = txt(this, 0, 36, it.name, { size: 16, weight: 700, origin: 0.5, align: 'center', wrap: CARD_W - 16, scale: false });
       const check = this.add.graphics();
@@ -133,13 +131,7 @@ export class SystemsScene extends BaseScene {
       const it = this.items[i];
       const sel = i === this.current;
       const col = Phaser.Display.Color.HexStringToColor(it.color || '#4fd1ff').color;
-      c.g.clear();
-      c.g.fillStyle(0x000000, 0.3);
-      c.g.fillRoundedRect(-CARD_W / 2, -CARD_H / 2 + 4, CARD_W, CARD_H, 16);
-      c.g.fillStyle(sel ? 0x22306b : COLORS.panel, 1);
-      c.g.fillRoundedRect(-CARD_W / 2, -CARD_H / 2, CARD_W, CARD_H, 16);
-      c.g.lineStyle(sel ? 4 : 2, sel ? col : COLORS.stroke, 1);
-      c.g.strokeRoundedRect(-CARD_W / 2, -CARD_H / 2, CARD_W, CARD_H, 16);
+      c.g.draw(-CARD_W / 2, -CARD_H / 2, CARD_W, CARD_H, { fill: sel ? 0x22306b : COLORS.panel, alpha: 1, radius: 16, stroke: sel ? col : COLORS.stroke, strokeWidth: sel ? 4 : 2, shadowY: 4 });
       c.check.clear();
       if (this.viewed.has(i)) {
         c.check.fillStyle(COLORS.green, 1);

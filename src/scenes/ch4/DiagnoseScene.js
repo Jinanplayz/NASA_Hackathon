@@ -1,17 +1,17 @@
 import Phaser from 'phaser';
-import { COLORS, CSS, DEPTH } from '../../core/constants.js';
+import { COLORS, CSS } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor, InfoPanel } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, InfoPanel, GoalBar, idleHint, bake } from '../common/kit.js';
 import { txt, fitText } from '../../ui/text.js';
-import { drawPanel, floatText } from '../../ui/widgets.js';
+import { floatText, roundBox, RoundBox } from '../../ui/widgets.js';
 import { drawIcon } from '../../ui/icons.js';
 
 // Mission Control after the explosion: ten live gauges, five of them showing the real
 // failures (oxygen tanks, fuel cells, a power line). Tap the ones that look wrong.
-const CX = 30, CY = 116, CW = 880, CH = 540;
-const TW = 160, TH = 222;
+const CX = 30, CY = 172, CW = 880, CH = 512;
+const TW = 160, TH = 206;
 
 export class DiagnoseScene extends BaseScene {
   constructor() {
@@ -28,24 +28,27 @@ export class DiagnoseScene extends BaseScene {
     this.total = this.gauges.filter((g) => g.bad).length;
 
     // the console
-    const g = this.add.graphics();
-    drawPanel(g, CX, CY, CW, CH, { fill: 0x1d2433, stroke: 0x46516b, strokeWidth: 3, radius: 20 });
-    g.fillStyle(0x121722, 1);
-    g.fillRoundedRect(CX + 16, CY + 14, CW - 32, 46, 12);
+    roundBox(this, CX, CY, CW, CH, { fill: 0x1d2433, stroke: 0x46516b, strokeWidth: 3, radius: 20 });
+    const g = this.add.existing(new RoundBox(this)).draw(CX + 16, CY + 14, CW - 32, 46, { fill: 0x121722, alpha: 1, radius: 12, stroke: null, shadow: false });
     txt(this, CX + 34, CY + 37, this.T('consoleTitle', 'CONSOLE'), { size: 15, weight: 800, color: '#cfd6e6', origin: [0, 0.5], scale: false });
     // master alarm light
     this.alarm = this.add.graphics();
     this.alarmText = txt(this, CX + CW - 130, CY + 37, 'MASTER ALARM', { size: 14, weight: 800, color: '#ffd6d6', origin: 0.5, scale: false });
-    this.found_t = txt(this, CX + CW - 226, CY + 37, '', { size: 18, weight: 800, color: CSS.yellow, origin: [1, 0.5], scale: false });
+    this.goal = new GoalBar(this);
 
     this.tiles = this.gauges.map((gd, i) => this.makeTile(gd, i));
-    this.info = new InfoPanel(this, 930, CY, 320, CH, { title: this.T('panelTitle', 'Clues'), text: this.T('panelHint', 'Tap a gauge to check it.'), size: 20 });
-    this.updateFound();
+    this.info = new InfoPanel(this, 930, CY, 320, CH, { title: this.T('panelTitle', 'What it means'), text: this.T('panelHint', 'Tap a gauge to check it.'), size: 20 });
+    idleHint(this, () => {
+      const t = this.state === 'play' && this.tiles.find((tl) => tl.gd.bad && !this.checked.has(this.tiles.indexOf(tl)));
+      return t ? { x: t.x + TW / 2, y: t.y + 4 } : null;
+    }, { delay: 9000 });
 
     Sfx.play('alarm');
     this.alarmEv = this.time.addEvent({ delay: 2400, loop: true, callback: () => this.state === 'play' && Sfx.play('alarm') });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Find the broken gauges!', help: 'Tap gauges that read zero, drop fast or flash red.' }), { count: this.foundText() });
     });
   }
 
@@ -57,20 +60,23 @@ export class DiagnoseScene extends BaseScene {
     const c = this.add.container(x + TW / 2, y + TH / 2);
     const inner = this.add.container(-TW / 2, -TH / 2);
     c.add(inner);
-    const bg = this.add.graphics();
+    const bg = new RoundBox(this);
     const draw = (state) => {
-      bg.clear();
-      bg.fillStyle(state === 'bad' ? 0x3a1720 : state === 'ok' ? 0x142a26 : 0x252d40, 1);
-      bg.fillRoundedRect(0, 0, TW, TH, 14);
-      bg.lineStyle(state ? 4 : 2, state === 'bad' ? COLORS.red : state === 'ok' ? COLORS.green : 0x46516b, 1);
-      bg.strokeRoundedRect(0, 0, TW, TH, 14);
+      bg.draw(0, 0, TW, TH, {
+        fill: state === 'bad' ? 0x3a1720 : state === 'ok' ? 0x142a26 : 0x252d40,
+        alpha: 1,
+        radius: 14,
+        stroke: state === 'bad' ? COLORS.red : state === 'ok' ? COLORS.green : 0x46516b,
+        strokeWidth: state ? 4 : 2,
+        shadow: false
+      });
     };
     draw(null);
     const name = txt(this, TW / 2, 14, gd.name, { size: 15, weight: 800, color: '#e6ebf5', origin: [0.5, 0], align: 'center', wrap: TW - 16, scale: false });
     fitText(name, TW - 16, 40, 11);
     // the dial
     const dial = this.add.graphics();
-    const dx = TW / 2, dy = 118, r = 48;
+    const dx = TW / 2, dy = 106, r = 46;
     dial.fillStyle(0x0b0f18, 1);
     dial.fillCircle(dx, dy, r + 6);
     dial.lineStyle(10, COLORS.red, 0.85);
@@ -88,10 +94,11 @@ export class DiagnoseScene extends BaseScene {
     }
     const needle = this.add.rectangle(dx, dy, 4, r - 8, 0xffd166).setOrigin(0.5, 1);
     const hub = this.add.circle(dx, dy, 6, 0xcfd6e6);
-    const readout = txt(this, TW / 2, 184, '', { size: 18, weight: 800, color: '#7dffb0', origin: 0.5, scale: false });
+    const readout = txt(this, TW / 2, 172, '', { size: 20, weight: 800, color: '#7dffb0', origin: 0.5, scale: false });
     const led = this.add.circle(TW - 20, TH - 20, 7, 0x3a3f4b);
     const mark = this.add.graphics();
     inner.add([bg, name, dial, needle, hub, readout, led, mark]);
+    bake(this, dial, dx - r - 8, dy - r - 8, r * 2 + 16, r * 2 + 16);
     c.setSize(TW, TH);
     c.setInteractive({ useHandCursor: true });
     c.on('pointerup', () => this.check(i));
@@ -103,8 +110,12 @@ export class DiagnoseScene extends BaseScene {
     return { c, gd, needle, readout, led, mark, draw, t, x, y };
   }
 
+  foundText() {
+    return `${this.T('foundLabel', 'Found')} ${this.found} / ${this.total}`;
+  }
+
   updateFound() {
-    this.found_t.setText(`${this.T('foundLabel', 'Problems found')}: ${this.found} / ${this.total}`);
+    this.goal.setCount(this.foundText());
   }
 
   check(i) {

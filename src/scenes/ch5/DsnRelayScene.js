@@ -1,18 +1,19 @@
 import Phaser from 'phaser';
 import { W, COLORS, CSS, DEPTH } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
+import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, finishGame, InfoPanel } from '../common/kit.js';
+import { playIntro, finishGame, InfoPanel, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
 import { ProgressBar, toast } from '../../ui/widgets.js';
 
 // The Deep Space Network: Earth (seen from above the North Pole) turns, and each of the three
-// dish sites can only see Voyager while it faces that way. Pass the signal to the next dish
-// before the one talking to Voyager turns away.
-const E = { x: 380, y: 400, r: 150 };
+// dish sites can only see Voyager while it is in the green zone facing that way. Pass the
+// signal to the next dish in the zone before the one talking to Voyager turns away.
+const E = { x: 380, y: 420, r: 150 };
 const VIEW = Phaser.Math.DegToRad(78); // how far from straight-at-Voyager a dish can still see it
 
 export class DsnRelayScene extends BaseScene {
@@ -50,6 +51,20 @@ export class DsnRelayScene extends BaseScene {
       this.earth.add(d);
       return d;
     });
+    // the zone where a dish can see Voyager (it stays put while Earth turns)
+    const zone = this.add.graphics();
+    zone.fillStyle(COLORS.green, 0.14);
+    zone.slice(E.x, E.y, E.r + 96, -VIEW, VIEW, false);
+    zone.fillPath();
+    zone.lineStyle(3, COLORS.green, 0.7);
+    zone.beginPath();
+    zone.arc(E.x, E.y, E.r + 96, -VIEW, VIEW, false);
+    zone.strokePath();
+    zone.lineBetween(E.x + Math.cos(-VIEW) * E.r, E.y + Math.sin(-VIEW) * E.r, E.x + Math.cos(-VIEW) * (E.r + 96), E.y + Math.sin(-VIEW) * (E.r + 96));
+    zone.lineBetween(E.x + Math.cos(VIEW) * E.r, E.y + Math.sin(VIEW) * E.r, E.x + Math.cos(VIEW) * (E.r + 96), E.y + Math.sin(VIEW) * (E.r + 96));
+    txt(this, E.x + 120, E.y - 232, this.T('canSee', 'Can see Voyager'), { size: 16, weight: 800, color: CSS.green, origin: [0, 0.5], scale: false });
+    // (under Earth, above the stars)
+    this.children.moveBelow(zone, this.earth);
     // night side shading (fixed: the Sun is to the left)
     const night = this.add.graphics();
     night.fillStyle(0x000020, 0.28);
@@ -63,15 +78,15 @@ export class DsnRelayScene extends BaseScene {
     this.labels = this.stations.map(() => txt(this, 0, 0, '', { size: 15, weight: 800, origin: 0.5, align: 'center', scale: false, stroke: '#070b1d', strokeThickness: 5 }).setDepth(DEPTH.ui));
 
     // the data coming in
-    txt(this, 700, 112, this.T('dataLabel', 'Data received'), { size: 16, weight: 800, color: CSS.yellow, scale: false });
-    this.bar = new ProgressBar(this, 700, 136, 520, 18, { color: COLORS.green });
-    this.info = new InfoPanel(this, 700, 470, 540, 120, { title: '', text: '', size: 17 });
+    txt(this, 760, 186, this.T('dataLabel', 'Data received'), { size: 18, weight: 800, color: CSS.yellow, scale: false });
+    this.bar = new ProgressBar(this, 760, 214, 470, 20, { color: COLORS.green });
+    this.info = new InfoPanel(this, 740, 470, 500, 130, { title: '', text: '', size: 17 });
+    this.goal = new GoalBar(this);
     this.factI = 0;
-    this.nextFact();
 
     // buttons for each dish (tapping the dish on Earth works too)
     this.buttons = this.stations.map((s, i) => {
-      const b = new Button(this, 760 + i * 170, 660, { width: 160, height: 64, size: 18, label: s.name, icon: 'speaker', variant: 'secondary', onClick: () => this.pick(i) });
+      const b = new Button(this, 820 + i * 170, 660, { width: 160, height: 64, size: 18, label: s.name, icon: 'speaker', variant: 'secondary', onClick: () => this.pick(i) });
       return b;
     });
     this.input.on('pointerdown', (p, over) => {
@@ -93,8 +108,17 @@ export class DsnRelayScene extends BaseScene {
     // start talking through the dish that faces Voyager most directly
     this.link = this.stations.map((s, i) => i).sort((a, b) => Math.abs(Phaser.Math.Angle.Wrap(this.dishWorld(a).a)) - Math.abs(Phaser.Math.Angle.Wrap(this.dishWorld(b).a)))[0];
     this.update(0, 0);
+    // stuck? point at a dish button that can see Voyager when the one in use is about to turn away
+    idleHint(this, () => {
+      if (this.state !== 'play') return null;
+      const i = this.stations.findIndex((s, k) => k !== this.link && this.canSee(k));
+      return i >= 0 ? { x: this.buttons[i].x, y: this.buttons[i].y - 40 } : null;
+    }, { delay: 6000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Keep talking to Voyager!', help: 'When your dish leaves the green zone, tap the next dish in the zone.' }));
+      this.time.delayedCall(4000, () => this.state === 'play' && this.nextFact());
     });
   }
 
@@ -102,6 +126,7 @@ export class DsnRelayScene extends BaseScene {
     const lines = this.T('factLines', []);
     if (!lines.length) return;
     this.info.show('', lines[this.factI % lines.length], { size: 17 });
+    Speech.say(lines[this.factI % lines.length]);
     this.factI++;
   }
 
@@ -119,7 +144,7 @@ export class DsnRelayScene extends BaseScene {
     if (this.state !== 'play') return;
     if (!this.canSee(i)) {
       Sfx.play('error');
-      toast(this, `${this.stations[i].name}: ${this.T('notVisible', '')}`, { y: 100, color: COLORS.orange, sound: false, duration: 2000 });
+      toast(this, this.T('notVisible', ''), { x: 990, y: 380, wrap: 440, color: COLORS.orange, sound: false, speak: true, duration: 2000 });
       return;
     }
     if (this.link !== i) Sfx.play('radio');
@@ -158,7 +183,7 @@ export class DsnRelayScene extends BaseScene {
       this.wasLost = true;
       this.lost++;
       Sfx.play('static');
-      toast(this, this.T('lost', 'Signal lost!'), { y: 100, color: COLORS.red, sound: false, speak: true, duration: 2200 });
+      toast(this, this.T('lost', 'Signal lost!'), { x: 990, y: 380, wrap: 440, color: COLORS.red, sound: false, speak: true, duration: 2200 });
     }
   }
 

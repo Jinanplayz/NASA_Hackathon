@@ -3,16 +3,16 @@ import { COLORS, CSS, DEPTH, seeded, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
-import { playIntro, finishGame, starsFor, InfoPanel, showPhoto } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, InfoPanel, showPhoto, GoalBar, idleHint } from '../common/kit.js';
 import { makeTex, circle } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
-import { drawPanel, toast, floatText } from '../../ui/widgets.js';
+import { toast, floatText, roundBox } from '../../ui/widgets.js';
 
 // Dust hides baby stars from ordinary cameras, but infrared light shines right through it.
 // Move Webb's infrared "lens" over the dusty pillars and tap the hidden baby stars.
-const F = { x: 60, y: 96, w: 780, h: 560 };
+const F = { x: 60, y: 176, w: 780, h: 500 };
 const LENS = 92;
-const BABIES = [[175, 330], [205, 470], [420, 250], [455, 420], [640, 360], [690, 500]];
+const BABIES = [[175, 295], [205, 420], [420, 223], [455, 375], [640, 321], [690, 446]];
 
 // three tall pillars of dust rising from the bottom
 function pillars(c, w, h, solid) {
@@ -75,8 +75,7 @@ export class InfraredLensScene extends BaseScene {
         pillars(c, w, h, false);
       });
     }
-    const frame = this.add.graphics();
-    drawPanel(frame, F.x - 8, F.y - 8, F.w + 16, F.h + 16, { fill: 0x000000, radius: 12, stroke: 0x46516b, strokeWidth: 3 });
+    const frame = roundBox(this, F.x - 8, F.y - 8, F.w + 16, F.h + 16, { fill: 0x000000, radius: 12, stroke: 0x46516b, strokeWidth: 3 });
     this.add.image(F.x, F.y, 'nebulaVisible').setOrigin(0).setDisplaySize(F.w, F.h);
     // the infrared view, only seen through the lens
     this.ir = this.add.container(0, 0);
@@ -104,8 +103,9 @@ export class InfraredLensScene extends BaseScene {
     txt(this, F.x + 12, F.y + F.h - 28, this.T('frameLabel', 'Visible light · Lens: infrared light'), { size: 14, weight: 800, color: '#ffffff', scale: false, stroke: '#000000', strokeThickness: 4 }).setDepth(DEPTH.ui);
 
     // side panel
-    this.info = new InfoPanel(this, 870, 96, 370, 300, { title: this.T('panelTitle', 'Infrared eyes'), text: this.T('panelText', ''), size: 18 });
-    this.countText = txt(this, 1055, 430, '', { size: 22, weight: 800, color: CSS.yellow, origin: 0.5, scale: false });
+    this.info = new InfoPanel(this, 870, 176, 370, 300, { title: '', text: '', size: 18 });
+    this.info.g.setVisible(false);
+    this.goal = new GoalBar(this);
 
     // the lens follows the pointer; tap to pick a baby star
     this.zone = this.add.zone(F.x + F.w / 2, F.y + F.h / 2, F.w, F.h).setInteractive({ useHandCursor: true });
@@ -124,9 +124,15 @@ export class InfraredLensScene extends BaseScene {
       });
     }
     this.moveLens(this.lens.x, this.lens.y);
-    this.updateCount();
+    // stuck? point at a hidden baby star
+    idleHint(this, () => {
+      const b = this.state === 'play' && this.babies.find((k) => !k.found);
+      return b ? { x: b.x, y: b.y - 30 } : null;
+    }, { delay: 12000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Find 6 hidden baby stars!', help: 'Move the gold infrared lens over the dust. Tap each baby star you see.' }), { count: this.countText() });
     });
   }
 
@@ -144,8 +150,8 @@ export class InfraredLensScene extends BaseScene {
     g.strokeCircle(this.lens.x, this.lens.y, LENS - 6);
   }
 
-  updateCount() {
-    this.countText.setText(`${this.T('foundLabel', 'Baby stars found')}: ${this.found} / ${BABIES.length}`);
+  countText() {
+    return `${this.found} / ${BABIES.length}`;
   }
 
   tap(x, y) {
@@ -157,7 +163,7 @@ export class InfraredLensScene extends BaseScene {
       if (inLens) {
         this.mistakes++;
         Sfx.play('error');
-        toast(this, this.T('nothing', 'Nothing there. Look for a bright orange glow inside the dust!'), { y: 690, color: COLORS.orange, sound: false, duration: 1600 });
+        toast(this, this.T('nothing', 'Nothing there. Look for a bright orange glow inside the dust!'), { y: 690, color: COLORS.orange, sound: false, speak: true, duration: 1600 });
       }
       return;
     }
@@ -168,8 +174,12 @@ export class InfraredLensScene extends BaseScene {
     this.marks.strokeCircle(b.x, b.y, 22);
     floatText(this, b.x, b.y - 30, '★', CSS.yellow, 28);
     const facts = this.T('facts', []);
-    if (facts[this.found - 1]) this.info.show(this.T('panelTitle', 'Infrared eyes'), facts[this.found - 1]);
-    this.updateCount();
+    if (facts[this.found - 1]) {
+      this.info.g.setVisible(true);
+      this.info.show(this.T('panelTitle', 'Infrared eyes'), facts[this.found - 1]);
+      Speech.say(facts[this.found - 1]);
+    }
+    this.goal.setCount(this.countText());
     if (this.found >= BABIES.length) this.win();
   }
 

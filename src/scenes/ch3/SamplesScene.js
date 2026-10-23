@@ -2,12 +2,11 @@ import Phaser from 'phaser';
 import { W, FULL, COLORS, CSS, DEPTH, TEX, seeded, shuffle } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
-import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
 import { img } from '../../art/core.js';
 import { txt, fitText } from '../../ui/text.js';
-import { drawPanel, toast, floatText, shake } from '../../ui/widgets.js';
+import { toast, floatText, shake, roundBox, RoundBox } from '../../ui/widgets.js';
 
 // Part 1: hop around the Moon and collect samples. Part 2: sort them for the scientists.
 const GROUND_Y = 400;
@@ -71,8 +70,7 @@ export class SamplesScene extends BaseScene {
     });
 
     // bag counter
-    const bg = this.add.graphics().setDepth(DEPTH.hud);
-    drawPanel(bg, W - 300, 84, 280, 64, { fill: 0x070b1d, radius: 18, alpha: 0.85 });
+    const bg = roundBox(this, W - 300, 84, 280, 64, { fill: 0x070b1d, radius: 18, alpha: 0.85 }).setDepth(DEPTH.hud);
     this.bagIcon = this.add.image(W - 262, 116, 'soilBag').setScale(0.6 / TEX).setDepth(DEPTH.hud);
     this.bagText = txt(this, W - 228, 116, '', { size: 20, weight: 800, origin: [0, 0.5], scale: false }).setDepth(DEPTH.hud);
     this.updateBag();
@@ -199,11 +197,7 @@ export class SamplesScene extends BaseScene {
     this.cards = order.map((it, i) => {
       const x = 170 + (i % perRow) * 235, y = 264 + Math.floor(i / perRow) * 132;
       const c = this.add.container(x, y).setDepth(710);
-      const g = this.add.graphics();
-      g.fillStyle(0x1d2a5c, 1);
-      g.fillRoundedRect(-95, -58, 190, 116, 16);
-      g.lineStyle(2, COLORS.stroke, 1);
-      g.strokeRoundedRect(-95, -58, 190, 116, 16);
+      const g = this.add.existing(new RoundBox(this)).draw(-95, -58, 190, 116, { fill: 0x1d2a5c, alpha: 1, radius: 16, stroke: COLORS.stroke, strokeWidth: 2, shadow: false });
       const im = img(this, 0, -12, it.key, 0.85);
       const nm = txt(this, 0, 40, it.name, { size: 15, weight: 700, origin: 0.5, scale: false });
       c.add([g, im, nm]);

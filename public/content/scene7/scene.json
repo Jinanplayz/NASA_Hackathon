@@ -62,8 +62,7 @@
 
   "lightTravel": {
     "intro": [
-      "Light is the fastest thing there is, but it still takes time to travel. The farther away something is, the longer its light takes to reach us.",
-      "Drag each object onto the timeline to show how long its light takes to get here."
+      "Light is the fastest thing there is, but it still takes time to travel. The farther away something is, the longer its light takes to reach us."
     ],
     "objects": [
       {
@@ -105,7 +104,6 @@
     "fartherLabel": "Farther away = older light",
     "wrong": "Not quite! Think about how far away it is.",
     "stretchIntro": "So looking far away means looking back in time! But there's a catch: as the universe grows, light from the most distant galaxies gets stretched on its journey.",
-    "stretchHint": "Drag the slider to stretch the light from this faraway galaxy, and watch what happens to its colour.",
     "stretchLabel": "Stretch the light",
     "bands": [
       "Blue light",
@@ -121,18 +119,23 @@
     ],
     "doneLine": "That's why Webb looks in infrared: to catch the light of the very first galaxies, stretched on its journey of more than 13 billion years.",
     "resultTitle": "Light detective!",
-    "resultText": "Sunlight takes 8 minutes to reach us. Light from Webb's most distant galaxies took more than 13 billion years!"
+    "resultText": "Sunlight takes 8 minutes to reach us. Light from Webb's most distant galaxies took more than 13 billion years!",
+    "task": {
+      "title": "How old is the light?",
+      "help": "Drag each picture onto how long its light takes to reach us."
+    },
+    "stretchTask": {
+      "title": "Stretch the light!",
+      "help": "Slide until the light turns into infrared, so Webb's eyes can see it."
+    }
   },
 
   "infraredLens": {
     "intro": [
-      "Infrared light has another superpower: it shines right through clouds of dust. Webb can see baby stars hiding inside them!",
-      "Move the gold infrared lens over the dusty pillars, and tap each hidden baby star you find."
+      "Infrared light has another superpower: it shines right through clouds of dust. Webb can see baby stars hiding inside them!"
     ],
     "frameLabel": "Ordinary light · inside the gold lens: infrared",
     "panelTitle": "Infrared eyes",
-    "panelText": "In ordinary light, these pillars of gas and dust are dark and thick. Through Webb's infrared eyes, you can see right inside them.",
-    "foundLabel": "Baby stars found",
     "nothing": "Nothing there. Look for a bright orange glow inside the dust!",
     "facts": [
       "Baby stars form inside clouds of gas and dust, where gravity pulls the gas together.",
@@ -149,7 +152,11 @@
     },
     "photoLine": "Here's a real Webb picture of a cloud like this one: the 'Cosmic Cliffs' in the Carina Nebula, full of baby stars that were hidden before.",
     "resultTitle": "Dust detective!",
-    "resultText": "Infrared light lets Webb see stars being born inside clouds of dust."
+    "resultText": "Infrared light lets Webb see stars being born inside clouds of dust.",
+    "task": {
+      "title": "Find 6 hidden baby stars!",
+      "help": "Move the gold infrared lens over the dust. Tap each baby star you see."
+    }
   },
 
   "building": {
@@ -197,32 +204,29 @@
 
   "mirrorPuzzle": {
     "intro": [
-      "Time to build Webb's mirror! It has 18 gold segments. Because the mirror is curved, there are three slightly different shapes, called A, B and C.",
-      "Drag each segment to a place with the same letter. A segments go in the middle ring; B and C take turns around the outside."
+      "Time to build Webb's mirror! It has 18 gold segments. Because the mirror is curved, there are three slightly different shapes, called A, B and C."
     ],
-    "mirrorLabel": "Webb's main mirror",
     "panelTitle": "18 golden segments",
-    "panelText": "Each segment is made of a light, strong metal called beryllium, and coated with a thin layer of gold.",
-    "placedLabel": "Segments in place",
-    "wrongType": "That's an {a} segment. It only fits where you see {a}.",
     "facts": [
+      "Each segment is made of a light, strong metal called beryllium, and coated with a thin layer of gold.",
       "Each segment is about 1.3 metres across: taller than most kids!",
-      "Behind each segment are tiny motors that can move it by much less than the width of a hair.",
       "All the gold on the mirror weighs only about 48 grams, about as much as a golf ball!"
     ],
     "doneLine": "Beautiful! Together, the 18 segments work like one giant mirror, 6.5 metres across.",
     "resultTitle": "Mirror maker!",
-    "resultText": "Webb's mirror collects more than six times as much light as Hubble's."
+    "resultText": "Webb's mirror collects more than six times as much light as Hubble's.",
+    "task": {
+      "title": "Build the golden mirror!",
+      "help": "Put each segment in a place with the same letter. Drag it, or just tap it."
+    },
+    "wrongPlace": "That place has a different letter. Match the letters!"
   },
 
   "fairingFold": {
     "intro": [
-      "Webb is far too big for a rocket. Its sunshield is as big as a tennis court, but the rocket's nose cone is only 5.4 metres wide!",
-      "So Webb was designed to fold up like origami. Tap each part to fold it. Careful: some parts have to fold before others!"
+      "Webb is far too big for a rocket. Its sunshield is as big as a tennis court, but the rocket's nose cone is only 5.4 metres wide! So Webb was designed to fold up like origami."
     ],
     "fairingLabel": "The rocket's nose cone: 5.4 m wide",
-    "panelTitle": "Fold it up!",
-    "panelText": "Fold everything until Webb fits inside the dashed outline of the nose cone.",
     "parts": {
       "wings": "Mirror wings",
       "secondary": "Secondary mirror",
@@ -251,7 +255,11 @@
     "fits": "It fits!",
     "doneLine": "It fits! Folding and unfolding Webb was so tricky that engineers practised it many times on Earth before the launch.",
     "resultTitle": "Origami expert!",
-    "resultText": "Webb was the biggest, most complicated telescope ever folded into a rocket."
+    "resultText": "Webb was the biggest, most complicated telescope ever folded into a rocket.",
+    "task": {
+      "title": "Fold Webb up!",
+      "help": "Tap each part to fold it, until Webb fits inside the dashed nose cone. Some parts must fold first!"
+    }
   },
 
   "launch": {
@@ -295,8 +303,7 @@
 
   "deployParts": {
     "intro": [
-      "Now Webb has to unfold all by itself, far from Earth. It took about two weeks, and hundreds of parts all had to work!",
-      "Follow the checklist: each time, tap the part of Webb that unfolds next."
+      "Now Webb has to unfold all by itself, far from Earth. It took about two weeks, and hundreds of parts all had to work!"
     ],
     "checklistTitle": "Unfolding checklist",
     "parts": {
@@ -344,10 +351,11 @@
         "fact": "The two wings of the main mirror swung open and locked. Webb was fully unfolded!"
       }
     ],
-    "wrong": "That's the {part}. Read the checklist again!",
     "doneLine": "Webb is fully unfolded! On January 8, 2022, the team cheered as the last mirror wing locked into place.",
     "resultTitle": "Unfolding complete!",
-    "resultText": "Webb had hundreds of steps that all had to work perfectly, and every single one did."
+    "resultText": "Webb had hundreds of steps that all had to work perfectly, and every single one did.",
+    "tapHelp": "Tap that part of Webb to unfold it.",
+    "notThatOne": "Not that part! Look at the checklist and try again."
   },
 
   "jwstReveal": {
@@ -379,13 +387,12 @@
   "lagrange": {
     "intro": [
       "Webb's new home is a spot called L2, 1.5 million kilometres from Earth. There, Webb can keep the Sun, Earth and Moon all behind its sunshield.",
-      "Earth's gravity slows Webb down all the way. Webb can only push itself away from the Sun, never back, so it can't brake! It launched a little too slow on purpose.",
-      "Give it pushes to keep its speed near the green line, so it slows to a stop just as it reaches L2. Too fast, and it sails right past!"
+      "Earth's gravity slows Webb down all the way, and Webb can't brake. It launched a little too slow on purpose!"
     ],
     "distLabel": "1.5 million km: about 4 times as far as the Moon",
     "sunLabel": "← The Sun",
     "speedLabel": "Speed",
-    "idealLabel": "Green line: just right to stop at L2",
+    "idealLabel": "Green zone: just right to stop at L2",
     "tooFast": "Too fast! Webb will shoot past L2...",
     "tooSlow": "Too slow: give it a push!",
     "justRight": "Just right!",
@@ -398,7 +405,11 @@
     "fellBack": "Too slow! Webb fell back towards Earth. Give it more pushes.",
     "doneLine": "You made it! On January 24, 2022, Webb arrived at L2 and began a big loop around it, called a halo orbit.",
     "resultTitle": "Arrived at L2!",
-    "resultText": "Webb was launched a little slow on purpose, and its gentle pushes saved lots of fuel."
+    "resultText": "Webb was launched a little slow on purpose, and its gentle pushes saved lots of fuel.",
+    "task": {
+      "title": "Coast to L2!",
+      "help": "Tap a push button to keep the speed bar in the green zone. Not too fast: Webb can't brake!"
+    }
   },
 
   "arrival": {
@@ -442,36 +453,36 @@
 
   "mirrorAlign": {
     "intro": [
-      "All 18 mirror segments see the same star, but they aren't lined up yet. Drag each copy of the star into the middle, or tap it.",
-      "Then turn the focus until the star is super sharp!"
+      "All 18 mirror segments see the same star, but they aren't lined up yet, so Webb sees 18 blurry copies!"
     ],
     "cameraLabel": "Webb's camera",
     "panelTitle": "Line up the mirrors",
-    "panelText": "Tiny motors behind each segment can move it by about one ten-thousandth of the width of a hair!",
-    "stackedLabel": "Copies lined up",
     "facts": [
+      "Tiny motors behind each segment can move it by about one ten-thousandth of the width of a hair!",
       "The real engineers spent about three months lining up Webb's mirrors.",
       "In the end, the 18 segments worked together like one giant, perfect mirror."
     ],
-    "focusTitle": "Now focus!",
-    "focusText": "All 18 copies are stacked, but the star is still blurry. Move the focus slider until it's as sharp as possible.",
     "focusLabel": "Focus",
     "sharpYes": "Super sharp! Hold it there...",
     "sharpClose": "Getting closer!",
     "sharpNo": "Still blurry...",
     "doneLine": "Perfect! The star is sharp, with the six big spikes that make Webb's pictures easy to recognise. Webb is ready for science!",
     "resultTitle": "Sharp eyes!",
-    "resultText": "Webb's pictures turned out even sharper than the engineers had hoped."
+    "resultText": "Webb's pictures turned out even sharper than the engineers had hoped.",
+    "task": {
+      "title": "Line up the 18 stars!",
+      "help": "Tap each blurry copy of the star (or drag it) to move it into the green circle."
+    },
+    "focusTask": {
+      "title": "Now focus!",
+      "help": "Move the focus slider until the star is super sharp, then hold it there."
+    }
   },
 
   "sunshieldGuard": {
     "intro": [
-      "Webb must always keep its sunshield between the Sun and the telescope. So it can only look at the parts of the sky that are well away from the Sun: the green zones.",
-      "As Webb travels around the Sun during the year, the green zones move. Tap each target when it's inside a green zone, and keep watching until it's done!"
+      "Webb must stay super cold, so its sunshield always has to be between the Sun and the telescope. That means it can't look just anywhere!"
     ],
-    "panelTitle": "Keep cool!",
-    "panelText": "Webb can look at things between about 85 and 135 degrees away from the Sun. Over a whole year, it can see the entire sky.",
-    "observedLabel": "Targets observed",
     "yearLabel": "Time of year",
     "observingLabel": "Observing",
     "tooNearSun": "Not now! Sunlight would hit the telescope. Wait until it moves into a green zone.",
@@ -529,7 +540,11 @@
     ],
     "doneLine": "Great work! Webb plans its year carefully, so every part of the sky gets its turn.",
     "resultTitle": "Cool and clever!",
-    "resultText": "Webb's sunshield keeps the telescope in the shade, so its faint infrared light isn't drowned out by heat."
+    "resultText": "Webb's sunshield keeps the telescope in the shade, so its faint infrared light isn't drowned out by heat.",
+    "task": {
+      "title": "Observe 8 targets!",
+      "help": "Webb can only look where it's green. Tap a target when it's in a green zone."
+    }
   },
 
   "firstImages": {
@@ -582,15 +597,11 @@
 
   "deepField": {
     "intro": [
-      "This is Webb's First Deep Field: the real picture! Almost every dot in it is a galaxy, full of billions of stars.",
-      "Find the things on the list, and tap them in the picture."
+      "This is Webb's First Deep Field: the real picture! Almost every dot in it is a galaxy, full of billions of stars."
     ],
     "image": "https://images-assets.nasa.gov/image/webb_first_deep_field/webb_first_deep_field~medium.jpg",
     "imageAlt": "Webb's First Deep Field",
     "credit": "Image: NASA, ESA, CSA, STScI · Webb's First Deep Field",
-    "panelTitle": "Webb's First Deep Field",
-    "panelText": "Look carefully: stars have spikes, and the galaxies come in all shapes and colours.",
-    "foundLabel": "Found",
     "notThis": "Look closer! Check the list for what to find.",
     "noImage": "The picture couldn't load. Check your internet connection.",
     "targets": [
@@ -599,46 +610,52 @@
         "x": 538,
         "y": 488,
         "r": 45,
-        "fact": "This is a star in our own galaxy. Its six big spikes come from the shape of Webb's hexagon mirrors."
+        "fact": "This is a star in our own galaxy. Its six big spikes come from the shape of Webb's hexagon mirrors.",
+        "ask": "Find a bright star with six big spikes!"
       },
       {
         "name": "A galaxy stretched into an arc",
         "x": 640,
         "y": 572,
         "r": 40,
-        "fact": "The huge cluster of galaxies in the middle bends light like a magnifying glass, stretching faraway galaxies into arcs. It's called gravitational lensing."
+        "fact": "The huge cluster of galaxies in the middle bends light like a magnifying glass, stretching faraway galaxies into arcs. It's called gravitational lensing.",
+        "ask": "Find a galaxy stretched into an arc!"
       },
       {
         "name": "A spiral galaxy",
         "x": 1072,
         "y": 490,
         "r": 45,
-        "fact": "A spiral galaxy, a bit like our own Milky Way. Its light set off billions of years ago."
+        "fact": "A spiral galaxy, a bit like our own Milky Way. Its light set off billions of years ago.",
+        "ask": "Find a spiral galaxy!"
       },
       {
         "name": "The big cluster of galaxies",
         "x": 648,
         "y": 655,
         "r": 60,
-        "fact": "This bright group is a huge cluster of galaxies called SMACS 0723. We see it as it was 4.6 billion years ago."
+        "fact": "This bright group is a huge cluster of galaxies called SMACS 0723. We see it as it was 4.6 billion years ago.",
+        "ask": "Find the big cluster of galaxies!"
       },
       {
         "name": "A red smudge of a galaxy",
         "x": 1022,
         "y": 372,
         "r": 40,
-        "fact": "Many galaxies in this picture look red because they're very far away: their light has been stretched on its long journey."
+        "fact": "Many galaxies in this picture look red because they're very far away: their light has been stretched on its long journey.",
+        "ask": "Find a red smudge of a galaxy!"
       }
     ],
     "doneLine": "You found them all! Scientists study pictures like this to learn how the very first galaxies grew.",
     "resultTitle": "Galaxy hunter!",
-    "resultText": "This picture was Webb's very first full-colour image, shown to the world on July 11, 2022."
+    "resultText": "This picture was Webb's very first full-colour image, shown to the world on July 11, 2022.",
+    "tapHelp": "Look in the picture and tap it."
   },
 
   "spectrum": {
     "intro": [
       "When a planet passes in front of its star, a little starlight shines through the planet's air. Each gas blocks its own colours of light, leaving bumps like a barcode.",
-      "Tap a gas to see its lines on the chart. Pick the gas whose lines sit on the bumps, then press \"That's it!\"."
+      "Tap a gas to see its lines on the chart. Pick the gas whose lines sit on the bumps, then press \"That's it!\""
     ],
     "yLabel": "Light blocked",
     "xLabel": "Colour of light (wavelength, in microns)",
@@ -649,8 +666,6 @@
       "methane": "Methane (CH₄)",
       "sodium": "Sodium (Na)"
     },
-    "tooFew": "Some bumps still have no gas to explain them.",
-    "notMatch": "Look again: a gas's lines must sit on bumps, and every bump needs a gas.",
     "rounds": [
       {
         "title": "WASP-96 b (2022)",
@@ -692,7 +707,10 @@
     ],
     "doneLine": "Webb can read the air of planets around other stars. One day, telescopes like it might help us find a world with air like Earth's!",
     "resultTitle": "Planet chemist!",
-    "resultText": "Every gas leaves its own barcode in starlight. That's how we can tell what a planet's air is made of without ever going there."
+    "resultText": "Every gas leaves its own barcode in starlight. That's how we can tell what a planet's air is made of without ever going there.",
+    "taskTitle": "Read the planet's air!",
+    "needMore": "Some bumps still have no gas to explain them.",
+    "lookAgain": "Look again: a gas's lines must sit on bumps, and every bump needs a gas."
   },
 
   "whatNext": {

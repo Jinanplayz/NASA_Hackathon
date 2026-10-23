@@ -2,11 +2,10 @@ import Phaser from 'phaser';
 import { W, H, FULL, COLORS, CSS, DEPTH, TEX, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
-import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { img } from '../../art/core.js';
 import { txt } from '../../ui/text.js';
-import { toast, dialog, drawPanel, floatText } from '../../ui/widgets.js';
+import { toast, dialog, floatText, roundBox } from '../../ui/widgets.js';
 
 // Fly Helicopter 66 over a foggy ocean and home in on the capsule's radio beacon.
 const FOG_SCALE = 5;
@@ -44,8 +43,7 @@ export class RescueScene extends BaseScene {
 
     // direction finder arrow & signal meter
     this.arrow = this.add.graphics().setDepth(60);
-    const pg = this.add.graphics().setDepth(DEPTH.hud);
-    drawPanel(pg, W - 250, H - 130, 230, 110, { fill: 0x070b1d, alpha: 0.85, radius: 16 });
+    const pg = roundBox(this, W - 250, H - 130, 230, 110, { fill: 0x070b1d, alpha: 0.85, radius: 16 }).setDepth(DEPTH.hud);
     txt(this, W - 230, H - 118, this.T('signal', 'Signal'), { size: 16, weight: 800, color: CSS.cyan, scale: false }).setDepth(DEPTH.hud);
     this.bars = this.add.graphics().setDepth(DEPTH.hud);
     this.distText = txt(this, W - 36, H - 118, '', { size: 14, color: CSS.dim, origin: [1, 0], scale: false }).setDepth(DEPTH.hud);

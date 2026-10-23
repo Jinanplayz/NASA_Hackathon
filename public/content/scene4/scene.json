@@ -27,7 +27,10 @@
         "year": "1970",
         "heading": "Back to the Moon",
         "text": "In April 1970, Apollo 13 set off to be the third mission to land people on the Moon. Its landing spot was a hilly area called Fra Mauro.",
-        "image": { "src": "https://images-assets.nasa.gov/image/S69-60662/S69-60662~medium.jpg", "alt": "The Apollo 13 mission emblem: three horses racing towards the Moon" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/S69-60662/S69-60662~medium.jpg",
+          "alt": "The Apollo 13 mission emblem: three horses racing towards the Moon"
+        },
         "credit": "Image: NASA · The Apollo 13 emblem. Its motto means 'From the Moon, knowledge'.",
         "visual": "tripToMoon"
       },
@@ -35,7 +38,10 @@
         "year": "1970",
         "heading": "The crew",
         "text": "The crew: Commander Jim Lovell, Command Module Pilot Jack Swigert, and Lunar Module Pilot Fred Haise.",
-        "image": { "src": "https://images-assets.nasa.gov/image/S70-36485/S70-36485~medium.jpg", "alt": "The three Apollo 13 astronauts in their spacesuits" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/S70-36485/S70-36485~medium.jpg",
+          "alt": "The three Apollo 13 astronauts in their spacesuits"
+        },
         "credit": "Photo: NASA · Lovell, Swigert and Haise",
         "visual": "a13Crew"
       },
@@ -75,26 +81,54 @@
 
   "simulator": {
     "intro": [
-      "Jack Swigert had only a few days to get ready! He trained for hours in the simulator, a copy of the spaceship here on Earth.",
-      "Watch which switches light up, then press them in the same order. Each round gets a little longer. You can also use the keys 1 to 6."
+      "Jack Swigert had only a few days to get ready! He trained in the simulator, a copy of the spaceship here on Earth."
     ],
     "panelTitle": "COMMAND MODULE SIMULATOR",
     "switches": [
-      { "label": "FUEL CELL", "color": "#3ddc97" },
-      { "label": "O2 FANS", "color": "#4fd1ff" },
-      { "label": "RADIO", "color": "#ffd166" },
-      { "label": "GUIDANCE", "color": "#a78bfa" },
-      { "label": "THRUSTERS", "color": "#ff9f43" },
-      { "label": "BATTERY", "color": "#ff7eb6" }
+      {
+        "label": "FUEL CELL",
+        "color": "#3ddc97"
+      },
+      {
+        "label": "O2 FANS",
+        "color": "#4fd1ff"
+      },
+      {
+        "label": "RADIO",
+        "color": "#ffd166"
+      },
+      {
+        "label": "GUIDANCE",
+        "color": "#a78bfa"
+      },
+      {
+        "label": "THRUSTERS",
+        "color": "#ff9f43"
+      },
+      {
+        "label": "BATTERY",
+        "color": "#ff7eb6"
+      }
     ],
-    "rounds": [3, 4, 5, 6],
+    "rounds": [
+      3,
+      4,
+      5,
+      6
+    ],
     "roundLabel": "Round",
-    "watch": "Watch closely...",
-    "yourTurn": "Your turn!",
     "oops": "Oops! Watch again.",
     "roundDone": "Perfect!",
     "resultTitle": "Ready to fly!",
-    "resultText": "Great memory! Astronauts practise every step in simulators until they know it by heart. Soon, all that practice would help save the crew."
+    "resultText": "Great memory! Astronauts practise every step in simulators until they know it by heart. Soon, all that practice would help save the crew.",
+    "watchTask": {
+      "title": "Watch the lights!",
+      "help": "Remember the order the switches light up in."
+    },
+    "copyTask": {
+      "title": "Your turn!",
+      "help": "Press the switches in the same order."
+    }
   },
 
   "stackReveal": {
@@ -102,10 +136,22 @@
     "title": "Odyssey & Aquarius",
     "subtitle": "Apollo 13's two spaceships, joined nose to nose",
     "stats": [
-      { "label": "Command Module 'Odyssey'", "value": "Home for the three astronauts, with the heat shield for coming home" },
-      { "label": "Service Module", "value": "The main engine, oxygen tanks, fuel cells and power" },
-      { "label": "Lunar Module 'Aquarius'", "value": "Built to carry two astronauts down to the Moon" },
-      { "label": "Launch", "value": "April 11, 1970 · Saturn V rocket" }
+      {
+        "label": "Command Module 'Odyssey'",
+        "value": "Home for the three astronauts, with the heat shield for coming home"
+      },
+      {
+        "label": "Service Module",
+        "value": "The main engine, oxygen tanks, fuel cells and power"
+      },
+      {
+        "label": "Lunar Module 'Aquarius'",
+        "value": "Built to carry two astronauts down to the Moon"
+      },
+      {
+        "label": "Launch",
+        "value": "April 11, 1970 · Saturn V rocket"
+      }
     ],
     "line": "Here are Odyssey and Aquarius, docked together. Remember the oxygen tanks inside the service module: they will matter very soon!",
     "continue": "Launch!"
@@ -113,25 +159,35 @@
 
   "stageBurn": {
     "intro": [
-      "Apollo 13 rides a Saturn V rocket up to orbit. Five engines push the second stage.",
-      "Hold the BURN button to fire the engines. Let go when the speed needle is inside the green zone. Watch out: something unexpected is about to happen!"
+      "Apollo 13 rides a giant Saturn V rocket up to orbit. Its engines need to burn for just the right time. Watch out: something unexpected is about to happen!"
     ],
     "speedLabel": "Speed",
     "burnLabel": "BURN",
-    "targetLabel": "Go!",
-    "plannedLabel": "Planned cutoff",
+    "targetLabel": "Let go here!",
     "stages": [
-      { "name": "Stage 2", "engines": 5, "engineOut": true },
-      { "name": "Stage 3", "engines": 1 }
+      {
+        "name": "Stage 2",
+        "engines": 5,
+        "engineOut": true
+      },
+      {
+        "name": "Stage 3",
+        "engines": 1
+      }
     ],
     "engineOut": "The centre engine shut down early! It was shaking too much. Keep the other four burning longer!",
-    "early": "Not fast enough yet! Hold BURN again.",
     "over": "A little too fast! Try to let go inside the green zone.",
     "stage2Done": "The four engines burned 34 seconds longer than planned to make up for it. Stage 2 drops away!",
-    "stage3Intro": "Now the third stage. It also needs to burn a little longer than planned. Hold BURN!",
+    "stage3Intro": "Now the third stage takes over. Hold BURN again, and let go in the green zone!",
     "stage3Done": "In orbit! The third stage burned 9 seconds longer, and Apollo 13 was right on track.",
     "resultTitle": "Safe in orbit!",
-    "resultText": "Rockets carry extra fuel so they can fix surprises like this one. Apollo 13 was back on track and heading for the Moon..."
+    "resultText": "Rockets carry extra fuel so they can fix surprises like this one. Apollo 13 was back on track and heading for the Moon...",
+    "task": {
+      "title": "Hold BURN!",
+      "help": "Let go when the speed bar reaches the green zone."
+    },
+    "enginesLabel": "Engines",
+    "tooSoon": "Not fast enough yet! Hold BURN again."
   },
 
   "problem": {
@@ -151,7 +207,10 @@
         "heading": "\"Houston, we've had a problem.\"",
         "text": "Jack Swigert radioed: 'Okay, Houston, we've had a problem here.' Jim Lovell repeated it: 'Houston, we've had a problem.' In Mission Control, warning lights started flashing.",
         "speak": "Jack Swigert radioed: Okay, Houston, we've had a problem here. Jim Lovell repeated it: Houston, we've had a problem. In Mission Control, warning lights started flashing.",
-        "image": { "src": "https://images-assets.nasa.gov/image/S70-34902/S70-34902~medium.jpg", "alt": "Flight controllers at their consoles in Mission Control" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/S70-34902/S70-34902~medium.jpg",
+          "alt": "Flight controllers at their consoles in Mission Control"
+        },
         "credit": "Photo: NASA · Mission Control during the Apollo 13 emergency",
         "visual": "controlRoom"
       },
@@ -171,121 +230,318 @@
 
   "diagnose": {
     "intro": [
-      "Mission Control is full of gauges. Most still read normally, but some show big trouble!",
-      "Tap every gauge that looks wrong: reading zero, falling fast or flashing red. If you tap one that's fine, I'll tell you why."
+      "Mission Control is full of gauges. Most still read normally, but some show big trouble! Let's find out what went wrong."
     ],
     "consoleTitle": "ELECTRICAL & ENVIRONMENT CONSOLE",
-    "foundLabel": "Problems found",
-    "panelTitle": "Clues",
+    "foundLabel": "Found",
+    "panelTitle": "What it means",
     "panelHint": "Tap a gauge to check it.",
     "fineTitle": "This one is OK",
     "badTitle": "Problem found!",
     "gauges": [
-      { "id": "o2t2", "name": "Oxygen tank 2", "bad": true, "kind": "zero", "why": "It reads zero! Tank 2 exploded and all of its oxygen is gone." },
-      { "id": "o2t1", "name": "Oxygen tank 1", "bad": true, "kind": "falling", "why": "It is dropping fast. Tank 1 was damaged by the explosion and is leaking." },
-      { "id": "h2", "name": "Hydrogen tanks", "bad": false, "why": "The hydrogen is fine. The trouble is with the oxygen." },
-      { "id": "cabin", "name": "Cabin pressure", "bad": false, "why": "The cabin is fine. The leak is outside it, in the service module." },
-      { "id": "water", "name": "Water", "bad": false, "why": "There is enough water for now." },
-      { "id": "fc1", "name": "Fuel cell 1", "bad": true, "kind": "zero", "why": "Dead! Fuel cells make electricity from oxygen and hydrogen. No oxygen, no electricity." },
-      { "id": "fc2", "name": "Fuel cell 2", "bad": false, "why": "Still working, for now. It runs on the oxygen leaking out of tank 1." },
-      { "id": "fc3", "name": "Fuel cell 3", "bad": true, "kind": "zero", "why": "Dead too. Two of Odyssey's three power makers have stopped." },
-      { "id": "busA", "name": "Power line A", "bad": false, "why": "Still OK, powered by the last working fuel cell." },
-      { "id": "busB", "name": "Power line B", "bad": true, "kind": "flash", "why": "Low voltage! The power supply to half of Odyssey's equipment has dropped." }
+      {
+        "id": "o2t2",
+        "name": "Oxygen tank 2",
+        "bad": true,
+        "kind": "zero",
+        "why": "It reads zero! Tank 2 exploded and all of its oxygen is gone."
+      },
+      {
+        "id": "o2t1",
+        "name": "Oxygen tank 1",
+        "bad": true,
+        "kind": "falling",
+        "why": "It is dropping fast. Tank 1 was damaged by the explosion and is leaking."
+      },
+      {
+        "id": "h2",
+        "name": "Hydrogen tanks",
+        "bad": false,
+        "why": "The hydrogen is fine. The trouble is with the oxygen."
+      },
+      {
+        "id": "cabin",
+        "name": "Cabin pressure",
+        "bad": false,
+        "why": "The cabin is fine. The leak is outside it, in the service module."
+      },
+      {
+        "id": "water",
+        "name": "Water",
+        "bad": false,
+        "why": "There is enough water for now."
+      },
+      {
+        "id": "fc1",
+        "name": "Fuel cell 1",
+        "bad": true,
+        "kind": "zero",
+        "why": "Dead! Fuel cells make electricity from oxygen and hydrogen. No oxygen, no electricity."
+      },
+      {
+        "id": "fc2",
+        "name": "Fuel cell 2",
+        "bad": false,
+        "why": "Still working, for now. It runs on the oxygen leaking out of tank 1."
+      },
+      {
+        "id": "fc3",
+        "name": "Fuel cell 3",
+        "bad": true,
+        "kind": "zero",
+        "why": "Dead too. Two of Odyssey's three power makers have stopped."
+      },
+      {
+        "id": "busA",
+        "name": "Power line A",
+        "bad": false,
+        "why": "Still OK, powered by the last working fuel cell."
+      },
+      {
+        "id": "busB",
+        "name": "Power line B",
+        "bad": true,
+        "kind": "flash",
+        "why": "Low voltage! The power supply to half of Odyssey's equipment has dropped."
+      }
     ],
     "doneLine": "You found every problem! The oxygen is leaking away and the fuel cells are dying, so Odyssey will soon run out of power. The crew must move into Aquarius and use it as a lifeboat!",
     "resultTitle": "Problem found!",
-    "resultText": "Reading the gauges told Mission Control exactly what was wrong. Next: the lifeboat plan."
+    "resultText": "Reading the gauges told Mission Control exactly what was wrong. Next: the lifeboat plan.",
+    "task": {
+      "title": "Find the 5 broken gauges!",
+      "help": "Tap gauges that read zero, drop fast or flash red."
+    }
   },
 
   "lifeboat": {
     "intro": [
-      "Odyssey is running out of power. The crew must move into Aquarius, the lunar module, and use it as a lifeboat.",
-      "First, copy Odyssey's guidance numbers into Aquarius's computer, so it knows which way it's pointing. Then send the important things through the tunnel and switch Odyssey off before its power runs out!"
+      "Odyssey is running out of power! The crew must move into Aquarius, the lunar module, and use it as a lifeboat. Be quick: Odyssey's power is draining away."
     ],
-    "powerLabel": "Odyssey power left",
+    "powerLabel": "Power",
     "odysseyLabel": "Odyssey",
     "aquariusLabel": "Aquarius",
     "tunnelLabel": "Tunnel",
-    "copyTitle": "1. Copy the guidance numbers",
-    "copyHint": "Drag each number to the matching box on Aquarius's computer.",
     "angles": [
-      { "axis": "Roll", "value": "012" },
-      { "axis": "Pitch", "value": "247" },
-      { "axis": "Yaw", "value": "355" }
+      {
+        "axis": "Roll",
+        "value": "012"
+      },
+      {
+        "axis": "Pitch",
+        "value": "247"
+      },
+      {
+        "axis": "Yaw",
+        "value": "355"
+      }
     ],
     "copyDone": "Copied! Jim Lovell really worked out these numbers by hand, with a pencil.",
-    "moveTitle": "2. Move to Aquarius",
-    "moveHint": "Drag the things the crew needs into Aquarius.",
     "items": [
-      { "id": "crew", "key": "liCrew", "name": "The crew", "correct": true, "info": "Three astronauts in a lander built for two." },
-      { "id": "checklists", "key": "liChecklist", "name": "Checklists", "correct": true, "info": "Step-by-step instructions for every job." },
-      { "id": "food", "key": "liFood", "name": "Food", "correct": true, "info": "Packed meals. The crew ate very little, because it was so cold." },
-      { "id": "water", "key": "liWater", "name": "Drinking water", "correct": true, "info": "Water was very short. The crew drank as little as they could." },
-      { "id": "filters", "key": "liFilter", "name": "Square air filters", "correct": true, "info": "Odyssey's square carbon dioxide filters. They'll be very important later!" },
-      { "id": "flashlights", "key": "liFlashlight", "name": "Flashlights", "correct": true, "info": "With most lights switched off, flashlights helped the crew see." },
-      { "id": "heatShield", "key": "liShield", "name": "Heat shield", "correct": false, "why": "The heat shield is part of Odyssey. It has to stay there to protect the crew on the way home!" },
-      { "id": "parachutes", "key": "liChute", "name": "Parachutes", "correct": false, "why": "Odyssey's parachutes stay packed in Odyssey, ready for splashdown." },
-      { "id": "rockBoxes", "key": "liRockBox", "name": "Moon rock boxes", "correct": false, "why": "There won't be a Moon landing now, so the rock boxes can stay behind." }
+      {
+        "id": "crew",
+        "key": "liCrew",
+        "name": "The crew",
+        "correct": true,
+        "info": "Three astronauts in a lander built for two."
+      },
+      {
+        "id": "checklists",
+        "key": "liChecklist",
+        "name": "Checklists",
+        "correct": true,
+        "info": "Step-by-step instructions for every job."
+      },
+      {
+        "id": "food",
+        "key": "liFood",
+        "name": "Food",
+        "correct": true,
+        "info": "Packed meals. The crew ate very little, because it was so cold."
+      },
+      {
+        "id": "water",
+        "key": "liWater",
+        "name": "Drinking water",
+        "correct": true,
+        "info": "Water was very short. The crew drank as little as they could."
+      },
+      {
+        "id": "filters",
+        "key": "liFilter",
+        "name": "Square air filters",
+        "correct": true,
+        "info": "Odyssey's square carbon dioxide filters. They'll be very important later!"
+      },
+      {
+        "id": "flashlights",
+        "key": "liFlashlight",
+        "name": "Flashlights",
+        "correct": true,
+        "info": "With most lights switched off, flashlights helped the crew see."
+      },
+      {
+        "id": "heatShield",
+        "key": "liShield",
+        "name": "Heat shield",
+        "correct": false,
+        "why": "The heat shield is part of Odyssey. It has to stay there to protect the crew on the way home!"
+      },
+      {
+        "id": "parachutes",
+        "key": "liChute",
+        "name": "Parachutes",
+        "correct": false,
+        "why": "Odyssey's parachutes stay packed in Odyssey, ready for splashdown."
+      },
+      {
+        "id": "rockBoxes",
+        "key": "liRockBox",
+        "name": "Moon rock boxes",
+        "correct": false,
+        "why": "There won't be a Moon landing now, so the rock boxes can stay behind."
+      }
     ],
     "shutdownLabel": "Power down Odyssey",
-    "shutdownHint": "Everything's moved! Now switch Odyssey off to save its batteries for the trip home.",
     "outOfPower": "Odyssey's power ran very low! Hurry, power it down now.",
     "doneLine": "Odyssey is asleep and Aquarius is now a lifeboat. But Aquarius was built for two people for about two days, and now it must keep three people alive for about four days!",
     "resultTitle": "Into the lifeboat!",
-    "resultText": "Odyssey's batteries are saved for re-entry. Now Aquarius has to make its power last..."
+    "resultText": "Odyssey's batteries are saved for re-entry. Now Aquarius has to make its power last...",
+    "stepLabel": "Step",
+    "copyTask": {
+      "title": "Copy the numbers!",
+      "help": "Drag each number into the box with the same name."
+    },
+    "moveTask": {
+      "title": "Move to Aquarius!",
+      "help": "Drag the things the crew needs into Aquarius."
+    },
+    "offTask": {
+      "title": "Power down Odyssey!",
+      "help": "Press the red button to save its batteries for the trip home."
+    }
   },
 
   "powerDown": {
     "intro": [
       "Aquarius's batteries must last all the way home: about 90 hours! With everything switched on, they would run out much sooner.",
-      "Switch OFF everything the crew can live without, but keep them alive! Watch the battery meter: it must reach the green line."
+      "The switches with a gold border keep the crew alive. Leave those on!"
     ],
     "capacity": 1000,
     "hoursNeeded": 90,
     "meterLabel": "Battery will last",
     "needLabel": "Needed to get home",
     "hoursUnit": "hours",
-    "onLabel": "ON",
-    "offLabel": "OFF",
     "doneLabel": "Ready",
     "dangerTitle": "The crew needs this!",
     "systems": [
-      { "id": "radio", "name": "Radio to Houston", "cost": 2, "essential": true, "offWarn": "Without the radio, the crew can't hear Mission Control's plan to get them home!" },
-      { "id": "oxygen", "name": "Oxygen & air fans", "cost": 4, "essential": true, "offWarn": "Without fresh oxygen flowing, the crew can't breathe!" },
-      { "id": "co2", "name": "Air filter fans", "cost": 2, "essential": true, "offWarn": "These fans push the air through the filters that clean out carbon dioxide. Keep them on!" },
-      { "id": "computer", "name": "Guidance computer", "cost": 6, "fact": "Off! It was switched on only when the engine had to fire." },
-      { "id": "heaters", "name": "Cabin heaters", "cost": 5, "fact": "Off. It got as cold as a fridge inside: about 3 °C (38 °F)." },
-      { "id": "lights", "name": "Cabin lights", "cost": 2, "fact": "Off. The crew used flashlights instead." },
-      { "id": "rendezvous", "name": "Rendezvous radar", "cost": 4, "fact": "Off. It was meant for meeting up with Odyssey after the Moon landing." },
-      { "id": "landingRadar", "name": "Landing radar", "cost": 4, "fact": "Off. There would be no landing now." },
-      { "id": "tv", "name": "TV camera", "cost": 3, "fact": "Off. No TV shows on the way home!" },
-      { "id": "windowHeat", "name": "Window heaters", "cost": 2, "fact": "Off. The windows fogged up and frosted over." },
-      { "id": "displays", "name": "Panel displays", "cost": 2, "fact": "Mostly off. Only the most important gauges stayed lit." }
+      {
+        "id": "radio",
+        "name": "Radio to Houston",
+        "cost": 2,
+        "essential": true,
+        "offWarn": "Without the radio, the crew can't hear Mission Control's plan to get them home!"
+      },
+      {
+        "id": "oxygen",
+        "name": "Oxygen & air fans",
+        "cost": 4,
+        "essential": true,
+        "offWarn": "Without fresh oxygen flowing, the crew can't breathe!"
+      },
+      {
+        "id": "co2",
+        "name": "Air filter fans",
+        "cost": 2,
+        "essential": true,
+        "offWarn": "These fans push the air through the filters that clean out carbon dioxide. Keep them on!"
+      },
+      {
+        "id": "computer",
+        "name": "Guidance computer",
+        "cost": 6,
+        "fact": "Off! It was switched on only when the engine had to fire."
+      },
+      {
+        "id": "heaters",
+        "name": "Cabin heaters",
+        "cost": 5,
+        "fact": "Off. It got as cold as a fridge inside: about 3 °C (38 °F)."
+      },
+      {
+        "id": "lights",
+        "name": "Cabin lights",
+        "cost": 2,
+        "fact": "Off. The crew used flashlights instead."
+      },
+      {
+        "id": "rendezvous",
+        "name": "Rendezvous radar",
+        "cost": 4,
+        "fact": "Off. It was meant for meeting up with Odyssey after the Moon landing."
+      },
+      {
+        "id": "landingRadar",
+        "name": "Landing radar",
+        "cost": 4,
+        "fact": "Off. There would be no landing now."
+      },
+      {
+        "id": "tv",
+        "name": "TV camera",
+        "cost": 3,
+        "fact": "Off. No TV shows on the way home!"
+      },
+      {
+        "id": "windowHeat",
+        "name": "Window heaters",
+        "cost": 2,
+        "fact": "Off. The windows fogged up and frosted over."
+      },
+      {
+        "id": "displays",
+        "name": "Panel displays",
+        "cost": 2,
+        "fact": "Mostly off. Only the most important gauges stayed lit."
+      }
     ],
     "notEnough": "Not enough power to get home yet! Switch off more things.",
     "doneLine": "That's enough power to get home! The crew switched off almost everything. It was cold, dark and damp, but they were alive.",
     "resultTitle": "Power saved!",
-    "resultText": "With almost everything switched off, Aquarius's batteries could last all the way back to Earth."
+    "resultText": "With almost everything switched off, Aquarius's batteries could last all the way back to Earth.",
+    "task": {
+      "title": "Switch things off!",
+      "help": "Turn off what the crew can live without, until the battery reaches the green line."
+    }
   },
 
   "freeReturn": {
     "intro": [
-      "The crew can't just turn around: they're moving much too fast. The plan is to swing around the Moon and let its gravity throw them back towards Earth!",
-      "Drag from the spaceship to aim the engine burn. The dotted line shows where you'll go. Make it loop around the Moon and come back to the green zone at Earth. Then press BURN!"
+      "The crew can't just turn around: they're moving much too fast! The plan is to swing around the Moon and let its gravity throw them back towards Earth."
     ],
     "burnLabel": "BURN",
-    "aimHint": "Drag from the ship to aim",
     "zoneLabel": "Safe way in",
-    "hitMoon": "That path hits the Moon! Aim to pass a little farther away.",
-    "lost": "That path flies off into space! Aim so the Moon swings you back.",
-    "missEarth": "So close! The path has to come back into the green zone at Earth.",
-    "good": "That's a free-return path! The Moon's gravity will swing Apollo 13 home.",
-    "flying": "Swinging around the Moon...",
-    "secondBurnIntro": "Two hours after passing the Moon, Mission Control asked for one more burn, to get home sooner. Press BURN when the ship reaches the yellow marker!",
-    "secondEarly": "A bit early! Wait for the marker.",
+    "hitMoon": "That path hits the Moon! Keep sliding.",
+    "lost": "That path flies off into space! Keep sliding.",
+    "missEarth": "So close! The path must come back to the green zone at Earth.",
+    "secondEarly": "A bit early! Wait until the ship reaches the yellow circle.",
     "secondGood": "Perfect timing! That burn made the trip home about 10 hours shorter.",
     "resultTitle": "On the way home!",
-    "resultText": "This path is called a free return: it uses the Moon's gravity like a slingshot. The real burns used Aquarius's landing engine."
+    "resultText": "This path is called a free return: it uses the Moon's gravity like a slingshot. The real burns used Aquarius's landing engine.",
+    "aimLabel": "Aim",
+    "aimTask": {
+      "title": "Aim for home!",
+      "help": "Slide to aim. Make the dotted path loop around the Moon and back to the green zone."
+    },
+    "flyTask": {
+      "title": "Swinging around the Moon...",
+      "help": "Get ready for one more burn after the Moon."
+    },
+    "burn2Task": {
+      "title": "Burn again at the yellow circle!",
+      "help": "Press BURN when the ship reaches the yellow circle. It gets the crew home sooner."
+    },
+    "goodPath": "That's it! The Moon's gravity will swing Apollo 13 home. Press BURN!"
   },
 
   "farSide": {
@@ -294,7 +550,10 @@
         "year": "April 14, 1970",
         "heading": "Behind the Moon",
         "text": "Apollo 13 swung around the far side of the Moon, about 254 km (158 miles) above the surface. For a while the radio went quiet, because the Moon was in the way.",
-        "image": { "src": "https://images-assets.nasa.gov/image/as13-60-8635/as13-60-8635~medium.jpg", "alt": "Craters on the far side of the Moon" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/as13-60-8635/as13-60-8635~medium.jpg",
+          "alt": "Craters on the far side of the Moon"
+        },
         "credit": "Photo: NASA · The Moon's far side, taken by the Apollo 13 crew",
         "visual": "farSidePass"
       },
@@ -306,7 +565,10 @@
       {
         "heading": "The Moon from Apollo 13",
         "text": "The crew took photos of the Moon as they headed back towards Earth. It was as close as they would get.",
-        "image": { "src": "https://images-assets.nasa.gov/image/as13-60-8703/as13-60-8703~medium.jpg", "alt": "A nearly full Moon photographed from Apollo 13" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/as13-60-8703/as13-60-8703~medium.jpg",
+          "alt": "A nearly full Moon photographed from Apollo 13"
+        },
         "credit": "Photo: NASA · The Moon, seen from Apollo 13 on the way home",
         "visual": "farSidePass"
       },
@@ -327,61 +589,118 @@
   "scrubber": {
     "intro": [
       "Carbon dioxide is building up! Aquarius's round air filters are used up, and Odyssey's spare filters are square. They don't fit!",
-      "Engineers on Earth invented a fix using only things on board. Follow their instructions: drag each item onto the filter in the right order, before the meter reaches the red zone."
+      "Engineers on Earth invented a fix using only things on board. Follow their steps, one at a time, before the meter reaches the red zone!"
     ],
     "co2Label": "Carbon dioxide",
     "dangerLabel": "Danger",
-    "listTitle": "Instructions from Houston",
     "trayTitle": "Things on board",
     "steps": [
-      { "item": "filter", "text": "Take a square filter from Odyssey." },
-      { "item": "cardboard", "text": "Add cardboard from a checklist cover, to hold the shape." },
-      { "item": "bag", "text": "Wrap it in a plastic bag." },
-      { "item": "tape", "text": "Seal it with grey tape." },
-      { "item": "hose", "text": "Connect a spacesuit hose, so the fans blow air through it." }
+      {
+        "item": "filter",
+        "text": "Take a square filter from Odyssey."
+      },
+      {
+        "item": "cardboard",
+        "text": "Add cardboard to hold the shape."
+      },
+      {
+        "item": "bag",
+        "text": "Wrap it in a plastic bag."
+      },
+      {
+        "item": "tape",
+        "text": "Seal it with grey tape."
+      },
+      {
+        "item": "hose",
+        "text": "Connect a spacesuit hose."
+      }
     ],
     "items": [
-      { "id": "filter", "key": "scFilter", "name": "Square filter" },
-      { "id": "cardboard", "key": "scCardboard", "name": "Cardboard cover" },
-      { "id": "bag", "key": "scBag", "name": "Plastic bag" },
-      { "id": "tape", "key": "scTape", "name": "Grey tape" },
-      { "id": "hose", "key": "scHose", "name": "Suit hose" },
-      { "id": "round", "key": "scRound", "name": "Round filter", "why": "Those are Aquarius's own round filters, and they're already used up." },
-      { "id": "spoon", "key": "scSpoon", "name": "Spoon", "why": "A spoon can't make an airtight seal!" },
-      { "id": "camera", "key": "scCamera", "name": "Camera", "why": "Great for photos, but no help with the air." }
+      {
+        "id": "filter",
+        "key": "scFilter",
+        "name": "Square filter"
+      },
+      {
+        "id": "cardboard",
+        "key": "scCardboard",
+        "name": "Cardboard cover"
+      },
+      {
+        "id": "bag",
+        "key": "scBag",
+        "name": "Plastic bag"
+      },
+      {
+        "id": "tape",
+        "key": "scTape",
+        "name": "Grey tape"
+      },
+      {
+        "id": "hose",
+        "key": "scHose",
+        "name": "Suit hose"
+      },
+      {
+        "id": "round",
+        "key": "scRound",
+        "name": "Round filter",
+        "why": "Those are Aquarius's own round filters, and they're already used up."
+      },
+      {
+        "id": "spoon",
+        "key": "scSpoon",
+        "name": "Spoon",
+        "why": "A spoon can't make an airtight seal!"
+      },
+      {
+        "id": "camera",
+        "key": "scCamera",
+        "name": "Camera",
+        "why": "Great for photos, but no help with the air."
+      }
     ],
     "wrongStep": "Not yet! Follow the instructions in order.",
     "doneLine": "It worked! The carbon dioxide level started to drop. The crew called it the 'mailbox'. This is the real one, on board Aquarius!",
-    "photo": { "src": "https://images-assets.nasa.gov/image/as13-62-8929/as13-62-8929~medium.jpg", "alt": "The real taped-up air filter on board Apollo 13", "credit": "Photo: NASA · The 'mailbox' on board Aquarius" },
+    "photo": {
+      "src": "https://images-assets.nasa.gov/image/as13-62-8929/as13-62-8929~medium.jpg",
+      "alt": "The real taped-up air filter on board Apollo 13",
+      "credit": "Photo: NASA · The 'mailbox' on board Aquarius"
+    },
     "resultTitle": "Fresh air!",
-    "resultText": "Engineers on the ground built and tested the fix first, then read the instructions to the crew over the radio. Teamwork across 300,000 km!"
+    "resultText": "Engineers on the ground built and tested the fix first, then read the instructions to the crew over the radio. Teamwork across 300,000 km!",
+    "dragHelp": "Drag it onto the filter on the bench."
   },
 
   "manualBurn": {
     "intro": [
-      "To hit the right path into Earth's air, the engine must fire for exactly 14 seconds. But the guidance computer is off to save power!",
-      "So the crew steered by eye. Keep the line between Earth's day side and night side level and on the crosshairs. Use the arrow keys or the buttons. Ready?"
+      "To get home safely, the engine must fire for exactly 14 seconds. But the guidance computer is off to save power!",
+      "So the crew steered by looking out of the window at Earth. Ready?"
     ],
     "burnSeconds": 14,
     "goal": 0.7,
     "relaxedGoal": 0.55,
-    "timerLabel": "Burn",
-    "onTarget": "On target",
-    "offTarget": "Steady...",
+    "timerLabel": "Burn time",
+    "onTarget": "On target!",
     "pitchUp": "Up",
     "pitchDown": "Down",
-    "rollLeft": "Turn",
-    "rollRight": "Turn",
     "countdown": "Burn starts in",
     "tooWobbly": "It wobbled too much! Let's try that burn again.",
     "resultTitle": "Right on target!",
-    "resultText": "You held Earth on the crosshairs {pct}% of the time. Jim Lovell and Fred Haise shared the controls while Jack Swigert timed the burn. It worked perfectly!"
+    "resultText": "Jim Lovell and Fred Haise shared the controls while Jack Swigert timed the burn. It worked perfectly!",
+    "task": {
+      "title": "Keep the line in the green band!",
+      "help": "Use Up and Down to hold the line between day and night in the band."
+    },
+    "pressUp": "Press Up!",
+    "pressDown": "Press Down!"
   },
 
   "powerUp": {
     "intro": [
-      "Almost home! But Odyssey has been cold and dark for days, and its re-entry batteries are low.",
-      "Engineers found a trick: send power backwards, from Aquarius to Odyssey. Tap the cable pieces to turn them, and connect Aquarius's battery to Odyssey's."
+      "Almost home! But Odyssey has been cold and dark for days, and its batteries are low.",
+      "Engineers found a trick: send power backwards, from Aquarius to Odyssey!"
     ],
     "fromLabel": "Aquarius battery",
     "toLabel": "Odyssey battery",
@@ -390,7 +709,11 @@
     "levelDone": "Connected! Power is flowing into Odyssey.",
     "fact": "Engineers and astronaut Ken Mattingly spent days in the simulator, writing a brand-new checklist so Odyssey could wake up using very little power.",
     "resultTitle": "Odyssey is awake!",
-    "resultText": "Odyssey's batteries were charged up, and the new checklist worked. The crew was ready to come home."
+    "resultText": "Odyssey's batteries were charged up, and the new checklist worked. The crew was ready to come home.",
+    "task": {
+      "title": "Connect the batteries!",
+      "help": "Tap a cable piece to turn it. Make the power flow all the way to Odyssey."
+    }
   },
 
   "goodbye": {
@@ -400,7 +723,10 @@
         "heading": "Goodbye, service module",
         "text": "Hours before landing, the crew let the service module go. As it drifted away, they finally saw the damage. Jim Lovell said: 'There's one whole side of that spacecraft missing!'",
         "speak": "Hours before landing, the crew let the service module go. As it drifted away, they finally saw the damage. Jim Lovell said: There's one whole side of that spacecraft missing!",
-        "image": { "src": "https://images-assets.nasa.gov/image/7010516/7010516~medium.jpg", "alt": "The damaged service module, with one whole panel blown off" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/7010516/7010516~medium.jpg",
+          "alt": "The damaged service module, with one whole panel blown off"
+        },
         "credit": "Photo: NASA · The damaged service module, photographed by the crew",
         "visual": "smJettison"
       },
@@ -408,7 +734,10 @@
         "heading": "Farewell, Aquarius",
         "text": "About an hour before re-entry, the crew climbed back into Odyssey and let Aquarius go. Mission Control radioed: 'Farewell, Aquarius, and we thank you.'",
         "speak": "About an hour before re-entry, the crew climbed back into Odyssey and let Aquarius go. Mission Control radioed: Farewell, Aquarius, and we thank you.",
-        "image": { "src": "https://images-assets.nasa.gov/image/AS13-59-8562/AS13-59-8562~medium.jpg", "alt": "The lunar module Aquarius floating away above Earth" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/AS13-59-8562/AS13-59-8562~medium.jpg",
+          "alt": "The lunar module Aquarius floating away above Earth"
+        },
         "credit": "Photo: NASA · Aquarius drifting away",
         "visual": "farewellAquarius"
       },
@@ -439,21 +768,30 @@
         "year": "April 17, 1970",
         "heading": "Splashdown!",
         "text": "Odyssey splashed down safely in the South Pacific Ocean, close to the recovery ship USS Iwo Jima.",
-        "image": { "src": "https://images-assets.nasa.gov/image/s70-35644/s70-35644~medium.jpg", "alt": "The Apollo 13 capsule splashing into the ocean under three parachutes" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/s70-35644/s70-35644~medium.jpg",
+          "alt": "The Apollo 13 capsule splashing into the ocean under three parachutes"
+        },
         "credit": "Photo: NASA · Apollo 13 splashdown",
         "visual": "splashApollo"
       },
       {
         "heading": "Home safe",
         "text": "Lovell, Swigert and Haise were cold, tired and hungry, but alive. All around the world, people cheered.",
-        "image": { "src": "https://images-assets.nasa.gov/image/S70-35614/S70-35614~medium.jpg", "alt": "The Apollo 13 crew stepping onto the deck of the USS Iwo Jima" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/S70-35614/S70-35614~medium.jpg",
+          "alt": "The Apollo 13 crew stepping onto the deck of the USS Iwo Jima"
+        },
         "credit": "Photo: NASA · The crew arrives on the USS Iwo Jima",
         "visual": "splashApollo"
       },
       {
         "heading": "A successful failure",
         "text": "Apollo 13 never landed on the Moon. But thanks to teamwork, clever ideas and calm heads, everyone came home. Jim Lovell called it a 'successful failure'.",
-        "image": { "src": "https://images-assets.nasa.gov/image/S70-35148/S70-35148~medium.jpg", "alt": "People in Mission Control celebrating the safe splashdown" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/S70-35148/S70-35148~medium.jpg",
+          "alt": "People in Mission Control celebrating the safe splashdown"
+        },
         "credit": "Photo: NASA · Mission Control celebrates",
         "visual": "controlRoom"
       }
@@ -463,24 +801,45 @@
 
   "investigation": {
     "intro": [
-      "After the flight, a team of experts found out exactly what went wrong. It wasn't one big mistake: it was a chain of small problems, years apart!",
-      "Drag the cards into the right order, from the first problem to the explosion. A card in the wrong place slides back."
+      "After the flight, experts found out exactly what went wrong. It was not one big mistake: it was a chain of small problems, years apart!"
     ],
-    "pileTitle": "Clues",
-    "chainTitle": "What happened, in order",
     "cards": [
-      { "id": "switch", "text": "The tank's tiny heater switches were made for 28 volts of electricity." },
-      { "id": "drop", "text": "1968: At the factory, the tank was dropped about 5 cm (2 inches). A tube inside was damaged." },
-      { "id": "stuck", "text": "March 1970: In a test, the tank wouldn't empty. Its heater was left on for about 8 hours." },
-      { "id": "melt", "text": "The test used 65 volts. The little switches welded shut, so the heater never turned off." },
-      { "id": "hot", "text": "It got very hot inside, up to about 540 °C (1,000 °F), damaging the coating on the wires." },
-      { "id": "stir", "text": "April 13, 1970: Swigert switched on the fans to stir the tank. A spark from the damaged wires started a fire." },
-      { "id": "boom", "text": "The tank burst and blew a panel off the service module." }
+      {
+        "id": "drop",
+        "art": "ccDrop",
+        "text": "1968: At the factory, the oxygen tank was dropped."
+      },
+      {
+        "id": "heat",
+        "art": "ccHeat",
+        "text": "1970: In a test, its heater was left on for 8 hours."
+      },
+      {
+        "id": "melt",
+        "art": "ccMelt",
+        "text": "The heater got far too hot and burnt the wires inside."
+      },
+      {
+        "id": "spark",
+        "art": "ccSpark",
+        "text": "In space, the fans were switched on. A spark started a fire."
+      },
+      {
+        "id": "boom",
+        "art": "ccBoom",
+        "text": "The tank burst and blew a panel off the spaceship!"
+      }
     ],
     "wrongPlace": "Not quite! Think about what had to happen first.",
     "doneLine": "That's the whole chain! NASA fixed every link: new switches, an extra oxygen tank, no fans inside the tanks and an extra battery. Apollo 14 flew safely to the Moon in 1971.",
     "resultTitle": "Case solved!",
-    "resultText": "Engineers learn from every problem, so the next mission is safer."
+    "resultText": "Engineers learn from every problem, so the next mission is safer.",
+    "task": {
+      "title": "Put the story in order!",
+      "help": "Drag each picture to its spot, from the first problem to the explosion."
+    },
+    "firstLabel": "First",
+    "lastLabel": "Last"
   },
 
   "summary": {
@@ -489,14 +848,36 @@
         "title": "Mission report: Apollo 13",
         "kind": "stats",
         "stats": [
-          { "label": "Launch", "value": "April 11, 1970" },
-          { "label": "Explosion", "value": "April 13, 1970, almost 56 hours into the flight" },
-          { "label": "Farthest from Earth", "value": "400,171 km (248,655 miles)" },
-          { "label": "Splashdown", "value": "April 17, 1970, South Pacific Ocean" },
-          { "label": "Whole mission", "value": "5 days, 22 hours, 54 minutes" },
-          { "label": "Crew", "value": "Jim Lovell, Jack Swigert, Fred Haise" }
+          {
+            "label": "Launch",
+            "value": "April 11, 1970"
+          },
+          {
+            "label": "Explosion",
+            "value": "April 13, 1970, almost 56 hours into the flight"
+          },
+          {
+            "label": "Farthest from Earth",
+            "value": "400,171 km (248,655 miles)"
+          },
+          {
+            "label": "Splashdown",
+            "value": "April 17, 1970, South Pacific Ocean"
+          },
+          {
+            "label": "Whole mission",
+            "value": "5 days, 22 hours, 54 minutes"
+          },
+          {
+            "label": "Crew",
+            "value": "Jim Lovell, Jack Swigert, Fred Haise"
+          }
         ],
-        "image": { "src": "https://images-assets.nasa.gov/image/S70-35614/S70-35614~medium.jpg", "alt": "The Apollo 13 crew safe on the recovery ship", "credit": "Photo: NASA · The crew, home safe" },
+        "image": {
+          "src": "https://images-assets.nasa.gov/image/S70-35614/S70-35614~medium.jpg",
+          "alt": "The Apollo 13 crew safe on the recovery ship",
+          "credit": "Photo: NASA · The crew, home safe"
+        },
         "fallback": "csmLm",
         "say": "Apollo 13 launched on April 11, 1970. An oxygen tank exploded on April 13, but the crew made it home safely on April 17."
       },
@@ -504,12 +885,36 @@
         "title": "How the crew got home",
         "kind": "timeline",
         "items": [
-          { "year": "Day 1", "name": "Liftoff", "text": "April 11. A bumpy but safe ride to orbit." },
-          { "year": "Day 3", "name": "Explosion", "text": "An oxygen tank bursts. Aquarius becomes a lifeboat." },
-          { "year": "Day 4", "name": "Around the Moon", "text": "A free return, a record distance and the 'mailbox'." },
-          { "year": "Day 5", "name": "Steer by Earth", "text": "A 14-second burn, aimed by hand." },
-          { "year": "Day 6", "name": "Wake up Odyssey", "text": "Power sent back from Aquarius." },
-          { "year": "Day 7", "name": "Splashdown", "text": "April 17. Home safe!" }
+          {
+            "year": "Day 1",
+            "name": "Liftoff",
+            "text": "April 11. A bumpy but safe ride to orbit."
+          },
+          {
+            "year": "Day 3",
+            "name": "Explosion",
+            "text": "An oxygen tank bursts. Aquarius becomes a lifeboat."
+          },
+          {
+            "year": "Day 4",
+            "name": "Around the Moon",
+            "text": "A free return, a record distance and the 'mailbox'."
+          },
+          {
+            "year": "Day 5",
+            "name": "Steer by Earth",
+            "text": "A 14-second burn, aimed by hand."
+          },
+          {
+            "year": "Day 6",
+            "name": "Wake up Odyssey",
+            "text": "Power sent back from Aquarius."
+          },
+          {
+            "year": "Day 7",
+            "name": "Splashdown",
+            "text": "April 17. Home safe!"
+          }
         ],
         "say": "Day by day, the crew and Mission Control solved one problem after another, until Odyssey splashed down safely."
       },
@@ -517,10 +922,26 @@
         "title": "What Apollo 13 taught us",
         "kind": "tech",
         "items": [
-          { "name": "Teamwork", "icon": "team", "text": "Thousands of people on the ground solved problems in hours that would normally take weeks." },
-          { "name": "Safer spaceships", "icon": "tank", "text": "Later Apollo ships got an extra oxygen tank, an extra battery and safer wiring." },
-          { "name": "Practice and checklists", "icon": "checklist", "text": "Hours in simulators helped engineers write brand-new checklists in just days." },
-          { "name": "Never give up", "icon": "heart", "text": "Even when things went wrong, everyone kept calm and kept working until the crew was home." }
+          {
+            "name": "Teamwork",
+            "icon": "team",
+            "text": "Thousands of people on the ground solved problems in hours that would normally take weeks."
+          },
+          {
+            "name": "Safer spaceships",
+            "icon": "tank",
+            "text": "Later Apollo ships got an extra oxygen tank, an extra battery and safer wiring."
+          },
+          {
+            "name": "Practice and checklists",
+            "icon": "checklist",
+            "text": "Hours in simulators helped engineers write brand-new checklists in just days."
+          },
+          {
+            "name": "Never give up",
+            "icon": "heart",
+            "text": "Even when things went wrong, everyone kept calm and kept working until the crew was home."
+          }
         ],
         "say": "Apollo 13 taught us about teamwork, careful engineering and practice, and about never giving up."
       }

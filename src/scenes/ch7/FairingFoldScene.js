@@ -3,7 +3,7 @@ import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { blueprint } from '../common/bg.js';
-import { playIntro, finishGame, starsFor, InfoPanel } from '../common/kit.js';
+import { playIntro, finishGame, starsFor, InfoPanel, GoalBar, idleHint } from '../common/kit.js';
 import { WebbDiagram, PARTS } from '../common/webbDiagram.js';
 import { txt } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
@@ -38,17 +38,31 @@ export class FairingFoldScene extends BaseScene {
 
     // the list of parts (the same as tapping the drawing)
     const names = this.T('parts', {});
-    this.info = new InfoPanel(this, 780, 96, 460, 170, { title: this.T('panelTitle', 'Fold it up!'), text: this.T('panelText', ''), size: 17 });
+    this.info = new InfoPanel(this, 780, 176, 460, 150, { title: '', text: '', size: 17 });
+    this.info.g.setVisible(false);
+    this.goal = new GoalBar(this);
     this.btns = ['wings', 'secondary', 'shield', 'tower', 'pallets', 'antenna', 'solar'].map((p, i) => {
-      const b = new Button(this, 895 + (i % 2) * 230, 310 + Math.floor(i / 2) * 76, { width: 216, height: 62, size: 17, label: names[p] || p, variant: 'secondary', onClick: () => this.fold(p) });
+      const b = new Button(this, 895 + (i % 2) * 230, 362 + Math.floor(i / 2) * 76, { width: 216, height: 62, size: 17, label: names[p] || p, variant: 'secondary', onClick: () => this.fold(p) });
       b.part = p;
       return b;
     });
-    this.fitText = txt(this, 1010, 640, '', { size: 18, weight: 800, origin: 0.5, align: 'center', scale: false });
+    this.fitText = txt(this, 1010, 660, '', { size: 20, weight: 800, origin: 0.5, align: 'center', scale: false });
     this.updateFit();
+    // stuck? point at a part that can fold now
+    idleHint(this, () => {
+      if (this.state !== 'play' || this.busy) return null;
+      const b = this.btns.find((k) => this.webb.f[k.part] < 1 && (NEEDS[k.part] || []).every((p) => this.webb.f[p] >= 1));
+      return b ? { x: b.x, y: b.y - 38 } : null;
+    }, { delay: 9000 });
     playIntro(this).then((ok) => {
-      if (ok) this.state = 'play';
+      if (!ok) return;
+      this.state = 'play';
+      this.goal.set(this.T('task', { title: 'Fold Webb up!', help: 'Tap each part to fold it, until Webb fits inside the dashed nose cone.' }), { count: this.countText() });
     });
+  }
+
+  countText() {
+    return `${PARTS.filter((p) => this.webb.f[p] >= 1).length} / ${PARTS.length}`;
   }
 
   drawFairing(close) {
@@ -116,8 +130,13 @@ export class FairingFoldScene extends BaseScene {
     if (b) b.setEnabled(false).setVariant('success');
     this.makeZones();
     this.updateFit();
+    this.goal.setCount(this.countText());
     const facts = this.T('facts', {});
-    if (facts[part]) this.info.show(names[part] || part, facts[part]);
+    if (facts[part]) {
+      this.info.g.setVisible(true);
+      this.info.show(names[part] || part, facts[part]);
+      Speech.say(facts[part]);
+    }
     if (PARTS.every((p) => this.webb.f[p] >= 1)) this.win();
   }
 

@@ -5,7 +5,7 @@ import { BaseScene } from '../BaseScene.js';
 import { blueprint } from '../common/bg.js';
 import { txt, fitText } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
-import { drawPanel, shake } from '../../ui/widgets.js';
+import { shake, roundBox, RoundBox } from '../../ui/widgets.js';
 import { drawIcon } from '../../ui/icons.js';
 
 // Match the Apollo 11 checklist. Any part can be picked, but the rocket only
@@ -28,17 +28,17 @@ export class PartsListScene extends BaseScene {
     this.selected = new Set();
 
     // checklist
-    const lg = this.add.graphics();
-    drawPanel(lg, LX, LY, LW, LH, { fill: 0x0e1840, radius: 22, stroke: COLORS.cyan });
+    const lg = roundBox(this, LX, LY, LW, LH, { fill: 0x0e1840, radius: 22, stroke: COLORS.cyan });
     txt(this, LX + 22, LY + 18, this.T('listTitle', 'Mission checklist'), { size: 24, weight: 800, color: CSS.yellow, scale: false });
     txt(this, LX + 22, LY + 52, this.T('listHint', 'Find these parts:'), { size: 15, color: CSS.dim, scale: false });
     this.listRows = this.correct.map((p, i) => {
       const y = LY + 92 + i * 52;
-      const box = this.add.graphics();
+      const box = this.add.existing(new RoundBox(this));
+      const tick = this.add.graphics();
       const t = txt(this, LX + 64, y, p.name, { size: 18, weight: 600, wrap: LW - 84, scale: false });
       fitText(t, LW - 84, 44, 13);
       t.setY(y + 18 - t.height / 2);
-      return { p, box, t, y };
+      return { p, box, tick, t, y };
     });
     this.drawList();
 
@@ -65,7 +65,7 @@ export class PartsListScene extends BaseScene {
     const x = GX + col * (CW + GAPX) + CW / 2;
     const y = GY + row * (CH + GAPY) + CH / 2;
     const c = this.add.container(x, y);
-    const g = this.add.graphics();
+    const g = new RoundBox(this);
     const im = this.add.image(0, -14, p.card).setScale(0.7 / TEX);
     const name = txt(this, 0, CH / 2 - 22, p.name, { size: 15, weight: 700, origin: 0.5, align: 'center', wrap: CW - 12, scale: false });
     fitText(name, CW - 10, 38, 11);
@@ -84,13 +84,14 @@ export class PartsListScene extends BaseScene {
   drawCard(c, hover = false, state = '') {
     const sel = this.selected.has(c.part.id);
     const g = c.g;
-    g.clear();
-    g.fillStyle(0x000000, 0.3);
-    g.fillRoundedRect(-CW / 2, -CH / 2 + 4, CW, CH, 14);
-    g.fillStyle(state === 'wrong' ? 0x3a1420 : sel ? 0x1b3a6b : hover ? 0x22306b : COLORS.panel, 1);
-    g.fillRoundedRect(-CW / 2, -CH / 2, CW, CH, 14);
-    g.lineStyle(sel || state ? 4 : 2, state === 'wrong' ? COLORS.red : sel ? COLORS.cyan : COLORS.stroke, 1);
-    g.strokeRoundedRect(-CW / 2, -CH / 2, CW, CH, 14);
+    g.draw(-CW / 2, -CH / 2, CW, CH, {
+      fill: state === 'wrong' ? 0x3a1420 : sel ? 0x1b3a6b : hover ? 0x22306b : COLORS.panel,
+      alpha: 1,
+      radius: 14,
+      stroke: state === 'wrong' ? COLORS.red : sel ? COLORS.cyan : COLORS.stroke,
+      strokeWidth: sel || state ? 4 : 2,
+      shadowY: 4
+    });
     c.mark.clear();
     if (state === 'wrong') {
       c.mark.fillStyle(COLORS.red, 1);
@@ -106,12 +107,9 @@ export class PartsListScene extends BaseScene {
   drawList() {
     this.listRows.forEach((r) => {
       const on = this.selected.has(r.p.id);
-      r.box.clear();
-      r.box.fillStyle(on ? COLORS.green : 0x1b275a, 1);
-      r.box.fillRoundedRect(LX + 22, r.y + 4, 30, 30, 8);
-      r.box.lineStyle(2, on ? COLORS.green : COLORS.stroke, 1);
-      r.box.strokeRoundedRect(LX + 22, r.y + 4, 30, 30, 8);
-      if (on) drawIcon(r.box, 'check', LX + 37, r.y + 19, 20, COLORS.bg);
+      r.box.draw(LX + 22, r.y + 4, 30, 30, { fill: on ? COLORS.green : 0x1b275a, alpha: 1, radius: 8, stroke: on ? COLORS.green : COLORS.stroke, shadow: false });
+      r.tick.clear();
+      if (on) drawIcon(r.tick, 'check', LX + 37, r.y + 19, 20, COLORS.bg);
       r.t.setColor(on ? CSS.green : CSS.text);
     });
   }

@@ -6,11 +6,13 @@ import { Sfx } from '../core/Sfx.js';
 import { txt } from './text.js';
 import { Button } from './Button.js';
 import { starPoints } from './icons.js';
+import { roundBox, RoundBox } from './paint.js';
 
+// A panel that only shows itself (options as drawPanel). It's a RoundBox (paint.js), much
+// cheaper than a Graphics; use drawPanel to draw one into a Graphics along with other shapes.
+export { roundBox, RoundBox } from './paint.js';
 export function panel(scene, x, y, w, h, o = {}) {
-  const g = scene.add.graphics();
-  drawPanel(g, x, y, w, h, o);
-  return g;
+  return roundBox(scene, x, y, w, h, o);
 }
 
 export function drawPanel(g, x, y, w, h, o = {}) {
@@ -185,8 +187,9 @@ export class Toggle extends Phaser.GameObjects.Container {
     this.value = value;
     this.onChange = onChange;
     this.enabled = true;
-    this.g = scene.add.graphics();
-    this.add(this.g);
+    this.track = new RoundBox(scene);
+    this.knob = new Phaser.GameObjects.Arc(scene, 0, 0, 17, 0, 360, false, 0xffffff, 1);
+    this.add([this.track, this.knob]);
     this.setSize(84, 44);
     this.setInteractive({ useHandCursor: true });
     this.on('pointerup', () => this.activate());
@@ -201,12 +204,8 @@ export class Toggle extends Phaser.GameObjects.Container {
     if (this.onChange) this.onChange(this.value);
   }
   draw() {
-    const g = this.g;
-    g.clear();
-    g.fillStyle(this.value ? COLORS.green : 0x3a4470, 1);
-    g.fillRoundedRect(-42, -22, 84, 44, 22);
-    g.fillStyle(0xffffff, 1);
-    g.fillCircle(this.value ? 20 : -20, 0, 17);
+    this.track.draw(-42, -22, 84, 44, { fill: this.value ? COLORS.green : 0x3a4470, alpha: 1, radius: 22, stroke: null, shadow: false });
+    this.knob.setX(this.value ? 20 : -20);
   }
   destroy(fromScene) {
     if (this.scene && this.scene.focus) this.scene.focus.remove(this);

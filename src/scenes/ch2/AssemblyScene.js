@@ -5,7 +5,7 @@ import { Sfx } from '../../core/Sfx.js';
 import { BaseScene } from '../BaseScene.js';
 import { blueprint } from '../common/bg.js';
 import { txt } from '../../ui/text.js';
-import { drawPanel, floatText, toast } from '../../ui/widgets.js';
+import { floatText, toast, roundBox } from '../../ui/widgets.js';
 
 // Drag the parts of Explorer 1 onto the blueprint. Each part explains what it does.
 // Slots are sized like the real layout (not to scale), with the nose pointing right.
@@ -55,8 +55,7 @@ export class AssemblyScene extends BaseScene {
     this.glow = this.add.graphics().setDepth(3);
 
     // tray
-    const tg = this.add.graphics();
-    drawPanel(tg, 40, TRAY_Y - 78, W - 80, 156, { fill: 0x0e1840, radius: 22, stroke: COLORS.stroke });
+    const tg = roundBox(this, 40, TRAY_Y - 78, W - 80, 156, { fill: 0x0e1840, radius: 22, stroke: COLORS.stroke });
     txt(this, 64, TRAY_Y - 68, this.T('trayTitle', 'Parts box'), { size: 15, weight: 800, color: CSS.cyan, scale: false });
     this.progress = txt(this, W - 64, TRAY_Y - 68, '', { size: 15, weight: 700, color: CSS.dim, origin: [1, 0], scale: false });
 
