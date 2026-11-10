@@ -1,0 +1,640 @@
+{
+  "title": "Test Your Knowledge",
+  "steps": [
+    { "type": "cutscene", "data": "intro", "name": "Your own mission" },
+    { "type": "labMission", "data": "mission", "name": "Pick a destination" },
+    { "type": "labQuiz", "data": "quiz1", "name": "Quiz: spacecraft systems" },
+    { "type": "labBuild", "data": "build1", "name": "Build your spacecraft" },
+    { "type": "labQuiz", "data": "quiz2", "name": "Quiz: other worlds" },
+    { "type": "labBuild", "data": "build2", "name": "Landing and science gear" },
+    { "type": "labQuiz", "data": "quiz3", "name": "Quiz: rockets and orbits" },
+    { "type": "labBuild", "data": "build3", "name": "Pick your rocket" },
+    { "type": "labPaint", "data": "paint", "name": "Name, paint and patch" },
+    { "type": "cutscene", "data": "testing", "name": "How NASA tests spaceships" },
+    { "type": "labShake", "data": "shake", "name": "Shake test" },
+    { "type": "labThermal", "data": "thermal", "name": "Hot and cold test" },
+    { "type": "labSystems", "data": "systems", "name": "Unfold and switch on" },
+    { "type": "labBuild", "data": "review", "name": "Design review" },
+    { "type": "cutscene", "data": "launchDay", "name": "Launch day" },
+    { "type": "labLaunch", "data": "launch", "name": "Launch!" },
+    { "type": "labCruise", "data": "cruise", "name": "Cruise through space" },
+    { "type": "labArrival", "data": "arrival", "name": "Arrival" },
+    { "type": "labScience", "data": "science", "name": "Do the science" },
+    { "type": "labHome", "data": "home", "name": "The way home" },
+    { "type": "labReport", "data": "report", "name": "Mission report" },
+    { "type": "chapterComplete", "data": "complete", "name": "Mode complete" }
+  ],
+
+  "intro": {
+    "slides": [
+      {
+        "heading": "You've come a long way",
+        "text": "You flew Freedom 7 into space, built Explorer 1, landed on the Moon, brought Apollo 13 home, sailed past Jupiter with Voyager, drove on Mars and unfolded Webb. Amazing!",
+        "visual": "labParade"
+      },
+      {
+        "heading": "Now it's your turn",
+        "text": "This time there's no history book. You are the mission designer! You'll pick where to go, build your own spaceship, test it and fly it.",
+        "visual": "labBlueprint"
+      },
+      {
+        "heading": "Earn your parts",
+        "text": "Every part costs credits, and you earn credits by answering questions about everything you learned. I won't tell you the answers: think back to the chapters!",
+        "visual": "labCredits"
+      },
+      {
+        "heading": "Test like you fly",
+        "text": "Real engineers test every spaceship on Earth before it flies. Your ship will be shaken, frozen, baked and switched on before launch day.",
+        "visual": "labShaker"
+      },
+      {
+        "heading": "Your mission report",
+        "text": "At the end you'll get a report card with stars, scores and a chart for your ship. Save it as a picture and share it with your friends!",
+        "visual": "labReportCard"
+      }
+    ],
+    "endLabel": "Let's start!"
+  },
+
+  "mission": {
+    "intro": [
+      "First, every mission needs a destination. Each one needs a different kind of spaceship.",
+      "Tap a mission to hear about it, then press the button to choose it."
+    ],
+    "task": { "title": "Choose your mission!", "help": "Tap a card to learn about it. Then press Choose this mission." },
+    "chosen": "Great choice! Here are some credits to get you started. Earn more by answering questions.",
+    "startCredits": 12,
+    "labels": {
+      "choose": "Choose this mission",
+      "difficulty": "Difficulty",
+      "distance": "Distance",
+      "trip": "Trip",
+      "crew": "Crew",
+      "robot": "Robot",
+      "crewed": "Astronauts on board",
+      "robotic": "Robot explorer"
+    }
+  },
+
+  "missions": {
+    "moon": {
+      "name": "Crew to the Moon",
+      "brief": "Fly three astronauts to the Moon, land, explore and bring everyone home safely. The hardest mission: people need lots of care!",
+      "labels": { "distance": "384,000 km", "trip": "3 days", "who": "crew" },
+      "stars": 3
+    },
+    "mars": {
+      "name": "Rover to Mars",
+      "brief": "Land a robot rover on Mars and search the ground for signs that water once flowed there.",
+      "labels": { "distance": "about 225 million km", "trip": "7 months", "who": "robot" },
+      "stars": 2
+    },
+    "jupiter": {
+      "name": "Probe to Jupiter",
+      "brief": "Send a robot probe into orbit around Jupiter, the biggest planet, to study its giant storms and its magnetic field.",
+      "labels": { "distance": "about 750 million km", "trip": "5 years", "who": "robot" },
+      "stars": 2
+    }
+  },
+
+  "quizShared": {
+    "right": ["Correct!", "Spot on!", "You remembered!", "Brilliant!", "That's right!", "Great thinking!"],
+    "wrong": "Not quite. Here's a clue:",
+    "gaveUp": "That's a tricky one! The answer is hidden in this chapter. It will come back as a bonus question later.",
+    "labels": {
+      "question": "Question",
+      "of": "of",
+      "credits": "credits",
+      "firstTry": "+2 credits",
+      "secondTry": "+1 credit",
+      "where": "Look in",
+      "next": "Next question"
+    }
+  },
+
+  "quiz1": {
+    "intro": [
+      "Round 1: spacecraft systems! Every right answer earns credits to spend on parts.",
+      "Answer right the first time for 2 credits. If you get it wrong, I'll give you a clue and one more try for 1 credit."
+    ],
+    "task": { "title": "Spacecraft systems quiz", "help": "Tap the answer you think is right." },
+    "count": 8,
+    "questions": [
+      {"id": "s1", "q": "What do solar panels turn into electricity?", "options": ["Sunlight", "Wind", "Moon dust", "Rain"], "answer": 0, "nudge": "Think about what shines on them all day long.", "where": "Chapter 1 · The First Astronaut"},
+      {"id": "s2", "q": "Apollo's fuel cells made electricity, and something else the crew really needed. What was it?", "options": ["Drinking water", "Rocket fuel", "Fresh air", "Ice cream"], "answer": 0, "nudge": "It's something you drink.", "where": "Chapter 1 · The First Astronaut"},
+      {"id": "s3", "q": "Why do rocket engines still work in space, where there's no air?", "options": ["They carry their own oxygen", "They push against the stars", "They run on sunlight", "They use magnets"], "answer": 0, "nudge": "Fire needs oxygen. Where could the rocket get it?", "where": "Chapter 1 · The First Astronaut"},
+      {"id": "s4", "q": "What does a heat shield protect a capsule from?", "options": ["The heat of rushing back into the air", "The cold of deep space", "Meteor showers", "Loud noises"], "answer": 0, "nudge": "It faces forward when the capsule comes home.", "where": "Chapter 1 · The First Astronaut"},
+      {"id": "s5", "q": "In space, what does 'attitude' mean?", "options": ["The direction your spaceship is facing", "How you behave", "How high you are", "How fast you are going"], "answer": 0, "nudge": "Steering thrusters change it.", "where": "Chapter 1 · The First Astronaut"},
+      {"id": "s6", "q": "About how long does a radio message take to travel from the Moon to Earth?", "options": ["Just over one second", "About one hour", "About one day", "About one minute"], "answer": 0, "nudge": "Radio travels at the speed of light, the fastest thing there is.", "where": "Chapter 1 · The First Astronaut"},
+      {"id": "s7", "q": "Life support keeps astronauts alive. Which of these is one of its jobs?", "options": ["Removing the carbon dioxide they breathe out", "Steering the spaceship", "Taking photos", "Steering the antenna"], "answer": 0, "nudge": "Remember the square air filters on Apollo 13.", "where": "Chapter 4 · Apollo 13"},
+      {"id": "s8", "q": "Why did the Apollo 13 crew switch off almost everything on their ship?", "options": ["To save their batteries", "To hide from Mission Control", "To make the ship lighter", "To have a nap"], "answer": 0, "nudge": "They had to make something last all the way home.", "where": "Chapter 4 · Apollo 13"},
+      {"id": "s9", "q": "Voyager 1 is so far away that sunlight is very dim. How does it make electricity?", "options": ["Nuclear batteries that turn heat into electricity", "Giant solar panels", "A wind turbine", "Batteries changed by robots"], "answer": 0, "nudge": "Look at Voyager 1's facts: it carries three of them.", "where": "Chapter 5 · Voyager 1"},
+      {"id": "s10", "q": "Why did Opportunity's power run out in 2018?", "options": ["A dust storm blocked the sunlight from its solar panels", "It ran out of fuel", "Its batteries were stolen", "A wheel fell off"], "answer": 0, "nudge": "The whole sky of Mars went dark.", "where": "Chapter 6 · Mars Rovers"},
+      {"id": "s11", "q": "Why does Webb have a sunshield as big as a tennis court?", "options": ["To keep its cameras super cold", "To make electricity", "To slow it down", "To hide from asteroids"], "answer": 0, "nudge": "Webb sees infrared light, which is like warmth.", "where": "Chapter 7 · James Webb"},
+      {"id": "s12", "q": "Why are Webb's mirrors covered in a thin layer of real gold?", "options": ["Gold reflects infrared light really well", "Gold is the lightest metal", "To make it look fancy", "Gold makes it fly faster"], "answer": 0, "nudge": "It's about the kind of light Webb collects.", "where": "Chapter 7 · James Webb"}
+    ],
+    "resultTitle": "Round 1 complete!",
+    "resultText": "Now let's spend those credits on the heart of your spaceship."
+  },
+
+  "quiz2": {
+    "intro": [
+      "Round 2: other worlds! Knowing where you're going helps you build the right ship.",
+      "Remember: two credits for a first-try answer, one credit with a clue."
+    ],
+    "task": { "title": "Other worlds quiz", "help": "Tap the answer you think is right." },
+    "count": 8,
+    "questions": [
+      {"id": "w1", "q": "Why does Mars look red?", "options": ["Its dust is rusty", "It's very hot", "It's covered in lava", "It has red oceans"], "answer": 0, "nudge": "It's the same thing that happens to old iron nails.", "where": "Chapter 6 · Mars Rovers"},
+      {"id": "w2", "q": "How did Mars Pathfinder, Spirit and Opportunity land on Mars?", "options": ["Inside giant bouncing airbags", "Gliding on wings", "Hanging from a balloon", "On a giant spring"], "answer": 0, "nudge": "They bounced across the ground many times.", "where": "Chapter 6 · Mars Rovers"},
+      {"id": "w3", "q": "How did Curiosity and Perseverance touch down on Mars?", "options": ["A sky crane lowered them on cables", "They jumped out of a plane", "They bounced on airbags", "They rolled down a ramp"], "answer": 0, "nudge": "A rocket-powered platform did the work, like a crane.", "where": "Chapter 6 · Mars Rovers"},
+      {"id": "w4", "q": "Why can't anyone drive a Mars rover with a joystick?", "options": ["Radio messages take minutes to get there", "Rovers don't have radios", "Mars is too dark", "Mars is too windy"], "answer": 0, "nudge": "Think about how long a message takes to travel that far.", "where": "Chapter 6 · Mars Rovers"},
+      {"id": "w5", "q": "What did Curiosity discover about Gale Crater?", "options": ["It once held a lake of fresh water", "It's full of ice cream", "It's an active volcano", "It is made of metal"], "answer": 0, "nudge": "Tiny living things could have lived there long ago.", "where": "Chapter 6 · Mars Rovers"},
+      {"id": "w6", "q": "What did Voyager 1 discover on Jupiter's moon Io?", "options": ["Erupting volcanoes", "Oceans of water", "Trees", "Rings of ice"], "answer": 0, "nudge": "Something was shooting high above its surface.", "where": "Chapter 5 · Voyager 1"},
+      {"id": "w7", "q": "What is Jupiter's Great Red Spot?", "options": ["A giant storm bigger than Earth", "A red moon", "A volcano", "A giant lake"], "answer": 0, "nudge": "It has been swirling for more than 150 years.", "where": "Chapter 5 · Voyager 1"},
+      {"id": "w8", "q": "What did Explorer 1 discover around Earth?", "options": ["Belts of radiation, trapped by Earth's magnetism", "A second moon", "Clouds of ice", "A frozen ocean"], "answer": 0, "nudge": "Its Geiger counter counted tiny, fast particles.", "where": "Chapter 2 · Explorer 1"},
+      {"id": "w9", "q": "The dark 'seas' on the Moon are really made of...", "options": ["Old lava rock", "Water", "Sand", "Ice"], "answer": 0, "nudge": "The rock has tiny holes from gas bubbles.", "where": "Chapter 3 · Apollo 11"},
+      {"id": "w10", "q": "Why can't wings help a spaceship fly on the Moon?", "options": ["The Moon has no air", "The Moon is too cold", "Wings are too heavy", "The Moon spins too fast"], "answer": 0, "nudge": "Wings and parachutes both need something to push against.", "where": "Chapter 3 · Apollo 11"},
+      {"id": "w11", "q": "What did the Apollo 11 crew leave behind to feel moonquakes?", "options": ["A seismometer", "A telescope", "A flag", "A rocket"], "answer": 0, "nudge": "It was one of their science experiments.", "where": "Chapter 3 · Apollo 11"},
+      {"id": "w12", "q": "Why did Perseverance get a nuclear battery instead of solar panels?", "options": ["Dust can't cover it, and it works day and night", "It's lighter than a feather", "Solar panels are against the rules on Mars", "It was the only colour left"], "answer": 0, "nudge": "Remember what happened to Opportunity's panels.", "where": "Chapter 6 · Mars Rovers"}
+    ],
+    "resultTitle": "Round 2 complete!",
+    "resultText": "Now pick how your ship will arrive, and what science it will do."
+  },
+
+  "quiz3": {
+    "intro": [
+      "Round 3: rockets and orbits! Your ship needs a rocket strong enough to carry it.",
+      "Last round. Do your best!"
+    ],
+    "task": { "title": "Rockets and orbits quiz", "help": "Tap the answer you think is right." },
+    "count": 8,
+    "questions": [
+      {"id": "r1", "q": "Why doesn't a satellite fall back down to Earth?", "options": ["It moves sideways so fast that it keeps missing the ground", "There's no gravity in space", "It's tied to the Moon", "Satellites have wings"], "answer": 0, "nudge": "It IS falling, but something else is happening too.", "where": "Chapter 2 · Explorer 1"},
+      {"id": "r2", "q": "About how fast does a satellite travel to stay in orbit near Earth?", "options": ["About 28,000 km/h", "About 100 km/h", "About 1,000 km/h", "About 10 km/h"], "answer": 0, "nudge": "Much, much faster than any plane.", "where": "Chapter 2 · Explorer 1"},
+      {"id": "r3", "q": "How do rockets reach orbit?", "options": ["They tip over and fly sideways, faster and faster", "They fly straight up", "They climb a space elevator", "They spin like a top"], "answer": 0, "nudge": "Remember steering Explorer 1 along the glowing path.", "where": "Chapter 2 · Explorer 1"},
+      {"id": "r4", "q": "Which giant rocket carried Apollo 11 to the Moon?", "options": ["Saturn V", "Redstone", "Juno I", "Ariane 5"], "answer": 0, "nudge": "It was taller than the Statue of Liberty.", "where": "Chapter 3 · Apollo 11"},
+      {"id": "r5", "q": "Where does space begin?", "options": ["About 100 km up, at the Kármán line", "Just above the clouds", "At the Moon", "At the top of Mount Everest"], "answer": 0, "nudge": "You crossed it while flying Freedom 7.", "where": "Chapter 1 · The First Astronaut"},
+      {"id": "r6", "q": "Why do big rockets drop their stages on the way up?", "options": ["Empty stages are just dead weight", "To leave presents for fish", "To change colour", "To make a loud bang"], "answer": 0, "nudge": "A lighter rocket speeds up more easily.", "where": "Chapter 4 · Apollo 13"},
+      {"id": "r7", "q": "What is a gravity assist?", "options": ["Swinging past a planet to speed up and change direction", "A rocket engine", "A kind of seat belt", "A way of saving fuel by sleeping"], "answer": 0, "nudge": "The Voyagers used planets like slingshots.", "where": "Chapter 5 · Voyager 1"},
+      {"id": "r8", "q": "Why was 1977 such a special time to launch the Voyagers?", "options": ["The outer planets lined up, which happens about once every 175 years", "It was a leap year", "The Sun was switched off", "There was no wind that year"], "answer": 0, "nudge": "Think about the planets' positions.", "where": "Chapter 5 · Voyager 1"},
+      {"id": "r9", "q": "How did Apollo 13 get home after its oxygen tank exploded?", "options": ["It looped around the Moon on a free return path", "It turned around on the spot", "A rescue rocket towed it", "It used its parachutes"], "answer": 0, "nudge": "The Moon's gravity worked like a slingshot.", "where": "Chapter 4 · Apollo 13"},
+      {"id": "r10", "q": "Webb can't brake. So how was it launched towards L2?", "options": ["A little too slow on purpose, then given small pushes", "As fast as possible", "Backwards", "It was pulled by a tow rope"], "answer": 0, "nudge": "Too fast and it would sail right past.", "where": "Chapter 7 · James Webb"},
+      {"id": "r11", "q": "How far from Earth is Webb's home, L2?", "options": ["About 1.5 million km", "About 100 km", "About 10,000 km", "About 10 million km"], "answer": 0, "nudge": "It's about four times as far as the Moon.", "where": "Chapter 7 · James Webb"},
+      {"id": "r12", "q": "Which rocket launched Explorer 1, America's first satellite?", "options": ["Juno I", "Saturn V", "Ariane 5", "Redstone"], "answer": 0, "nudge": "It shares its name with a Roman goddess.", "where": "Chapter 2 · Explorer 1"}
+    ],
+    "resultTitle": "Round 3 complete!",
+    "resultText": "Time to choose a rocket strong enough for your ship."
+  },
+
+  "build1": {
+    "categories": ["body", "power", "comms"],
+    "intro": [
+      "Welcome to the workshop! Start with the heart of your ship: what kind of spacecraft is it, how does it get power, and how does it talk to Earth?",
+      "Tap a part to hear about it and add it. Tap it again to take it off and get your credits back."
+    ],
+    "task": { "title": "Build your spacecraft", "help": "Choose a spacecraft, a power source and a radio. Then press Done." },
+    "needBody": "Every mission needs a spacecraft. Pick one first!",
+    "doneLine": "Looking good! Next, another quiz to earn more credits."
+  },
+  "build2": {
+    "categories": ["support", "entry", "science"],
+    "intro": [
+      "Now think about where you're going. How will your ship arrive safely, and what will it study when it gets there?",
+      "You can pick any mix of these parts, if you have the credits."
+    ],
+    "task": { "title": "Landing and science gear", "help": "Pick protection, landing gear and up to four science instruments. Then press Done." },
+    "doneLine": "Your spaceship is almost complete. One more quiz, then the rocket!"
+  },
+  "build3": {
+    "categories": ["rocket", "extras"],
+    "intro": [
+      "Last part: the rocket! A heavier ship needs a stronger rocket, and farther destinations need even more.",
+      "Compare your ship's mass with what each rocket can carry to your destination."
+    ],
+    "task": { "title": "Pick your rocket", "help": "Choose a rocket that can carry your ship. Extras are optional. Then press Done." },
+    "needRocket": "Your ship needs a rocket to get off the ground!",
+    "doneLine": "Your spaceship is ready! Now give it a name and some colour."
+  },
+  "review": {
+    "categories": ["body", "power", "comms", "support", "entry", "science", "rocket", "extras"],
+    "review": true,
+    "intro": [
+      "Testing is done! This is your last chance to change your ship before launch day.",
+      "Read the engineers' notes. You can swap parts, and earn extra credits by trying the questions you missed."
+    ],
+    "task": { "title": "Design review", "help": "Read the notes, fix anything you want, then press Ready to launch." },
+    "allGood": "The engineers found no problems at all. Great design!",
+    "bonusIntro": "Bonus question! Answer it right for two extra credits.",
+    "bonusRight": "Correct! Two extra credits.",
+    "bonusWrong": "Not this time. You can try it again later.",
+    "noBonus": "You've answered every question. No bonus questions left!",
+    "needRocket": "Your ship needs a rocket to get off the ground!",
+    "needBody": "Every mission needs a spacecraft. Pick one first!",
+    "doneLine": "Your ship is ready for launch day!"
+  },
+
+  "parts": {
+    "crewCapsule": { "name": "Crew capsule", "info": "A cabin with three seats and windows, for astronauts. It's big and heavy, because people need room, air, food and water.", "cost": 8, "mass": 6 },
+    "rover": { "name": "Rover", "info": "A robot on six wheels. It can drive across the ground, look closely at rocks and dig into them.", "cost": 6, "mass": 1 },
+    "probe": { "name": "Space probe", "info": "A robot that flies past or circles a world, taking pictures and measurements from above.", "cost": 5, "mass": 1.5 },
+    "batteries": { "name": "Batteries", "info": "Simple and light, but they run flat after a few days. Freedom 7 used batteries on its fifteen-minute flight.", "cost": 1, "mass": 0.2 },
+    "solar": { "name": "Solar panels", "info": "They turn sunlight into electricity. The farther from the Sun you go, the dimmer the sunlight, and the less power they make.", "cost": 2, "mass": 0.3 },
+    "solarWings": { "name": "Giant solar wings", "info": "Three enormous solar panels, like the ones on the Juno probe. They still make some power where sunlight is dim, but they're heavy and expensive.", "cost": 4, "mass": 0.6 },
+    "rtg": { "name": "Nuclear battery", "info": "It turns the heat of a special radioactive material into electricity, for many years, day and night, near the Sun or far away.", "cost": 5, "mass": 0.5 },
+    "fuelCells": { "name": "Fuel cells", "info": "They make electricity, and drinking water, from hydrogen and oxygen. Perfect for a trip of a few days, but the supplies run out.", "cost": 3, "mass": 0.4 },
+    "smallAntenna": { "name": "Small antenna", "info": "A light little antenna. Good for talking to Earth from nearby, but its signal gets weak far away.", "cost": 1, "mass": 0.05 },
+    "dish": { "name": "Big dish antenna", "info": "A big bowl-shaped antenna that sends a strong, narrow beam. Far-away spacecraft like Voyager use them.", "cost": 3, "mass": 0.3 },
+    "lifeSupport": { "name": "Life support", "info": "Gives astronauts air to breathe, removes the carbon dioxide they breathe out, and keeps the cabin at the right pressure and temperature.", "cost": 4, "mass": 1.2 },
+    "insulation": { "name": "Insulation blanket", "info": "Shiny layers of gold and silver foil that keep the inside of a spacecraft from getting too hot or too cold.", "cost": 1, "mass": 0.1 },
+    "radiationVault": { "name": "Radiation vault", "info": "A thick metal box that protects delicate electronics from powerful radiation, like the titanium vault on Juno.", "cost": 3, "mass": 0.4 },
+    "heatShield": { "name": "Heat shield", "info": "Protects a spacecraft when it plunges into a planet's air at super high speed and the air in front glows hotter than lava.", "cost": 3, "mass": 0.8 },
+    "parachutes": { "name": "Parachutes", "info": "Big canopies that catch the air to slow a falling spacecraft down. They need air to work!", "cost": 2, "mass": 0.3 },
+    "landingLegs": { "name": "Landing legs and engine", "info": "A rocket engine slows the ship down, and four springy legs let it stand on the ground, like Apollo's lunar module.", "cost": 3, "mass": 1.2 },
+    "airbags": { "name": "Airbags", "info": "Giant balloons that wrap around a small robot so it can bounce to a stop, like Mars Pathfinder did.", "cost": 2, "mass": 0.5 },
+    "skyCrane": { "name": "Sky crane", "info": "A rocket-powered platform that hovers and lowers a heavy rover gently to the ground on cables.", "cost": 5, "mass": 1.3 },
+    "camera": { "name": "Camera", "info": "Takes pictures in colour, from close-up rocks to giant storms. Almost every mission carries cameras.", "cost": 1, "mass": 0.1 },
+    "spectrometer": { "name": "Spectrometer", "info": "Splits light into its colours to find out what things are made of, even from far away.", "cost": 2, "mass": 0.2 },
+    "drill": { "name": "Drill", "info": "Bores into rock to collect powder from inside, where it hasn't been changed by sunlight and weather.", "cost": 2, "mass": 0.3 },
+    "magnetometer": { "name": "Magnetometer", "info": "Measures magnetic fields. Some planets have strong ones, and some have almost none.", "cost": 1, "mass": 0.1 },
+    "weatherStation": { "name": "Weather station", "info": "Measures wind, temperature and air pressure, wherever there's air to measure.", "cost": 1, "mass": 0.1 },
+    "seismometer": { "name": "Seismometer", "info": "Sits on the ground and feels quakes, to find out what's deep inside a world.", "cost": 1, "mass": 0.1 },
+    "smallRocket": { "name": "Small rocket", "info": "A small, cheap rocket, like the Redstone that launched Freedom 7.", "cost": 4, "mass": 0, "lift": { "moon": 3, "mars": 2, "jupiter": 1.2 } },
+    "mediumRocket": { "name": "Medium rocket", "info": "A strong rocket with two side boosters. It can send a few tonnes to the planets.", "cost": 8, "mass": 0, "lift": { "moon": 7, "mars": 6, "jupiter": 4 } },
+    "heavyRocket": { "name": "Super heavy rocket", "info": "A giant three-stage rocket, like the Saturn V. It can carry a lot, but it costs a lot too.", "cost": 14, "mass": 0, "lift": { "moon": 15, "mars": 12, "jupiter": 9 } },
+    "extraFuel": { "name": "Extra fuel tanks", "info": "More fuel for course corrections and big engine burns on the way, but fuel is heavy.", "cost": 2, "mass": 1.5 },
+    "starTracker": { "name": "Star tracker", "info": "A camera that recognises the stars to work out exactly which way the ship is pointing.", "cost": 2, "mass": 0.05 }
+  },
+
+  "notes": {
+    "tooHeavy": "Your spaceship is heavier than your rocket can carry. A stronger rocket, or a lighter ship, would fix it.",
+    "noPower": "Your spaceship has no power source, so nothing on board can work.",
+    "batteriesFlat": "Batteries run flat after a few days. A long trip needs a power source that keeps going.",
+    "solarDim": "Out there, sunlight is very dim, so your solar panels couldn't make enough electricity.",
+    "fuelCellsShort": "Fuel cells only last as long as their supplies: great for a few days, far too short for a long journey.",
+    "noComms": "Your spaceship has no antenna, so it can't talk to Earth.",
+    "weakSignal": "Your small antenna's signal was too weak to reach Earth from so far away. Far-away spacecraft use big dish antennas.",
+    "notCrewed": "This mission is to take astronauts to the Moon, so it needs a crew capsule.",
+    "noLifeSupport": "Astronauts need air to breathe and the right temperature. Your capsule needs life support!",
+    "noShieldHome": "Coming home from the Moon, a capsule hits Earth's air at almost 40,000 km/h. It needs a heat shield!",
+    "noShieldMars": "Mars has air: thin, but enough to make a spaceship glow hot as it plunges in. It needs a heat shield.",
+    "capsuleFar": "No person has flown that far yet. The trip would take years, so robots go first.",
+    "noVault": "Jupiter is surrounded by powerful radiation that can damage electronics. Juno keeps its electronics inside a radiation vault.",
+    "shieldJupiter": "Your ship never plunges into any air at Jupiter, so its heat shield is just extra weight.",
+    "noInsulation": "Space gets freezing cold in the shade. An insulation blanket keeps the inside warm.",
+    "noLegs": "To touch down gently on the Moon you need landing legs and an engine. There's no air for parachutes!",
+    "airbagsCrew": "Airbags bounce a lot. Fine for a sturdy robot, far too bumpy for astronauts!",
+    "noChutesHome": "On the way home, parachutes slow the capsule down before it splashes into the ocean.",
+    "noChutesMars": "On Mars, a giant parachute slows the ship down from super fast to just fast.",
+    "noTouchdown": "After the parachute, a ship still needs a soft way to touch down: airbags, landing legs or a sky crane.",
+    "noFuelOrbit": "To be captured into orbit around Jupiter, the engine has to fire for a long time. Extra fuel helps.",
+    "noLandJupiter": "Jupiter is a giant ball of gas with no solid ground, so landing gear only adds weight there.",
+    "chutesMoon": "The Moon has no air, so parachutes can't slow anything down there.",
+    "noScience": "Your ship carried no science instruments, so it couldn't make discoveries.",
+    "drillUseless": "There's no solid ground on Jupiter to drill into!",
+    "seismometerUseless": "A seismometer has to sit on solid ground, and Jupiter has none.",
+    "weatherStationUseless": "There's almost no air on the Moon, so there's no weather to measure.",
+    "magnetometerUseless": "There's hardly any magnetic field here for a magnetometer to measure.",
+    "roverJupiter": "A rover needs ground to drive on, and Jupiter has none!",
+    "probeMars": "A probe can only look from above. To explore the ground up close, you need a rover.",
+    "wrongBody": "A different kind of spacecraft would suit this mission better.",
+    "greatDesign": "The engineers checked everything and found no problems. Brilliant design!"
+  },
+
+  "paint": {
+    "intro": [
+      "Every great spaceship has a name! Give yours a name, choose its colours, and design a mission patch, just like real astronauts do.",
+      "Type your own names, or tap the dice for ideas."
+    ],
+    "task": { "title": "Name, paint and patch", "help": "Name your ship and mission, paint it, and design your patch. Then press Done." },
+    "doneLine": "What a beautiful ship! Now it's time to see if it can survive the test lab.",
+    "names": {
+      "first": ["Star", "Red", "Brave", "Silver", "Cosmic", "Swift", "Lucky", "Mighty", "Shining", "Little", "Galaxy", "Rocket"],
+      "second": ["Sailor", "Explorer", "Falcon", "Voyager", "Dreamer", "Pioneer", "Comet", "Rover", "Spark", "Seeker", "Phoenix", "Hopper"],
+      "mission": ["Mission Nova", "Mission Starlight", "Mission Red Dawn", "Mission Moonbeam", "Mission Thunder", "Mission Horizon", "Mission Aurora", "Mission Big Leap", "Mission Bright Eye", "Mission Long Jump"]
+    },
+    "labels": {
+      "tabs": { "name": "Names", "paint": "Paint", "patch": "Patch" },
+      "shipName": "Spaceship name",
+      "missionName": "Mission name",
+      "random": "Ideas",
+      "body": "Main colour",
+      "trim": "Stripe colour",
+      "pattern": "Pattern",
+      "shape": "Patch shape",
+      "patchColor": "Patch colour",
+      "emblem": "Picture",
+      "patterns": { "solid": "Plain", "stripes": "Stripes", "checker": "Checks", "stars": "Stars" },
+      "shapes": { "circle": "Circle", "shield": "Shield", "hexagon": "Hexagon", "diamond": "Diamond" },
+      "emblems": { "rocket": "Rocket", "planet": "Planet", "star": "Star", "orbit": "Orbit", "comet": "Comet", "ship": "My ship" },
+      "done": "Done"
+    }
+  },
+
+  "testing": {
+    "slides": [
+      {
+        "heading": "Test like you fly",
+        "text": "Once a spaceship launches, nobody can fix it with a screwdriver. So NASA engineers test everything on Earth first, in conditions as close to space as they can make.",
+        "visual": "labShaker"
+      },
+      {
+        "heading": "The shake test",
+        "text": "A launch shakes a spaceship very hard. Here, in 1976, an engineer prepares one of the Voyager spacecraft for its shake test.",
+        "visual": "labShaker",
+        "image": { "src": "https://images-assets.nasa.gov/image/PIA21733/PIA21733~medium.jpg", "alt": "An engineer working on a Voyager spacecraft before its shake test" },
+        "credit": "Photo: NASA/JPL-Caltech · Voyager in testing, 1976"
+      },
+      {
+        "heading": "So loud!",
+        "text": "A launch is incredibly loud, too. Giant speakers blast a spaceship with sound. Here, the spacecraft carrying Perseverance gets ready for its sound test.",
+        "visual": "labShaker",
+        "image": { "src": "https://images-assets.nasa.gov/image/PIA23264/PIA23264~medium.jpg", "alt": "The Mars 2020 spacecraft in a test room before an acoustic test" },
+        "credit": "Photo: NASA/JPL-Caltech · Mars 2020 before its sound test"
+      },
+      {
+        "heading": "Hot and cold",
+        "text": "In a giant vacuum chamber, all the air is pumped out and the walls get as cold as deep space, while bright lamps act like the Sun. Here is Europa Clipper inside one.",
+        "visual": "labChamber",
+        "image": { "src": "https://images-assets.nasa.gov/image/PIA26065/PIA26065~medium.jpg", "alt": "Europa Clipper inside the Space Simulator vacuum chamber at JPL" },
+        "credit": "Photo: NASA/JPL-Caltech · Europa Clipper in the Space Simulator"
+      },
+      {
+        "heading": "Does it unfold?",
+        "text": "Every part that folds up for launch must unfold perfectly in space. Engineers practise again and again, like this test of one of Juno's giant solar wings.",
+        "visual": "labChamber",
+        "image": { "src": "https://images-assets.nasa.gov/image/PIA13928/PIA13928~medium.jpg", "alt": "Technicians testing the unfolding of a huge Juno solar panel" },
+        "credit": "Photo: NASA/JPL-Caltech/Lockheed Martin · Juno solar wing test"
+      },
+      {
+        "heading": "Your turn",
+        "text": "Now your spaceship goes to the test lab. Let's see how well you designed it!",
+        "visual": "labShaker"
+      }
+    ],
+    "endLabel": "Start testing"
+  },
+
+  "shake": {
+    "intro": [
+      "Your spaceship is bolted onto a shaker table. It will shake just like a real launch.",
+      "When a bolt starts to wiggle loose, tap it quickly to tighten it, before it falls off!"
+    ],
+    "task": { "title": "Shake test!", "help": "Tap each wiggling red bolt to tighten it." },
+    "phases": ["Engines start: a low rumble.", "Max Q: the strongest shaking!", "Stage separation: a big jolt!"],
+    "heavyLine": "This ship is heavy, so the bolts work extra hard!",
+    "resultTitle": "Shake test done!",
+    "resultText": "The engineers checked every bolt and panel.",
+    "labels": { "strength": "Shaking", "bolts": "Bolts tight", "lost": "Bolts lost", "time": "Time" }
+  },
+
+  "thermal": {
+    "intro": [
+      "Now your ship goes into the vacuum chamber. The lamps act like the Sun, and the walls get as cold as space in the shade.",
+      "Keep the temperature in the green zone. Turn on the heaters when it's cold, and open the radiators to let heat out when it's hot."
+    ],
+    "task": { "title": "Hot and cold test!", "help": "Keep the thermometer in the green zone with the heater and radiator buttons." },
+    "sunPhase": "Lamps on: full sunlight!",
+    "shadePhase": "Lamps off: freezing shadow!",
+    "tooHot": "Too hot!",
+    "tooCold": "Too cold!",
+    "resultTitle": "Chamber test done!",
+    "resultText": "Your ship spent its time in space-like heat and cold.",
+    "labels": { "temp": "Inside temperature", "heater": "Heaters", "radiator": "Radiators", "on": "On", "off": "Off", "open": "Open", "closed": "Closed", "sun": "Sun lamps", "insulated": "Insulation blanket fitted", "rtgWarm": "Nuclear battery keeps it warm" }
+  },
+
+  "systems": {
+    "intro": [
+      "Last test! Everything folded up for launch must unfold in the right order. Then we switch everything on.",
+      "Tap the steps in the order you think is right. If a part jams, think about what has to happen first."
+    ],
+    "task": { "title": "Unfold and switch on!", "help": "Tap the unfolding steps in the right order." },
+    "orderHints": {
+      "locks": "Launch locks hold every part still during launch. They must be released first, or nothing can move!",
+      "power": "Power comes first: nothing else can work without electricity.",
+      "comms": "Next, the antenna, so Mission Control can hear the ship before switching on the science.",
+      "science": "Science instruments come after power and the antenna.",
+      "landing": "Landing gear unfolds last, only when it's needed."
+    },
+    "powerIntro": "Now the power test. The lamps are set to the sunlight your ship will have at its destination.",
+    "signalIntro": "And the signal test: can your ship's radio reach Earth from that far away? Aim the antenna at Earth and hold it there.",
+    "powerGood": "Plenty of power for everything!",
+    "powerLow": "Not enough power for everything on board!",
+    "signalGood": "Loud and clear!",
+    "signalWeak": "The signal is very weak.",
+    "resultTitle": "Systems test done!",
+    "resultText": "The engineers have written up their notes for the design review.",
+    "steps": {
+      "locks": "Release launch locks",
+      "batteries": "Connect the batteries",
+      "solar": "Unfold the solar panels",
+      "solarWings": "Unfold the giant solar wings",
+      "rtg": "Swing out the nuclear battery",
+      "fuelCells": "Start the fuel cells",
+      "smallAntenna": "Raise the antenna",
+      "dish": "Unfold the dish antenna",
+      "science": "Unfold the science instruments",
+      "landingLegs": "Unfold the landing legs",
+      "airbags": "Test-inflate the airbags",
+      "parachutes": "Check the parachute pack",
+      "skyCrane": "Test the sky crane cables"
+    },
+    "labels": { "switchOn": "Switch on!", "lamps": "Lamp brightness", "power": "Power made", "need": "Power needed", "signal": "Signal at Earth", "aim": "Drag to aim at Earth", "order": "Unfolding order", "jam": "Jammed!" }
+  },
+
+  "launchDay": {
+    "slides": [
+      {
+        "heading": "Launch day!",
+        "text": "Your spaceship has passed its tests and sits on top of its rocket at the launch pad. The weather is perfect.",
+        "visual": "labPad"
+      },
+      {
+        "heading": "Go for launch",
+        "text": "Mission Control checks every system one last time. Fuel: go. Weather: go. Spacecraft: go! It's time to fly.",
+        "visual": "labPad"
+      }
+    ],
+    "endLabel": "Go!"
+  },
+
+  "launch": {
+    "intro": [
+      "Press Launch to start the engines. Then steer the rocket to follow the glowing guide as it tips over towards orbit.",
+      "When a stage runs out of fuel, its light flashes. Press Stage to drop it!"
+    ],
+    "task": { "title": "Launch!", "help": "Steer to follow the guide, and press Stage when the light flashes." },
+    "liftoff": "Liftoff!",
+    "stageNow": "Stage now!",
+    "tooHeavyLine": "The rocket is struggling. Your ship is too heavy for it! Mission Control adds an emergency booster to save the day.",
+    "orbitLine": "You made it to space! Now your ship heads for its destination.",
+    "resultTitle": "Launched!",
+    "resultText": "Your ship is on its way.",
+    "labels": { "launch": "Launch", "stage": "Stage", "altitude": "Height", "speed": "Speed", "onPath": "On path", "left": "Steer left", "right": "Steer right" }
+  },
+
+  "cruise": {
+    "intro": [
+      "Your ship is coasting through space. Small pushes from sunlight and gravity nudge it off course.",
+      "Use the thrusters to stay inside the glowing path. Every puff uses a little fuel, so don't waste it!"
+    ],
+    "task": { "title": "Cruise through space!", "help": "Keep your ship inside the path with the up and down thrusters." },
+    "rocksLine": "Space rocks ahead! Steer around them.",
+    "flareLine": "Solar storm! Press Shelter to protect your ship.",
+    "flareVault": "Your radiation vault keeps the electronics safe.",
+    "powerLowLine": "Power is low out here, so your thrusters are weaker.",
+    "noFuelLine": "Out of fuel! Your ship drifts.",
+    "resultTitle": "Nearly there!",
+    "resultText": "Your destination is just ahead.",
+    "labels": { "fuel": "Fuel", "power": "Power", "day": "Day", "up": "Up", "down": "Down", "shelter": "Shelter", "onPath": "On path" }
+  },
+
+  "arrival": {
+    "moonIntro": [
+      "You've reached the Moon! Now land gently on the flat landing spot.",
+      "Hold Thrust to slow down, and use the side jets to steer. Watch your speed!"
+    ],
+    "marsIntro": [
+      "You've reached Mars! Landing takes three steps: the hot plunge through the air, the parachute, and touchdown.",
+      "First, keep the heat shield pointing forward into the air."
+    ],
+    "jupiterIntro": [
+      "Jupiter, dead ahead! To stay there, you must slow down at just the right moment, or you'll fly straight past.",
+      "Hold Burn to fire the engine until the speed needle reaches the green zone."
+    ],
+    "tasks": {
+      "moon": { "title": "Land on the Moon!", "help": "Hold Thrust to slow down, and steer to the green lights." },
+      "entry": { "title": "Heat shield forward!", "help": "Steer to keep the arrow green while the air heats up." },
+      "chute": { "title": "Open the parachute!", "help": "Tap Parachute when the needle is in the green zone." },
+      "crane": { "title": "Sky crane!", "help": "Hold to lower the rover, then cut the cables when it touches down." },
+      "airbags": { "title": "Inflate the airbags!", "help": "Tap Inflate when the needle reaches the green zone." },
+      "legs": { "title": "Touch down gently!", "help": "Hold Thrust to keep your speed low until you land." },
+      "jupiter": { "title": "Get captured into orbit!", "help": "Hold Burn until the speed needle is in the green zone." }
+    },
+    "noLegs": "Your ship has no landing gear, so it can't touch down. It stays in orbit and maps the surface instead.",
+    "noShield": "Without a heat shield, the ship can't plunge through the air. Mission Control parks it in orbit instead.",
+    "noChute": "No parachute! The ship falls much faster, so touchdown is harder.",
+    "noTouchdown": "Your ship has no soft way to touch down. Mission Control fires emergency thrusters at the last moment!",
+    "chuteNow": "Parachute open!",
+    "inflateNow": "Airbags inflated!",
+    "lowerNow": "Lowering on cables!",
+    "landed": "Touchdown!",
+    "captured": "Captured into orbit!",
+    "flewPast": "Too fast, you flew past! Let's try that swing again.",
+    "tooLow": "Too slow! The probe dipped deep into the radiation. Let's try again.",
+    "resultTitle": "You've arrived!",
+    "resultText": "Your ship made it to its destination.",
+    "labels": { "thrust": "Thrust", "left": "Left", "right": "Right", "speed": "Speed", "height": "Height", "heat": "Heat", "aim": "Shield aim", "chute": "Parachute", "inflate": "Inflate airbags", "lower": "Hold to lower", "cut": "Cut cables", "burn": "Hold to burn", "radiation": "Radiation", "fuel": "Fuel", "green": "Green zone: captured" }
+  },
+
+  "science": {
+    "intro": [
+      "Time for science! Each instrument you brought gets its own job.",
+      "Do your best with each one. The better the instrument suits this place, the more you'll discover."
+    ],
+    "task": { "title": "Do the science!", "help": "Follow the instructions for each instrument." },
+    "tasks": {
+      "camera": "Camera: tap the interesting things to photograph them.",
+      "spectrometer": "Spectrometer: drag the scanner over each glowing target and hold it there.",
+      "drill": "Drill: hold the drill button, keeping the pressure in the green zone.",
+      "magnetometer": "Magnetometer: tap the spots where the magnetic field is strongest.",
+      "weatherStation": "Weather station: tap Measure when the wind gauge is at its peak.",
+      "seismometer": "Seismometer: tap Record each time a quake wave reaches the line."
+    },
+    "useless": "This instrument has nothing to measure here.",
+    "noInstruments": "Your ship didn't bring any science instruments, so there's nothing to study.",
+    "lowPower": "Power is low, so the instruments work slowly.",
+    "great": "Great data!",
+    "resultTitle": "Science done!",
+    "resultText": "Scientists back on Earth can't wait to see your data.",
+    "labels": { "drill": "Hold to drill", "pressure": "Pressure", "depth": "Depth", "measure": "Measure", "record": "Record", "wind": "Wind", "scan": "Scanning", "photos": "Photos", "found": "Found" }
+  },
+
+  "home": {
+    "crewIntro": [
+      "Mission complete! Now the most important part: bringing the crew home safely.",
+      "First turn the heat shield to face forward, and pick the right angle into Earth's air."
+    ],
+    "robotIntro": [
+      "Your robot has collected lots of data. Now it has to send it all the way home to Earth.",
+      "Drag to keep the antenna pointed at Earth while the data is sent."
+    ],
+    "noShield": "Without a heat shield, the capsule can't come home through Earth's air. The crew waits in orbit for a rescue ship.",
+    "noChutes": "No parachutes! The capsule would hit the water far too hard. A rescue ship picks the crew up instead.",
+    "chutesNow": "Now open the parachutes when the height meter reaches the green zone!",
+    "splashdown": "Splashdown! Welcome home, crew!",
+    "dataDone": "All the data has reached Earth!",
+    "slowData": "The signal is weak from so far away, so the data trickles in slowly.",
+    "resultTitle": "Mission complete!",
+    "resultText": "Let's see how your mission went.",
+    "labels": { "aim": "Shield aim", "angle": "Entry angle", "steep": "Too steep", "shallow": "Too shallow", "lock": "Lock it in", "height": "Height", "chutes": "Parachutes", "data": "Data sent", "signal": "Signal", "drag": "Drag to aim at Earth" }
+  },
+
+  "report": {
+    "intro": [
+      "Here it is: the report for your mission! Let's see how you did."
+    ],
+    "great": "An amazing mission! NASA would be proud.",
+    "good": "A good mission! A few changes and it could be perfect.",
+    "ok": "You made it! Try again with a different design to score even higher.",
+    "saved": "Your report has been saved as a picture.",
+    "labels": {
+      "title": "Mission Report",
+      "design": "Design",
+      "tests": "Tests",
+      "flight": "Flight",
+      "score": "Score",
+      "points": "points",
+      "grade": "Grade",
+      "save": "Save picture",
+      "share": "Share",
+      "again": "New mission",
+      "continue": "Continue",
+      "credits": "Credits left",
+      "quiz": "First-try answers",
+      "badges": "Badges",
+      "phases": { "shake": "Shake", "thermal": "Hot & cold", "systems": "Systems", "launch": "Launch", "cruise": "Cruise", "arrival": "Arrival", "science": "Science", "home": "Home" },
+      "badgeNames": { "quizMaster": "Quiz master", "perfectLaunch": "Perfect launch", "smoothArrival": "Smooth arrival", "scienceStar": "Science star", "testPilot": "Test pilot", "budgetBoss": "Budget boss", "masterEngineer": "Master engineer" },
+      "made": "Made with Star Sailors · Test Your Knowledge"
+    }
+  },
+
+  "labels": {
+    "credits": "Credits",
+    "mass": "Ship mass",
+    "lift": "Rocket can carry",
+    "carries": "Carries",
+    "startHint": "Choose a spacecraft to start",
+    "tapPart": "Tap a part to hear about it and add it to your ship. Tap it again to take it off.",
+    "tons": "t",
+    "cost": "Cost",
+    "massShort": "Mass",
+    "onBoard": "On board",
+    "pickOne": "Pick one",
+    "pickMany": "Pick any",
+    "upTo": "up to",
+    "tooPoor": "Not enough credits",
+    "full": "That's the most you can carry",
+    "done": "Done",
+    "ready": "Ready to launch",
+    "notes": "Engineers' notes",
+    "bonus": "Bonus questions",
+    "to": "to",
+    "categories": { "body": "Spacecraft", "power": "Power", "comms": "Radio", "support": "Protection", "entry": "Landing gear", "science": "Science", "rocket": "Rocket", "extras": "Extras" },
+    "axes": { "launch": "Launch", "power": "Power", "comms": "Radio", "protection": "Safety", "arrival": "Arrival", "science": "Science" },
+    "missions": { "moon": "the Moon", "mars": "Mars", "jupiter": "Jupiter" },
+    "places": { "moon": "Moon", "mars": "Mars", "jupiter": "Jupiter" },
+    "colors": { "white": "White", "silver": "Silver", "gold": "Gold", "red": "Red", "orange": "Orange", "yellow": "Yellow", "green": "Green", "teal": "Teal", "blue": "Blue", "navy": "Navy", "purple": "Purple", "pink": "Pink", "black": "Black" }
+  },
+
+  "complete": {
+    "title": "Mission accomplished!",
+    "badge": "Mission Designer",
+    "lines": [
+      "You answered questions about everything you learned.",
+      "You designed, built and tested your own spaceship.",
+      "You flew your very own mission!"
+    ],
+    "guide": "Congratulations, mission designer! Try a different destination, or build an even better ship, to beat your score."
+  }
+}

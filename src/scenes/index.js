@@ -69,6 +69,20 @@ import { LagrangeScene } from './ch7/LagrangeScene.js';
 import { MirrorAlignScene } from './ch7/MirrorAlignScene.js';
 import { SunshieldGuardScene } from './ch7/SunshieldGuardScene.js';
 import { DeepFieldScene } from './ch7/DeepFieldScene.js';
+// Special mode · Test your knowledge
+import { LabMissionScene } from './lab/LabMissionScene.js';
+import { LabLaunchScene } from './lab/LabLaunchScene.js';
+import { LabCruiseScene } from './lab/LabCruiseScene.js';
+import { LabArrivalScene } from './lab/LabArrivalScene.js';
+import { LabScienceScene } from './lab/LabScienceScene.js';
+import { LabHomeScene } from './lab/LabHomeScene.js';
+import { LabReportScene } from './lab/LabReportScene.js';
+import { LabShakeScene } from './lab/LabShakeScene.js';
+import { LabThermalScene } from './lab/LabThermalScene.js';
+import { LabSystemsScene } from './lab/LabSystemsScene.js';
+import { LabQuizScene } from './lab/LabQuizScene.js';
+import { LabBuildScene } from './lab/LabBuildScene.js';
+import { LabPaintScene } from './lab/LabPaintScene.js';
 import { SpectrumScene } from './ch7/SpectrumScene.js';
 
 // Overlay scenes (Pause, Settings) are listed last so they draw on top.
@@ -136,6 +150,19 @@ export const ALL_SCENES = [
   SunshieldGuardScene,
   DeepFieldScene,
   SpectrumScene,
+  LabMissionScene,
+  LabLaunchScene,
+  LabCruiseScene,
+  LabArrivalScene,
+  LabScienceScene,
+  LabHomeScene,
+  LabReportScene,
+  LabShakeScene,
+  LabThermalScene,
+  LabSystemsScene,
+  LabQuizScene,
+  LabBuildScene,
+  LabPaintScene,
   PauseScene,
   SettingsScene
 ];

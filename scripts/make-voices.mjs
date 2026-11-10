@@ -152,6 +152,8 @@ const NOT_SPOKEN_LATER = new Set([
   'day', 'caption', 'labs', 'lostTarget', 'secondEarly', 'fallback', 'enginesLabel', 'panelTitle', 'aimLabel', 'firstLabel',
   'lastLabel', 'taskTitle'
 ]);
+// ...except where a later chapter does read them aloud (the special mode reads each part's name and info)
+const SPOKEN_IN = { scene8: ['parts'] };
 
 function readJSON(f) {
   return JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -182,7 +184,7 @@ function walk(node, folder, trail) {
   if (node && typeof node === 'object') {
     for (const [k, v] of Object.entries(node)) {
       if (NOT_SPOKEN.has(k)) continue;
-      if (NOT_SPOKEN_LATER.has(k) && !OLD_CHAPTERS.includes(folder)) continue;
+      if (NOT_SPOKEN_LATER.has(k) && !OLD_CHAPTERS.includes(folder) && !(SPOKEN_IN[folder] || []).includes(k)) continue;
       const parent = trail[trail.length - 1];
       if (k === 'year' && !trail.includes('tvs')) continue; // years are spoken only by the TV milestones
       if (k === 'title' && (trail.length === 0 || parent === 'complete' || String(parent).endsWith('Reveal'))) continue;

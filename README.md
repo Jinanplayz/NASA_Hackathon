@@ -17,7 +17,17 @@ It runs in any modern browser on phones, tablets and computers, with nothing to 
 | **2 · Explorer 1** (1958) | What a satellite is (Newton's cannon) · NASA film · **Drag-and-drop assembly** of Explorer 1 · 3D reveal · **Guide it to orbit** while a row of TVs lights up (black & white, then colour) with the satellite milestones that followed · **Timing game** to keep the satellite steady · the Van Allen belt discovery |
 | **3 · Apollo 11** (1969) | Intro with real NASA photos and film · **Parts checklist** (wrong parts explain why the mission would fail) · Saturn V in 3D · **Research**: rate how hard 5 parts were to build, with instant feedback · **Connect Mission Control** (the real chain of communication) · **Launch countdown** (arrow sequences, or swipes on phones) · NASA launch footage · **Dodge to the Moon** · **Land the Eagle** (thrust, side jets, fuel, the real 1202 alarm, and an optional *Landing help* computer) · NASA moonwalk footage · **Collect and sort Moon samples** · **Repair and prepare for re-entry** (Buzz Aldrin's felt-tip pen fix, Service Module separation, heat shield, entry angle) · **Splashdown** (parachutes, flip the upside-down capsule, safety gear) · **Helicopter search and rescue** · **Mission summary** |
 
-Later missions (Apollo 13, Voyager 1, Mars rovers, JWST) appear as "coming soon".
+Chapters 4–7 follow Apollo 13, Voyager 1, the Mars rovers and the James Webb Space Telescope.
+
+**Special mode · Test your knowledge** (page 2 of the chapter menu, about 30–40 minutes): the player
+designs their own mission. They pick the Moon, Mars or Jupiter, then earn credits in three quizzes about
+everything in chapters 1–7. The quizzes give clues and say where to look, never the answer. The credits buy
+parts: spacecraft, power, radio, protection, landing gear, science instruments and a rocket. The player names
+and paints the ship and designs a mission patch. The ship then goes through NASA-style tests (shake,
+hot and cold, unfold and switch on) and a design review whose engineers' notes say what the tests found.
+Then it flies: launch, cruise, arrival, science and the trip home. The ship's design and every result
+add up to a mission report with stars, a grade, a chart and badges, which can be saved as a picture and shared.
+Its text is in `public/content/scene8/scene.json`, and its code is in `src/scenes/lab/`.
 
 ## Accessibility
 

@@ -75,7 +75,21 @@ const MUSIC = {
   MirrorAlign: 'lab',
   SunshieldGuard: 'space',
   DeepField: 'space',
-  Spectrum: 'lab'
+  Spectrum: 'lab',
+  // Special mode · Test your knowledge
+  LabMission: 'menu',
+  LabQuiz: 'lab',
+  LabBuild: 'lab',
+  LabPaint: 'lab',
+  LabShake: 'tension',
+  LabThermal: 'tension',
+  LabSystems: 'lab',
+  LabLaunch: 'tension',
+  LabCruise: 'space',
+  LabArrival: 'tension',
+  LabScience: 'space',
+  LabHome: 'tension',
+  LabReport: 'triumph'
 };
 
 // Shared setup for every screen: camera scaling, top bar, guide, pause menu,

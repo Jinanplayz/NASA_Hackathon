@@ -81,6 +81,17 @@
       "subtitle": "A golden eye that sees the very first galaxies",
       "years": "2021 – today",
       "art": "jwst"
+    },
+    {
+      "id": "lab",
+      "folder": "scene8",
+      "label": "Special mode",
+      "short": "Special mode · Test your knowledge",
+      "title": "TEST YOUR KNOWLEDGE",
+      "subtitle": "Use everything you learned to design, test and fly your very own spaceship, then share your mission report",
+      "years": "",
+      "art": "lab",
+      "special": true
     }
   ],
   "ui": {
@@ -101,6 +112,12 @@
     "chapters": "Chapter menu",
     "home": "Home",
     "chooseChapter": "Choose your mission",
+    "specialMode": "Special mode",
+    "chaptersPage": "Chapters",
+    "howItWorks": "How it works",
+    "labSteps": ["Answer questions to earn credits", "Build your own spaceship", "Test it like NASA does", "Fly your mission", "Share your report"],
+    "bestMission": "Your best mission",
+    "noBestMission": "No mission flown yet. Will you be the first?",
     "comingSoon": "Coming soon",
     "completed": "Completed!",
     "activitiesDone": "activities done",

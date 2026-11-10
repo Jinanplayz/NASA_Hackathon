@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { W, H, FULL, COLORS, CSS, DEPTH } from '../core/constants.js';
+import { W, H, FULL, TEX, COLORS, CSS, DEPTH } from '../core/constants.js';
 import { Content } from '../core/Content.js';
 import { Progress } from '../core/Progress.js';
 import { Flow } from '../core/Flow.js';
@@ -10,12 +10,26 @@ import { txt, fitText } from '../ui/text.js';
 import { Button, iconButton } from '../ui/Button.js';
 import { panel, RoundBox } from '../ui/widgets.js';
 import { drawIcon } from '../ui/icons.js';
+import { craftTexture, patchTexture } from './lab/labArt.js';
+import { Lab } from './lab/labState.js';
 
 // Mission map: every chapter on one screen as a picture card. Up to three chapters get big
 // cards in a row; more chapters are laid out as a tidy grid (four on top, the rest below).
-// Pick a chapter, then start it or jump to one of its activities.
+// Pick a chapter, then start it or jump to one of its activities. Special modes ("special" in
+// game.json) get a second page of their own.
 const BIG = { w: 370, h: 420, gap: 30, artH: 180, art: 1 };
 const SMALL = { w: 288, h: 288, gap: 16, artH: 120, art: 0.68 };
+// the ship on the special mode's card before the player has flown a mission
+const EXAMPLE_SHIP = {
+  mission: 'mars',
+  body: 'rover',
+  power: 'rtg',
+  comms: 'dish',
+  support: ['insulation'],
+  entry: ['parachutes', 'skyCrane'],
+  science: ['camera', 'spectrometer', 'drill'],
+  paint: { body: 'white', trim: 'orange', pattern: 'stripes' }
+};
 
 export class ChapterSelectScene extends BaseScene {
   constructor() {
@@ -26,11 +40,38 @@ export class ChapterSelectScene extends BaseScene {
     this.setupStage({ hud: false });
     starfield(this, { count: 180 });
 
-    txt(this, W / 2, 50, Content.ui('chooseChapter', 'Choose your mission'), { size: 40, weight: 800, origin: 0.5, color: CSS.yellow, scale: false });
     iconButton(this, 44, 44, 'home', () => Flow.home(this)).setDepth(DEPTH.ui);
     iconButton(this, W - 44, 44, 'sliders', () => this.openSettings()).setDepth(DEPTH.ui);
 
-    const chapters = Content.game.chapters;
+    const all = Content.game.chapters;
+    const chapters = all.filter((c) => !c.special);
+    const special = all.filter((c) => c.special && Content.chapter(c.id));
+    this.page = special.length && (this.payload.page === 1 || special.some((c) => c.id === this.payload.focus)) ? 1 : 0;
+    const heading = this.page ? Content.ui('specialMode', 'Special mode') : Content.ui('chooseChapter', 'Choose your mission');
+    txt(this, W / 2, 50, heading, { size: 40, weight: 800, origin: 0.5, color: CSS.yellow, scale: false });
+    if (special.length) {
+      // switch between the chapters and the special mode (also with the arrow keys)
+      const toSpecial = this.page === 0;
+      const sw = new Button(this, toSpecial ? W - 210 : 210, 44, {
+        width: 230,
+        height: 54,
+        size: 20,
+        iconSize: 22,
+        label: toSpecial ? Content.ui('specialMode', 'Special mode') : Content.ui('chaptersPage', 'Chapters'),
+        icon: toSpecial ? 'next' : 'back',
+        variant: toSpecial ? 'warn' : 'secondary',
+        onClick: () => this.showPage(toSpecial ? 1 : 0)
+      }).setDepth(DEPTH.ui);
+      if (toSpecial && !this.reducedMotion) sw.pulse();
+      if (this.input.keyboard) {
+        this.input.keyboard.on('keydown-RIGHT', () => this.page === 0 && this.showPage(1));
+        this.input.keyboard.on('keydown-LEFT', () => this.page === 1 && this.showPage(0));
+      }
+    }
+    if (this.page === 1) {
+      this.specialPage(special[0]);
+      return;
+    }
 
     if (chapters.length <= 3) {
       // a few chapters: big cards in one row
@@ -56,7 +97,7 @@ export class ChapterSelectScene extends BaseScene {
 
   makeCard(c, x, y, size, index) {
     const { w, h, artH } = size;
-    const big = size === BIG;
+    const big = size === BIG || !!size.big;
     const locked = c.comingSoon || !Content.chapter(c.id);
     const done = !locked && Progress.isChapterDone(c.id);
     const steps = locked ? [] : Content.chapter(c.id).steps;
@@ -94,9 +135,9 @@ export class ChapterSelectScene extends BaseScene {
 
     const top = -h / 2 + pad + artH;
     const num = txt(this, -w / 2 + 20, top + (big ? 12 : 10), (c.label || `Chapter ${index + 1}`).toUpperCase(), { size: big ? 15 : 13, weight: 700, color: CSS.cyan, scale: false });
-    const title = txt(this, -w / 2 + 20, num.y + num.height + 2, c.title, { size: big ? 26 : 21, weight: 800, scale: false, color: locked ? '#c9d0ee' : CSS.text });
+    const title = txt(this, -w / 2 + 20, num.y + num.height + 2, c.title, { size: size.title ?? (big ? 26 : 21), weight: 800, scale: false, color: locked ? '#c9d0ee' : CSS.text });
     fitText(title, w - 40, big ? 64 : 28, 15);
-    const sub = txt(this, -w / 2 + 20, title.y + title.height + 3, locked ? c.years || '' : c.subtitle || '', { size: big ? 16 : 14, color: CSS.dim, scale: false, wrap: w - 40, lineSpacing: 2 });
+    const sub = txt(this, -w / 2 + 20, title.y + title.height + 3, locked ? c.years || '' : c.subtitle || '', { size: size.sub ?? (big ? 16 : 14), color: CSS.dim, scale: false, wrap: w - 40, lineSpacing: 2 });
     fitText(sub, w - 40, big ? 60 : 36, 11);
     cont.add([num, title, sub]);
     if (locked) {
@@ -128,6 +169,50 @@ export class ChapterSelectScene extends BaseScene {
     cont.setAlpha(0);
     cont.y += 30;
     this.tweens.add({ targets: cont, alpha: 1, y, duration: 400, delay: index * 90, ease: 'Cubic.easeOut' });
+  }
+
+  showPage(page) {
+    if (this._leaving) return;
+    this._leaving = true;
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart({ page }));
+    this.cameras.main.fadeOut(200, 7, 11, 29);
+  }
+
+  // The special mode: one big card, how it works, and the best mission flown so far.
+  specialPage(c) {
+    this.makeCard(c, 380, 392, { w: 600, h: 540, artH: 300, art: 1, big: true, title: 36, sub: 18 }, 0);
+
+    const px = 720, py = 122, pw = 520, ph = 540;
+    const box = this.add.container(0, 0).setDepth(DEPTH.ui - 1).setAlpha(0);
+    box.add(new RoundBox(this).draw(px, py, pw, ph, { fill: COLORS.panel, stroke: COLORS.stroke, strokeWidth: 3, radius: 22 }));
+    box.add(txt(this, px + 28, py + 24, Content.ui('howItWorks', 'How it works'), { size: 24, weight: 800, color: CSS.cyan, scale: false }));
+    const steps = Content.game.ui.labSteps || [];
+    const colors = [COLORS.yellow, COLORS.cyan, COLORS.orange, COLORS.green, COLORS.pink];
+    steps.forEach((t, i) => {
+      const y = py + 84 + i * 46;
+      box.add(this.add.circle(px + 46, y, 16, colors[i % colors.length]));
+      box.add(txt(this, px + 46, y, String(i + 1), { size: 17, weight: 800, color: CSS.dark, origin: 0.5, scale: false }));
+      box.add(txt(this, px + 76, y, t, { size: 19, weight: 700, origin: [0, 0.5], scale: false }));
+    });
+    const by = py + 84 + steps.length * 46 + 6;
+    box.add(this.add.rectangle(px + pw / 2, by, pw - 56, 2, COLORS.stroke));
+    box.add(txt(this, px + 28, by + 16, Content.ui('bestMission', 'Your best mission'), { size: 22, weight: 800, color: CSS.yellow, scale: false }));
+    const best = Lab.best();
+    if (best && best.design) {
+      const patch = this.add.image(px + 88, by + 120, patchTexture(this, best.design)).setScale(0.5 / TEX);
+      const name = txt(this, px + 168, by + 60, best.name || '', { size: 24, weight: 800, scale: false, wrap: pw - 196 });
+      fitText(name, pw - 196, 34, 14);
+      const info = txt(this, px + 168, by + 96, `${best.place || ''}\n${best.points} ${best.pointsLabel || 'points'} · ${best.grade || ''}`, { size: 17, color: CSS.dim, scale: false, wrap: pw - 196, lineSpacing: 4 });
+      const stars = this.add.graphics();
+      for (let i = 0; i < 5; i++) {
+        const full = best.stars >= i + 1, half = !full && best.stars >= i + 0.5;
+        drawIcon(stars, 'star', px + 182 + i * 30, by + 166, 24, full || half ? COLORS.yellow : 0x2a3566, half ? 0.55 : 1);
+      }
+      box.add([patch, name, info, stars]);
+    } else {
+      box.add(txt(this, px + 28, by + 58, Content.ui('noBestMission', 'No mission flown yet.'), { size: 18, color: CSS.dim, scale: false, wrap: pw - 56 }));
+    }
+    this.tweens.add({ targets: box, alpha: 1, duration: 400, delay: 200 });
   }
 
   chapterArt(kind) {
@@ -197,6 +282,15 @@ export class ChapterSelectScene extends BaseScene {
       c.add(heli);
       float(heli, -10, 1600);
       if (!calm) this.tweens.add({ targets: blades, scaleX: 0.3, duration: 60, yoyo: true, repeat: -1 });
+    } else if (kind === 'lab') {
+      // the player's best ship (or an example), with the three destinations behind it
+      c.add(img(this, -205, -70, 'moonSmall', 0.9));
+      c.add(img(this, 200, -78, 'mars', 0.34));
+      c.add(img(this, 222, 74, 'jupiter', 0.34));
+      const best = Lab.best();
+      const ship = this.add.image(0, 8, craftTexture(this, best && best.design ? best.design : EXAMPLE_SHIP)).setScale(0.95 / TEX);
+      c.add(ship);
+      float(ship, -8, 2200);
     } else if (kind === 'apollo13') {
       c.add(img(this, 118, -40, 'moonSmall', 0.95));
       c.add(img(this, -122, 58, 'earthSmall', 0.85));

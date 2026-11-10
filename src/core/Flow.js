@@ -71,7 +71,21 @@ export const SCENE_FOR_TYPE = {
   mirrorAlign: 'MirrorAlign',
   sunshieldGuard: 'SunshieldGuard',
   deepField: 'DeepField',
-  spectrum: 'Spectrum'
+  spectrum: 'Spectrum',
+  // Special mode · Test your knowledge
+  labMission: 'LabMission',
+  labQuiz: 'LabQuiz',
+  labBuild: 'LabBuild',
+  labPaint: 'LabPaint',
+  labShake: 'LabShake',
+  labThermal: 'LabThermal',
+  labSystems: 'LabSystems',
+  labLaunch: 'LabLaunch',
+  labCruise: 'LabCruise',
+  labArrival: 'LabArrival',
+  labScience: 'LabScience',
+  labHome: 'LabHome',
+  labReport: 'LabReport'
 };
 
 const OVERLAYS = ['Pause', 'Settings'];

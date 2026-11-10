@@ -12,6 +12,7 @@ import { VISUALS_CH4 } from './visuals4.js';
 import { VISUALS_CH5 } from './visuals5.js';
 import { VISUALS_CH6 } from './visuals6.js';
 import { VISUALS_CH7 } from './visuals7.js';
+import { VISUALS_LAB } from './visualsLab.js';
 
 export const VISUALS = {
   sky(scene, c, w, h) {
@@ -810,7 +811,7 @@ export const VISUALS = {
 };
 
 // the later chapters keep their pictures in their own files
-Object.assign(VISUALS, VISUALS_CH4, VISUALS_CH5, VISUALS_CH6, VISUALS_CH7);
+Object.assign(VISUALS, VISUALS_CH4, VISUALS_CH5, VISUALS_CH6, VISUALS_CH7, VISUALS_LAB);
 
 export function drawVisual(scene, c, key, w, h, slide) {
   const fn = VISUALS[key] || VISUALS.sky;
