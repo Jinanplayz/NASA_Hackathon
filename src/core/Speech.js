@@ -20,6 +20,10 @@ let paused = false;
 let pausedTTS = false;
 let current = null; // the recorded line playing now: { el, arm }
 let resumeWaiters = [];
+// The line being said now ({ my, done }), so a line said with { wait: true } can let it finish.
+let active = null;
+let epoch = 0; // bumped by Speech.stop(): lines still waiting their turn are dropped
+let waitTicket = 0; // only the newest waiting line is said
 
 function whenResumed() {
   return paused ? new Promise((r) => resumeWaiters.push(r)) : Promise.resolve();
@@ -215,18 +219,65 @@ function playFile(url, my) {
   });
 }
 
+// Stops whatever is being said now.
+function halt() {
+  token++;
+  active = null;
+  // anything waiting for a resume just finishes (it sees the new token)
+  paused = false;
+  const waiters = resumeWaiters;
+  resumeWaiters = [];
+  waiters.forEach((r) => r());
+  clearTimeout(watchdog);
+  if (cancelCurrent) cancelCurrent();
+  cancelCurrent = null;
+  if (synth) {
+    try {
+      synth.cancel();
+    } catch {
+      /* ignore */
+    }
+  }
+  players.forEach((p) => {
+    if (!p.paused) p.pause();
+  });
+  Sfx.duckMusic(false);
+}
+
 export const Speech = {
   // text can be a string or a list of pieces (spoken one after another). Pieces made with
   // live('...') (numbers that change every game) always use the browser voice.
   // Returns a promise that resolves when everything has been said (or was stopped).
-  say(text, { audio = null, force = false } = {}) {
-    this.stop();
+  // { wait: true }: the next line of an activity (a new task, the guide's next message, a
+  // result). It lets the line being said now finish first, instead of cutting it off. Anything
+  // the player does (a tap, Next, the speaker button) still starts its line straight away.
+  say(text, { audio = null, force = false, wait = false, maxWait = 20000 } = {}) {
+    if (wait && this.speaking) {
+      const ticket = ++waitTicket;
+      const myEpoch = epoch;
+      const stale = () => ticket !== waitTicket || myEpoch !== epoch;
+      return (async () => {
+        // wait behind whatever is being said (and anything that starts meanwhile), for up to
+        // maxWait of actual speaking (time spent paused doesn't count)
+        let waited = 0;
+        while (this.speaking && waited < maxWait) {
+          const t0 = Date.now();
+          await Promise.race([active.done, new Promise((r) => setTimeout(r, 200))]);
+          if (!paused) waited += Date.now() - t0;
+          if (stale()) return false;
+        }
+        await whenResumed();
+        if (stale()) return false;
+        return this.say(text, { audio, force });
+      })();
+    }
+    halt();
     const my = ++token;
     const parts = speechParts(text);
     if (!parts.length || (!Settings.get('readAloud') && !force)) return Promise.resolve(false);
 
     Sfx.duckMusic(true);
-    return (async () => {
+    const run = (async () => {
       let ok = true;
       // browser voice, said again from the start of the sentence if a pause cut it off
       const tts = async (text) => {
@@ -257,6 +308,16 @@ export const Speech = {
       if (my === token) Sfx.duckMusic(false);
       return my === token && ok;
     })();
+    active = { my, done: run };
+    run.then(() => {
+      if (active && active.my === my) active = null;
+    });
+    return run;
+  },
+
+  // true while a line is being said (or is paused part-way)
+  get speaking() {
+    return !!active && active.my === token;
   },
 
   // Pause and carry on later (the pause button and the pause menu).
@@ -295,27 +356,10 @@ export const Speech = {
     return paused;
   },
 
+  // Stops the line being said, and drops any line still waiting for its turn.
   stop() {
-    token++;
-    // anything waiting for a resume just finishes (it sees the new token)
-    paused = false;
-    const waiters = resumeWaiters;
-    resumeWaiters = [];
-    waiters.forEach((r) => r());
-    clearTimeout(watchdog);
-    if (cancelCurrent) cancelCurrent();
-    cancelCurrent = null;
-    if (synth) {
-      try {
-        synth.cancel();
-      } catch {
-        /* ignore */
-      }
-    }
-    players.forEach((p) => {
-      if (!p.paused) p.pause();
-    });
-    Sfx.duckMusic(false);
+    epoch++;
+    halt();
   },
 
   // true when the recorded Captain Nova voice is installed

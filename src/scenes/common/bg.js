@@ -22,12 +22,21 @@ function starTexture(scene) {
 }
 
 // Scatters dots: a list of { x, y, size, alpha, tint }, where size picks a radius from STAR_R
-// (0 is the smallest). Returns the Blitter (add more with addDots, or empty it with clear()).
+// (0 is the smallest). Returns the dot layer (add more with addDots, or empty it with clear()).
+// Phaser draws a Blitter's dots without the Blitter's own scale (it only uses its position and
+// any parent container's transform), so the Blitter sits in a container that carries the scale:
+// the dots are painted TEX times larger and shown at their real size and place.
 export function starDots(scene, stars, depth = 0) {
   starTexture(scene);
-  const b = scene.add.blitter(0, 0, 'starDots').setDepth(depth).setScale(1 / TEX);
-  addDots(b, stars);
-  return b;
+  const b = scene.make.blitter({ x: 0, y: 0, key: 'starDots', add: false });
+  const layer = scene.add.container(0, 0, [b]).setDepth(depth).setScale(1 / TEX);
+  layer.create = (...a) => b.create(...a);
+  layer.clear = () => {
+    b.clear();
+    return layer;
+  };
+  addDots(layer, stars);
+  return layer;
 }
 
 export function addDots(b, stars) {

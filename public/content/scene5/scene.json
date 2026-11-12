@@ -333,7 +333,7 @@
     "resultText": "Voyager 1 sent back thousands of pictures of Jupiter and its moons, showing them up close for the very first time.",
     "task": {
       "title": "Photograph Jupiter!",
-      "help": "Move the frame onto a yellow target. When it turns green, press SNAP!"
+      "help": "Tap or drag to move the frame onto a yellow target. When it turns green, press SNAP!"
     }
   },
 
@@ -547,7 +547,7 @@
     "doneLine": "You found the whole family! Mercury and Mars were lost in the Sun's glare, and Pluto was too small to see. That tiny dot in the sunbeam is Earth, seen from about 6 billion km (3.7 billion miles) away.",
     "resultTitle": "Family portrait!",
     "resultText": "The real portrait was made from 60 photos. It was the first picture of our solar system taken from outside.",
-    "lookHelp": "Drag to look around the sky. Tap the planet when you spot it."
+    "lookHelp": "Drag to look around the sky. Tap the planet when you spot it, or drag it into the circle."
   },
 
   "paleBlueDot": {

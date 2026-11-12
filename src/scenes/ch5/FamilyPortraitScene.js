@@ -39,7 +39,8 @@ export class FamilyPortraitScene extends BaseScene {
     this.goal = new GoalBar(this);
 
     // the wide sky (dragged around)
-    this.sky = this.add.container(-560, -330);
+    // (starting where Jupiter, the first planet to find, isn't hidden under the task bar)
+    this.sky = this.add.container(-560, -260);
     const g = this.add.graphics();
     g.fillStyle(0x000000, 1);
     g.fillRect(0, 0, SKY_W, SKY_H);
@@ -102,6 +103,8 @@ export class FamilyPortraitScene extends BaseScene {
       const d = this.drag;
       this.drag = null;
       if (d && !d.moved) this.look(p.worldX, p.worldY);
+      // dragged a planet into the circle in the middle: that counts as finding it too
+      else if (d) this.look(W / 2 - 120, H / 2, true);
     });
     if (this.input.keyboard) {
       this.keys = this.input.keyboard.addKeys('UP,DOWN,LEFT,RIGHT');
@@ -122,7 +125,7 @@ export class FamilyPortraitScene extends BaseScene {
     if (!next) return;
     this.wanted = next;
     this.goal.set({ title: next.ask || next.name, help: this.T('lookHelp', 'Drag to look around the sky. Tap the planet when you spot it.') }, { count: `${this.found.size} / ${this.list.length}`, speak: false });
-    Speech.say(this.found.size ? next.ask : [next.ask, this.T('lookHelp', '')]);
+    Speech.say(this.found.size ? next.ask : [next.ask, this.T('lookHelp', '')], { wait: true });
   }
 
   moveSky(x, y) {
@@ -142,11 +145,13 @@ export class FamilyPortraitScene extends BaseScene {
     });
   }
 
-  look(x, y) {
+  // quiet: a check after dragging (finding nothing there isn't a wasted look)
+  look(x, y, quiet = false) {
     if (this.state !== 'play') return;
-    this.taps++;
     const sx = x - this.sky.x, sy = y - this.sky.y;
     const hit = this.list.find((pl) => !this.found.has(pl.id) && PLANETS[pl.id] && Math.hypot(PLANETS[pl.id].x - sx, PLANETS[pl.id].y - sy) < this.reach);
+    if (quiet && !hit) return;
+    this.taps++;
     if (!hit) {
       Sfx.play('click');
       toast(this, this.T('nothing', 'Just stars there.'), { y: 664, sound: false, duration: 1200, size: 18 });

@@ -1,4 +1,4 @@
-import { COLORS, CSS, clamp } from '../../core/constants.js';
+import { W, COLORS, CSS, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
@@ -26,6 +26,7 @@ export class LabThermalScene extends BaseScene {
   }
 
   create() {
+    this.toldWeak = false;
     this.setupStage({ bg: 0x0a0e18, music: 'tension' });
     blueprint(this);
     Lab.ensureShip();
@@ -33,7 +34,8 @@ export class LabThermalScene extends BaseScene {
     const d = Lab.design();
     this.insulated = d.support.includes('insulation');
     this.rtg = d.power === 'rtg';
-    this.heatPower = powerAt(d.power, d.mission) >= 50 ? 1 : 0.5;
+    // a weak power source (dim sunlight, flat batteries) makes the heaters warm slowly
+    this.heatPower = powerAt(d.power, d.mission) >= 50 ? 1 : 0.35;
     this.cold = COLD[d.mission];
     this.temp = 0.5;
     this.t = 0;
@@ -101,6 +103,15 @@ export class LabThermalScene extends BaseScene {
     this[which] = !this[which];
     Sfx.play('switch');
     this.buttons();
+    // the first time the heaters go on with weak power, say why they're slow
+    if (which === 'heater' && this.heater && this.heatPower < 1 && !this.toldWeak) {
+      this.toldWeak = true;
+      const line = this.T('weakHeater', '');
+      if (line) {
+        Speech.say(line);
+        toast(this, line, { x: W / 2, y: 560, color: COLORS.orange, sound: false, duration: 4200, wrap: 700 });
+      }
+    }
   }
 
   buttons() {
@@ -126,8 +137,10 @@ export class LabThermalScene extends BaseScene {
     const slow = (this.insulated ? 0.5 : 1) * (this.relaxed ? 0.7 : 1);
     const env = (sun ? 0.07 : -0.07 * this.cold) * slow;
     let d = env + (this.rtg ? 0.018 : 0);
-    if (this.heater) d += 0.085 * this.heatPower;
-    if (this.radiator) d -= 0.085;
+    // the heaters always beat the cold in the shade (slowly with weak power), and the
+    // radiators always beat the lamps in the sunshine
+    if (this.heater) d += 0.07 * this.cold * slow + 0.06 * this.heatPower;
+    if (this.radiator) d -= 0.07 * slow + 0.06;
     this.temp = clamp(this.temp + d * dt, 0, 1);
     if (this.temp >= BAND[0] && this.temp <= BAND[1]) this.inBand += dt;
     // warn once each time it leaves the zone

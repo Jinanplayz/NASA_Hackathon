@@ -5,7 +5,7 @@ import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
 import { playIntro, GoalBar, idleHint } from '../common/kit.js';
 import { img } from '../../art/core.js';
-import { txt } from '../../ui/text.js';
+import { txt, fitText } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
 import { RoundBox, ProgressBar, floatText, shake } from '../../ui/widgets.js';
 import { Lab, rate, relevance, powerAt, part } from './labState.js';
@@ -99,7 +99,9 @@ export class LabScienceScene extends BaseScene {
     this.t = 0;
     this.secs = SECS * (0.7 + this.pf * 0.3);
     const line = (this.T('tasks', {}) || {})[id] || p.name;
-    this.title.setText(line);
+    // (one line: it sits just above the timer bar)
+    this.title.setFontSize(22).setText(line);
+    fitText(this.title, 1040, 30, 14);
     Speech.say(line);
     this.task = this[`${id}Task`]();
   }
@@ -268,49 +270,91 @@ export class LabScienceScene extends BaseScene {
 
   // ---------- magnetometer: tap the strongest spots ----------
   magnetometerTask() {
-    const g = this.add.graphics();
-    this.area.add(g);
+    // four hidden spots where the field is strong; the probe's meter shows how strong it is
+    // where the probe is. Hold the probe on a strong spot to record it.
     const spots = [];
-    for (let i = 0; i < 4; i++) spots.push({ x: AX + 120 + i * 260 + this.rnd(-40, 40), y: AY + this.rnd(80, AH - 80), found: false });
-    // field lines bunch up near the strong spots
-    g.lineStyle(2, 0x7fc8ff, 0.4);
-    for (let y = AY + 20; y < AY + AH; y += 22) {
+    for (let i = 0; i < 4; i++) spots.push({ x: AX + 130 + i * 260 + this.rnd(-40, 40), y: AY + this.rnd(100, AH - 90), found: false, prog: 0 });
+    // field lines bunch together where the field is strongest
+    const g = this.add.graphics();
+    g.lineStyle(2, 0x7fc8ff, 0.3);
+    for (let y = AY + 24; y < AY + AH; y += 24) {
       g.beginPath();
-      for (let x = AX; x <= AX + AW; x += 16) {
-        const pull = spots.reduce((s, p) => s + 30 * Math.exp(-((x - p.x) ** 2 + (y - p.y) ** 2) / 9000), 0);
-        const yy = y + Math.sin(x * 0.02) * 6 + pull * Math.sign(spots[0].y - y || 1) * 0.4;
+      for (let x = AX; x <= AX + AW; x += 12) {
+        const pull = spots.reduce((sum, p) => sum + (p.y - y) * 0.45 * Math.exp(-((x - p.x) ** 2 + (p.y - y) ** 2) / 14000), 0);
+        const yy = y + Math.sin(x * 0.02 + y) * 4 + pull;
         if (x === AX) g.moveTo(x, yy);
         else g.lineTo(x, yy);
       }
       g.strokePath();
     }
-    spots.forEach((p) => {
-      const z = this.add.zone(p.x, p.y, 110, 110).setInteractive({ useHandCursor: true });
-      z.on('pointerdown', () => {
-        if (p.found || this.state !== 'task') return;
-        p.found = true;
-        this.counter.setText(`${this.L.found || 'Found'}: ${spots.filter((x) => x.found).length} / 4`);
-        Sfx.play('chime');
-        this.area.add(this.add.circle(p.x, p.y, 30, COLORS.green, 0.5));
-      });
-      this.area.add(z);
+    this.area.add(g);
+    // the strength meter
+    this.area.add(txt(this, AX + AW - 300, AY + 12, this.L.field || 'Field strength', { size: 16, weight: 800, color: CSS.cyan, scale: false }));
+    const meterG = this.add.graphics();
+    this.area.add(meterG);
+    // the probe
+    const probe = this.add.container(AX + AW / 2, AY + AH / 2);
+    const pg = this.add.graphics();
+    const ring = this.add.graphics();
+    probe.add([pg, ring]);
+    this.area.add(probe);
+    const strength = (x, y) => Math.max(0, ...spots.filter((p) => !p.found).map((p) => Math.exp(-((x - p.x) ** 2 + (y - p.y) ** 2) / 9000)));
+    const place = (p) => probe.setPosition(clamp(p.worldX, AX + 20, AX + AW - 20), clamp(p.worldY, AY + 20, AY + AH - 20));
+    this.input.on('pointermove', (p) => {
+      if (this.state === 'task' && this.id === 'magnetometer' && p.isDown) place(p);
     });
-    // a tap anywhere else is a wasted reading
-    let misses = 0;
-    const missFn = (ptr, objs) => {
-      if (this.state === 'task' && this.id === 'magnetometer' && !objs.length && ptr.worldY > AY && ptr.worldY < AY + AH) {
-        misses++;
-        Sfx.play('error');
-      }
-    };
-    this.input.on('pointerdown', missFn);
+    this.input.on('pointerdown', (p) => {
+      if (this.state === 'task' && this.id === 'magnetometer') place(p);
+    });
+    const found = () => spots.filter((p) => p.found).length;
     return {
-      update: () => {
-        if (spots.every((p) => p.found)) this.taskDone(100 - misses * 8);
+      update: (dt) => {
+        if (this.keys) {
+          probe.x = clamp(probe.x + ((this.keys.RIGHT.isDown ? 1 : 0) - (this.keys.LEFT.isDown ? 1 : 0)) * 320 * dt, AX + 20, AX + AW - 20);
+          probe.y = clamp(probe.y + ((this.keys.DOWN.isDown ? 1 : 0) - (this.keys.UP.isDown ? 1 : 0)) * 320 * dt, AY + 20, AY + AH - 20);
+        }
+        const s = strength(probe.x, probe.y);
+        const col = s > 0.7 ? COLORS.red : s > 0.35 ? COLORS.yellow : COLORS.cyan;
+        meterG.clear();
+        meterG.fillStyle(0x000000, 0.45);
+        meterG.fillRoundedRect(AX + AW - 300, AY + 38, 280, 18, 9);
+        meterG.fillStyle(col, 1);
+        meterG.fillRoundedRect(AX + AW - 300, AY + 38, Math.max(18, 280 * s), 18, 9);
+        pg.clear();
+        pg.fillStyle(col, 0.25);
+        pg.fillCircle(0, 0, 30);
+        pg.lineStyle(3, col, 1);
+        pg.strokeCircle(0, 0, 30);
+        pg.lineBetween(-42, 0, -18, 0);
+        pg.lineBetween(18, 0, 42, 0);
+        pg.lineBetween(0, -42, 0, -18);
+        pg.lineBetween(0, 18, 0, 42);
+        // the strongest spot nearby: hold the probe there to record it
+        const near = spots.find((p) => !p.found && Math.hypot(p.x - probe.x, p.y - probe.y) < 50);
+        spots.forEach((p) => {
+          if (p === near) p.prog += dt / 1.1;
+          else p.prog = Math.max(0, p.prog - dt);
+          if (p.prog >= 1 && !p.found) {
+            p.found = true;
+            this.counter.setText(`${this.L.found || 'Found'}: ${found()} / 4`);
+            Sfx.play('chime');
+            this.area.add(this.add.circle(p.x, p.y, 30, COLORS.green, 0.5));
+          }
+        });
+        ring.clear();
+        if (near && near.prog > 0) {
+          ring.lineStyle(5, COLORS.green, 1);
+          ring.beginPath();
+          ring.arc(0, 0, 44, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, near.prog), false);
+          ring.strokePath();
+        }
+        if (found() === 4) this.taskDone(100 - (this.t / this.secs) * 25);
       },
-      score: () => (spots.filter((p) => p.found).length / 4) * 100 - misses * 8,
+      score: () => (found() / 4) * 100,
+      // where to look next, and how strong the field is at the probe (for the hint and the tests)
+      info: () => ({ probe: { x: probe.x, y: probe.y }, strength: strength(probe.x, probe.y), next: spots.find((p) => !p.found) }),
       hint: () => {
-        const p = spots.find((s) => !s.found);
+        const p = spots.find((x) => !x.found);
         return p ? { x: p.x, y: p.y - 60 } : null;
       }
     };
@@ -420,6 +464,7 @@ export class LabScienceScene extends BaseScene {
     const total = weights.reduce((a, b) => a + b, 0);
     const skill = total ? this.results.reduce((s, x, i) => s + x.score * weights[i], 0) / total : 0;
     const score = (skill * 0.6 + r.axes.science * 0.4) * (0.8 + this.pf * 0.2);
-    endStep(this, 'flight', 'science', score, WATCH);
+    // nothing to measure at all (no instruments, or none that suit this place): no stars
+    endStep(this, 'flight', 'science', score, WATCH, { none: total === 0 });
   }
 }

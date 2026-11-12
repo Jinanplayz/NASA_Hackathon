@@ -56,7 +56,7 @@
         "video": {
           "src": "https://images-assets.nasa.gov/video/Exploring the Moon_ Lunar Rovers/Exploring the Moon_ Lunar Rovers~mobile.mp4",
           "start": 85,
-          "end": 100,
+          "end": 99.5,
           "credit": "Video: NASA · The Apollo Lunar Roving Vehicle"
         },
         "visual": "lrvDrive"
@@ -757,7 +757,7 @@
         "video": {
           "src": "https://images-assets.nasa.gov/video/JPL-20210222-M2020f-0001-Perseverance Rover’s Descent and Touchdown on Mars/JPL-20210222-M2020f-0001-Perseverance Rover’s Descent and Touchdown on Mars~mobile.mp4",
           "start": 14,
-          "end": 42,
+          "end": 37.5,
           "credit": "Video: NASA/JPL-Caltech · Perseverance's descent, filmed by its own cameras"
         },
         "visual": "skyCraneVis"

@@ -176,7 +176,8 @@ export function dialog(scene, o = {}) {
       b.setAlpha(0);
       scene.tweens.add({ targets: b, alpha: 1, duration: 200 });
     });
-    if (o.speak !== false && (o.title || o.text)) Speech.say(Array.isArray(o.speak) || typeof o.speak === 'string' ? o.speak : [o.title, o.text]);
+    // (a result waits for the line being said now to finish)
+    if (o.speak !== false && (o.title || o.text)) Speech.say(Array.isArray(o.speak) || typeof o.speak === 'string' ? o.speak : [o.title, o.text], { wait: true });
   });
 }
 
@@ -273,7 +274,26 @@ export class Slider extends Phaser.GameObjects.Container {
 }
 
 export function shake(scene, target, amount = 10) {
-  const x0 = target.x;
+  // A drag-and-drop piece that's being sent back home wiggles instead: shaking its x would
+  // fight the tween taking it home, and leave it stranded where it was dropped.
+  // (shaken again while still shaking: it still settles back where it started)
+  const now = scene.time.now;
+  const prev = target._shake && target._shake.until > now ? target._shake : null;
+  if (target.goHome) {
+    const a0 = prev ? prev.angle : target.angle;
+    target._shake = { angle: a0, until: now + 400 };
+    scene.tweens.add({
+      targets: target,
+      angle: { from: a0 - 6, to: a0 + 6 },
+      duration: 60,
+      yoyo: true,
+      repeat: 2,
+      onComplete: () => target.setAngle(a0)
+    });
+    return;
+  }
+  const x0 = prev ? prev.x : target.x;
+  target._shake = { x: x0, until: now + 450 };
   scene.tweens.add({
     targets: target,
     x: { from: x0 - amount, to: x0 + amount },

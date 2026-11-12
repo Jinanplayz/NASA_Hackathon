@@ -84,7 +84,7 @@ export class SpectrumScene extends BaseScene {
   showTask() {
     const rd = this.rounds[this.round] || {};
     this.goal.set({ title: this.T('taskTitle', "Read the planet's air!"), help: rd.intro || '' }, { count: `${this.round + 1} / ${this.rounds.length}`, speak: false });
-    Speech.say(rd.intro || '');
+    Speech.say(rd.intro || '', { wait: true });
   }
 
   x(um) {

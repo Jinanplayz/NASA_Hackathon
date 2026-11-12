@@ -215,7 +215,9 @@ export class CutsceneScene extends BaseScene {
 
   narrateThenAdvance(s, my, after = null) {
     const text = s.speak || [s.heading, lineSpeak(s.text)];
-    const minMs = s.duration ? s.duration * 1000 : estimateMs(text) + 600;
+    // long enough to hear it, and to read it at a young reader's pace (about 12 letters a second)
+    const letters = `${s.heading || ''} ${lineText(s.text) || ''}`.length;
+    const minMs = s.duration ? s.duration * 1000 : Math.max(estimateMs(text) + 600, letters * 85 + 1500);
     this.animateProgress(minMs);
     const start = Date.now();
     const audio = s.audio ? Content.media(this.chapterId, s.audio) : null;
@@ -223,7 +225,8 @@ export class CutsceneScene extends BaseScene {
       if (my !== this.token) return;
       if (after) return after();
       const waited = Date.now() - start;
-      this.scheduleAdvance(Math.max(900, minMs - waited));
+      // and a moment to look at the picture once the voice has finished
+      this.scheduleAdvance(Math.max(2200, minMs - waited));
     });
   }
 
@@ -348,12 +351,14 @@ export class CutsceneScene extends BaseScene {
       if (ended || my !== this.token) return;
       ended = true;
       Sfx.hushMusic(false);
-      this.scheduleAdvance(1200);
+      this.scheduleAdvance(2000);
     };
     v.addEventListener('ended', onEnd);
     // paused with the film's own controls: pause the slide too (not when the game pauses it)
     v.addEventListener('pause', () => {
-      if (my !== this.token || ended || !this.filmStarted || this.scene.isPaused()) return;
+      // (a film reaching its end fires "pause" just before "ended": that's not the player)
+      if (my !== this.token || ended || v.ended || !this.filmStarted || this.scene.isPaused()) return;
+      if (isFinite(v.duration) && v.currentTime >= v.duration - 0.25) return;
       if (this.playing) this.setPlaying(false);
     });
 

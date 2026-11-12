@@ -1,4 +1,4 @@
-import { COLORS, CSS, DEPTH } from '../../core/constants.js';
+import { COLORS, CSS, DEPTH, clamp } from '../../core/constants.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
@@ -67,7 +67,7 @@ export class MemoryFixScene extends BaseScene {
     this.gridZone.on('pointerup', (p) => {
       if (!this.selected || this.state !== 'play') return;
       const c = Math.floor((p.worldX - GX) / CELL), r = Math.floor((p.worldY - GY) / CELL);
-      this.tryMove(this.selected, c, r);
+      this.tryMove(this.selected, this.bestCol(this.selected, c, r), r);
     });
 
     // where the chosen piece would fit
@@ -139,8 +139,9 @@ export class MemoryFixScene extends BaseScene {
     draggable(this, c, {
       onGrab: () => this.state === 'play' && this.showSpots(b),
       onDrop: () => {
-        const col = Math.round((c.x - w / 2 - 4 - GX) / CELL), row = Math.round((c.y - h / 2 - 5 - GY) / CELL);
-        return this.tryMove(b, col, row);
+        // the cell under the middle of the piece, and the closest place there that fits
+        const mid = Math.floor((c.x - GX) / CELL), row = Math.round((c.y - h / 2 - 5 - GY) / CELL);
+        return this.tryMove(b, this.bestCol(b, mid, row), row);
       },
       onTap: () => this.select(b)
     });
@@ -153,6 +154,16 @@ export class MemoryFixScene extends BaseScene {
     const x = GX + col * CELL + (b.len * CELL) / 2, y = GY + row * CELL + CELL / 2;
     b.box.home = { x, y };
     this.tweens.add({ targets: b.box, x, y, duration: 180 });
+  }
+
+  // where a piece goes when the player points at cell (c, r): roughly centred on that cell,
+  // kept inside the grid (so a 2-cell piece fits the last column), or any free spot that
+  // still covers the cell
+  bestCol(b, c, r) {
+    const first = clamp(c - Math.floor((b.len - 1) / 2), 0, COLS - b.len);
+    if (this.fits(b, first, r)) return first;
+    for (let col = Math.max(0, c - b.len + 1); col <= Math.min(c, COLS - b.len); col++) if (this.fits(b, col, r)) return col;
+    return first;
   }
 
   fits(b, col, row) {

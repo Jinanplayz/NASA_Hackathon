@@ -170,7 +170,7 @@ export class MoonBuggyScene extends BaseScene {
     this.state = 'drive';
     const s = this.stops[this.stopIndex];
     if (s) this.goal.set({ title: s.ask || s.name, help: this.T('jumpHelp', 'Tap Jump to hop over craters and boulders.') }, { count: `${this.stopIndex + 1} / ${this.stops.length}`, speak: false });
-    if (s) Speech.say(this.stopIndex === 0 ? [s.ask, this.T('jumpHelp', '')] : s.ask);
+    if (s) Speech.say(this.stopIndex === 0 ? [s.ask, this.T('jumpHelp', '')] : s.ask, { wait: true });
     this.tweens.addCounter({ from: this.speed, to: this.cruise, duration: 900, onUpdate: (tw) => (this.speed = tw.getValue()) });
     this.dust.start();
   }

@@ -3,7 +3,7 @@ import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
 import { BaseScene } from '../BaseScene.js';
 import { starfield } from '../common/bg.js';
-import { playIntro, GoalBar, idleHint } from '../common/kit.js';
+import { playIntro, GoalBar } from '../common/kit.js';
 import { txt, fitText } from '../../ui/text.js';
 import { Button } from '../../ui/Button.js';
 import { RoundBox, dialog, shake } from '../../ui/widgets.js';
@@ -58,8 +58,9 @@ export class QuizCard {
     });
   }
 
+  // read the question out (after the praise for the last answer has finished)
   read() {
-    return Speech.say([this.q.q, ...this.options.map((o) => o.text)]);
+    return Speech.say([this.q.q, ...this.options.map((o) => o.text)], { wait: true });
   }
 
   answer(b) {
@@ -129,7 +130,6 @@ export class LabQuizScene extends BaseScene {
     this.index = 0;
     this.goal = new GoalBar(this);
     this.credits = new CreditsPill(this, W - 120, 664);
-    idleHint(this, () => (this.state === 'ask' && this.card && !this.card.over ? { x: this.card.buttons[0].x - 300, y: this.card.buttons[0].y - 34 } : null), { delay: 14000 });
     playIntro(this).then((ok) => {
       if (!ok) return;
       if (!this.list.length) return this.end();
@@ -169,7 +169,6 @@ export class LabQuizScene extends BaseScene {
 
   end() {
     this.state = 'done';
-    Speech.stop();
     const n = this.list.length || 1;
     const stars = this.firstTry >= n - 1 ? 3 : this.firstTry >= n / 2 ? 2 : 1;
     const title = this.T('resultTitle', 'Round complete!');

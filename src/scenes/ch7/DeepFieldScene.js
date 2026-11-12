@@ -76,7 +76,7 @@ export class DeepFieldScene extends BaseScene {
     this.updateList();
     if (!t) return;
     this.goal.set({ title: t.ask || t.name, help: this.T('tapHelp', 'Look in the picture and tap it.') }, { count: `${this.found} / ${this.targets.length}`, speak: false });
-    Speech.say(first ? [t.ask, this.T('tapHelp', '')] : t.ask);
+    Speech.say(first ? [t.ask, this.T('tapHelp', '')] : t.ask, { wait: true });
   }
 
   updateList() {

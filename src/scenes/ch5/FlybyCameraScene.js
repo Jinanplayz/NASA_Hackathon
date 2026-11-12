@@ -82,12 +82,16 @@ export class FlybyCameraScene extends BaseScene {
 
     this.snapBtn = new Button(this, W - 150, FILM_Y, { width: 220, height: 70, size: 28, label: this.T('snapLabel', 'SNAP!'), icon: 'star', variant: 'warn', sound: null, onClick: () => this.snap() }).setDepth(DEPTH.ui + 2);
 
-    this.input.on('pointermove', (p) => {
-      if (p.worldY < FILM_Y - 60) this.aim = { x: p.worldX, y: p.worldY };
-    });
+    // tap the sky to send the frame there, or drag it around. (It doesn't follow the mouse
+    // by itself: then reaching for SNAP would pull the frame off the target.)
     this.input.on('pointerdown', (p, over) => {
-      if (!over.length && p.worldY < FILM_Y - 60) this.aim = { x: p.worldX, y: p.worldY };
+      this.aiming = !over.length && p.worldY < FILM_Y - 60;
+      if (this.aiming) this.aim = { x: p.worldX, y: p.worldY };
     });
+    this.input.on('pointermove', (p) => {
+      if (this.aiming && p.isDown) this.aim = { x: p.worldX, y: Math.min(p.worldY, FILM_Y - 60) };
+    });
+    this.input.on('pointerup', () => (this.aiming = false));
     if (this.input.keyboard) {
       this.keys = this.input.keyboard.addKeys('UP,DOWN,LEFT,RIGHT');
       this.input.keyboard.on('keydown-SPACE', () => this.snap());

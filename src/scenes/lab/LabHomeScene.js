@@ -26,6 +26,7 @@ export class LabHomeScene extends BaseScene {
   create() {
     // (Phaser reuses this scene object on every visit, so start from a clean slate)
     this.finished = false;
+    this.playedAny = false;
     Lab.ensureShip();
     const d = Lab.design();
     this.d = d;
@@ -64,6 +65,7 @@ export class LabHomeScene extends BaseScene {
     }
     // pick the entry angle: too steep burns, too shallow skips off the air
     this.state = 'angle';
+    this.playedAny = true;
     this.info.setText(this.L.angle || 'Entry angle');
     this.angle = 0.5;
     this.angleG = this.add.graphics().setDepth(DEPTH.ui);
@@ -234,7 +236,7 @@ export class LabHomeScene extends BaseScene {
     const skill = this.scores.length ? this.scores.reduce((a, b) => a + b, 0) / this.scores.length : 30;
     const r = rate(this.d);
     const axis = this.crew ? r.axes.protection : r.axes.comms;
-    endStep(this, 'flight', 'home', skill * 0.6 + axis * 0.4, this.crew ? WATCH_CREW : WATCH_ROBOT);
+    endStep(this, 'flight', 'home', skill * 0.6 + axis * 0.4, this.crew ? WATCH_CREW : WATCH_ROBOT, { none: this.crew && !this.playedAny });
   }
 }
 

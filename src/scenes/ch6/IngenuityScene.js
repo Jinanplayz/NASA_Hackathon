@@ -116,7 +116,7 @@ export class IngenuityScene extends BaseScene {
     const order = ['spin', 'hover', 'land1', 'spin2', 'photos', 'return'];
     if (!goals[s]) return;
     this.goal.set({ title: titles[s] || '', help: goals[s] }, { count: `${order.indexOf(s) + 1} / ${order.length}`, speak: false });
-    Speech.say(titles[s] ? [titles[s], goals[s]] : goals[s]);
+    Speech.say(titles[s] ? [titles[s], goals[s]] : goals[s], { wait: true });
   }
 
   holdButton(x, y, icon, dir) {

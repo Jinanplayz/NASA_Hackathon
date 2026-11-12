@@ -1,4 +1,4 @@
-import { COLORS, CSS, DEPTH, shuffle, clamp } from '../../core/constants.js';
+import { TEX, COLORS, CSS, DEPTH, shuffle, clamp } from '../../core/constants.js';
 import { Content } from '../../core/Content.js';
 import { Sfx } from '../../core/Sfx.js';
 import { Speech } from '../../core/Speech.js';
@@ -103,7 +103,7 @@ export class ScrubberScene extends BaseScene {
     const s = this.steps[this.step];
     if (!s) return;
     this.goal.set({ title: s.text, help: this.T('dragHelp', 'Drag it onto the filter on the bench.') }, { count: `${this.step + 1} / ${this.steps.length}`, speak: false });
-    Speech.say(this.step === 0 ? [s.text, this.T('dragHelp', 'Drag it onto the filter on the bench.')] : s.text);
+    Speech.say(this.step === 0 ? [s.text, this.T('dragHelp', 'Drag it onto the filter on the bench.')] : s.text, { wait: true });
   }
 
   use(c) {
@@ -118,8 +118,10 @@ export class ScrubberScene extends BaseScene {
       this.tweens.add({ targets: c, x: BENCH.x, y: BENCH.y, scale: 0.3, alpha: 0, duration: 300, onComplete: () => c.setVisible(false) });
       const layer = this.layers[it.id];
       if (layer) {
-        layer.setVisible(true).setAlpha(0).setScale(1.2);
-        this.tweens.add({ targets: layer, alpha: 1, scale: 1, duration: 350, ease: 'Back.easeOut' });
+        // (art is shown at 1/TEX of its painted size: grow in to exactly that, not to 1)
+        const s0 = 1 / TEX;
+        layer.setVisible(true).setAlpha(0).setScale(s0 * 1.2);
+        this.tweens.add({ targets: layer, alpha: 1, scale: s0, duration: 350, ease: 'Back.easeOut' });
       }
       floatText(this, BENCH.x, BENCH.y - 150, '✓', CSS.green, 44);
       this.step++;
@@ -175,16 +177,17 @@ export class ScrubberScene extends BaseScene {
   showPhoto(photo) {
     const el = document.createElement('div');
     el.className = 'media-frame';
-    el.style.width = '300px';
-    el.style.height = '300px';
+    el.style.width = '260px';
+    el.style.height = '260px';
     const im = document.createElement('img');
     im.src = Content.media(this.chapterId, photo.src);
     im.alt = photo.alt || '';
     im.onerror = () => this.photoDom && this.setDomVisible(this.photoDom, false);
     el.appendChild(im);
-    this.photoDom = this.addDom(TRAY.x + 65, TRAY.y + 70, el);
+    // (low enough to stay clear of the guide's message and its Next button above)
+    this.photoDom = this.addDom(TRAY.x + 85, TRAY.y + 150, el);
     this.photoDom.pointerEvents = 'none';
-    txt(this, TRAY.x + TRAY.w / 2, TRAY.y + 396, photo.credit || Content.ui('photoCredit', 'Photo: NASA'), { size: 13, color: CSS.dim, origin: 0.5, align: 'center', wrap: TRAY.w - 30, scale: false }).setDepth(DEPTH.ui);
+    txt(this, TRAY.x + TRAY.w / 2, TRAY.y + 428, photo.credit || Content.ui('photoCredit', 'Photo: NASA'), { size: 13, color: CSS.dim, origin: 0.5, align: 'center', wrap: TRAY.w - 30, scale: false }).setDepth(DEPTH.ui);
     // hide the tray behind the photo
     this.items.forEach((c) => c.setVisible(false));
   }
@@ -205,7 +208,8 @@ export class ScrubberScene extends BaseScene {
     this.glow.clear();
     if (this.state === 'play') {
       this.glow.lineStyle(3, COLORS.yellow, 0.4 + Math.sin(time / 250) * 0.3);
-      this.glow.strokeRoundedRect(BENCH.x - 190, BENCH.y - 160, 380, 320, 20);
+      // hugging the square filter on the bench (it sits a little below the bench's middle)
+      this.glow.strokeRoundedRect(BENCH.x - 98, BENCH.y - 88, 196, 196, 16);
     }
   }
 }

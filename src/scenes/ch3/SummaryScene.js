@@ -20,6 +20,8 @@ export class SummaryScene extends BaseScene {
     this.setupStage();
     // (Phaser reuses this screen when it is played again: start from a clean slate)
     this.photo = null;
+    this.autoTimer = null;
+    this.showToken = 0;
     starfield(this, { count: 180 });
     this.pages = this.T('pages', []);
     this.page = -1;
@@ -37,6 +39,9 @@ export class SummaryScene extends BaseScene {
       return;
     }
     if (i < 0) return;
+    if (this.autoTimer) this.autoTimer.remove();
+    this.autoTimer = null;
+    const my = ++this.showToken;
     this.page = i;
     this.layer.removeAll(true);
     if (this.photo) {
@@ -60,7 +65,16 @@ export class SummaryScene extends BaseScene {
     else if (p.kind === 'timeline') this.timelinePage(p);
     else this.techPage(p);
     Sfx.play('whoosh');
-    Speech.say([p.title, p.say || '']);
+    // like the story slides, a page turns by itself once it's been read out and there's been
+    // time to look at it (the last page waits for Finish)
+    const started = Date.now();
+    // (roughly how much there is to read on the page, besides the title and the spoken line)
+    const letters = JSON.stringify(p).replace(/"[a-zA-Z]+":/g, '').length - `${p.title || ''}${p.say || ''}`.length;
+    Speech.say([p.title, p.say || '']).then(() => {
+      if (my !== this.showToken || last || this._leaving) return;
+      const look = Math.min(16000, 3500 + letters * 35);
+      this.autoTimer = this.time.delayedCall(Math.max(3500, look - (Date.now() - started)), () => my === this.showToken && this.show(this.page + 1));
+    });
     this.layer.setAlpha(0);
     this.tweens.add({ targets: this.layer, alpha: 1, duration: 300 });
   }

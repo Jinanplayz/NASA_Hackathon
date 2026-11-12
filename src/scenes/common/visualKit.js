@@ -193,7 +193,9 @@ export function launchSequence(scene, c, w, h, rocketKey, o = {}) {
   later(scene, c, 4600, () => {
     say(o.liftoffText || 'Liftoff!');
     trail.emitting = true;
-    scene.tweens.add({ targets: rk, y: h * 0.62, scale: 0.6, duration: 3200, ease: 'Quad.easeIn' });
+    // (it shrinks a little as it goes, on the same easing as the climb, so its nose always
+    // rises: shrinking faster than it climbed made it look like it moved away before going up)
+    scene.tweens.add({ targets: rk, y: h * 0.55, scale: 0.8, duration: 3200, ease: 'Quad.easeIn' });
     scene.tweens.add({ targets: flame, scaleY: fs * 1.5, duration: 1500 });
   });
   later(scene, c, 6200, () => (smoke.emitting = false));
@@ -202,7 +204,7 @@ export function launchSequence(scene, c, w, h, rocketKey, o = {}) {
     scene.tweens.add({ targets: world, y: 1700, duration: 6500, ease: 'Sine.easeIn' });
     scene.tweens.add({ targets: dark, alpha: 0.92, duration: 6000 });
     scene.tweens.add({ targets: starry, alpha: 1, duration: 6000, delay: 1500 });
-    scene.tweens.add({ targets: rk, scale: 0.5, duration: 6000 });
+    scene.tweens.add({ targets: rk, y: h * 0.44, scale: 0.66, duration: 6000, ease: 'Sine.easeInOut' });
   });
   // staging: the used stage drops away and the next part flies on
   later(scene, c, 10800, () => {

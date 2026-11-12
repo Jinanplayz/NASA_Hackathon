@@ -124,7 +124,7 @@ export class LabSystemsScene extends BaseScene {
     this.panel.add([need, txt(this, PX + 24 + (PW - 48) * 0.6, 436, this.L.need || 'Power needed', { size: 14, weight: 700, color: CSS.red, origin: [0.5, 0], scale: false })]);
     this.powerText = txt(this, PX + 24, 476, '', { size: 22, weight: 800, scale: false, wrap: PW - 48 });
     this.panel.add(this.powerText);
-    Speech.say(this.T('powerIntro', ''));
+    Speech.say(this.T('powerIntro', ''), { wait: true });
     this.powerBtn = new Button(this, PX + PW / 2, 620, { width: 300, height: 60, size: 22, icon: 'play', label: this.L.switchOn || 'Switch on!', variant: 'success', onClick: () => this.switchOn() });
     this.widgets.push(this.powerBtn, { destroy: () => this.lampBar.destroy() }, { destroy: () => this.powerBar.destroy() });
   }
@@ -152,7 +152,7 @@ export class LabSystemsScene extends BaseScene {
     this.state = 'signal';
     this.clearPanel();
     this.panel.add(txt(this, PX + 24, 194, this.T('signalIntro', ''), { size: 17, weight: 700, scale: false, wrap: PW - 48 }));
-    Speech.say(this.T('signalIntro', ''));
+    Speech.say(this.T('signalIntro', ''), { wait: true });
     // a strip of sky with Earth drifting across it, and the antenna's beam
     this.sky = { x: PX + 40, y: 300, w: PW - 80 };
     this.skyG = this.add.graphics();

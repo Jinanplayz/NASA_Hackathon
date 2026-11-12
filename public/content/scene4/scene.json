@@ -691,7 +691,7 @@
     "resultText": "Jim Lovell and Fred Haise shared the controls while Jack Swigert timed the burn. It worked perfectly!",
     "task": {
       "title": "Keep the line in the green band!",
-      "help": "Use Up and Down to hold the line between day and night in the band."
+      "help": "Steer the window with Up and Down, and keep the line between day and night in the band."
     },
     "pressUp": "Press Up!",
     "pressDown": "Press Down!"

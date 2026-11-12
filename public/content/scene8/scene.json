@@ -266,6 +266,10 @@
     "starTracker": { "name": "Star tracker", "info": "A camera that recognises the stars to work out exactly which way the ship is pointing.", "cost": 2, "mass": 0.05 }
   },
 
+  "skipped": {
+    "title": "Your ship couldn't do this part",
+    "text": "It was missing a part it needed here, so there was nothing to do. No stars this time: the engineers' notes say what to bring next time."
+  },
   "notes": {
     "tooHeavy": "Your spaceship is heavier than your rocket can carry. A stronger rocket, or a lighter ship, would fix it.",
     "noPower": "Your spaceship has no power source, so nothing on board can work.",
@@ -395,6 +399,7 @@
     ],
     "task": { "title": "Hot and cold test!", "help": "Keep the thermometer in the green zone with the heater and radiator buttons." },
     "sunPhase": "Lamps on: full sunlight!",
+    "weakHeater": "Your power source is weak out here, so the heaters warm the ship only slowly. Keep them on longer!",
     "shadePhase": "Lamps off: freezing shadow!",
     "tooHot": "Too hot!",
     "tooCold": "Too cold!",
@@ -537,7 +542,7 @@
       "camera": "Camera: tap the interesting things to photograph them.",
       "spectrometer": "Spectrometer: drag the scanner over each glowing target and hold it there.",
       "drill": "Drill: hold the drill button, keeping the pressure in the green zone.",
-      "magnetometer": "Magnetometer: tap the spots where the magnetic field is strongest.",
+      "magnetometer": "Magnetometer: drag the probe. Where its meter turns red, hold it still.",
       "weatherStation": "Weather station: tap Measure when the wind gauge is at its peak.",
       "seismometer": "Seismometer: tap Record each time a quake wave reaches the line."
     },
@@ -547,7 +552,8 @@
     "great": "Great data!",
     "resultTitle": "Science done!",
     "resultText": "Scientists back on Earth can't wait to see your data.",
-    "labels": { "drill": "Hold to drill", "pressure": "Pressure", "depth": "Depth", "measure": "Measure", "record": "Record", "wind": "Wind", "scan": "Scanning", "photos": "Photos", "found": "Found" }
+    "labels": { "drill": "Hold to drill", "pressure": "Pressure", "depth": "Depth", "measure": "Measure", "record": "Record", "wind": "Wind", "scan": "Scanning", "photos": "Photos", "found": "Found",
+      "field": "Field strength" }
   },
 
   "home": {

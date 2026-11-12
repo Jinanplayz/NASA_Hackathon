@@ -3,6 +3,11 @@
 //
 //   npm run voices          generate anything new or changed
 //   npm run voices -- --dry show what would be generated (no API calls)
+//   npm run voices -- --budget 8000
+//                           only use up to 8000 characters of credit: the most useful lines go
+//                           first (see FIRST below), and a later run records the rest
+//   npm run voices -- --line "Test like you fly"
+//                           only the lines that contain this text
 //
 // Needs ELEVENLABS_API_KEY in a .env file in the project folder (never commit that file).
 // Voice and model are set in public/content/game.json -> "narration".
@@ -17,6 +22,10 @@ import { voiceKey } from '../src/core/voiceText.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT = path.join(ROOT, 'public', 'content');
 const DRY = process.argv.includes('--dry');
+const bi = process.argv.indexOf('--budget');
+const BUDGET = bi > 0 ? Number(process.argv[bi + 1]) : 0;
+const li = process.argv.indexOf('--line');
+const ONLY = li > 0 ? process.argv[li + 1] : null;
 
 // ---------- settings ----------
 const game = readJSON(path.join(CONTENT, 'game.json'));
@@ -150,7 +159,7 @@ const NOT_SPOKEN_LATER = new Set([
   'winterLabel', 'wrongCrayon', 'wrongType', 'xLabel', 'yLabel', 'yearLabel', 'zoneLabel', 'cmdNames', 'laneNames',
   'bands', 'eyes', 'molecules', 'parts', 'gases', 'channel', 'channels', 'names', 'place', 'A', 'B', 'clue', 'goal', 'time',
   'day', 'caption', 'labs', 'lostTarget', 'secondEarly', 'fallback', 'enginesLabel', 'panelTitle', 'aimLabel', 'firstLabel',
-  'lastLabel', 'taskTitle'
+  'lastLabel'
 ]);
 // ...except where a later chapter does read them aloud (the special mode reads each part's name and info)
 const SPOKEN_IN = { scene8: ['parts'] };
@@ -172,11 +181,11 @@ function loadKey() {
 // ---------- collect every spoken line ----------
 const lines = new Map(); // key -> { text, folder }
 
-function add(text, folder) {
+function add(text, folder, block = '') {
   if (typeof text !== 'string' || text.includes('{')) return; // {placeholders} are filled in while playing
   const key = voiceKey(text);
   if (!key || !/[A-Za-z0-9]/.test(key)) return;
-  if (!lines.has(key)) lines.set(key, { text: key, folder });
+  if (!lines.has(key)) lines.set(key, { text: key, folder, block });
 }
 
 function walk(node, folder, trail) {
@@ -197,7 +206,7 @@ function walk(node, folder, trail) {
     }
     return;
   }
-  add(node, folder);
+  add(node, folder, trail[0] || '');
 }
 
 for (const ch of game.chapters.filter((c) => c.folder && !c.comingSoon)) {
@@ -220,11 +229,33 @@ const plan = [...lines.values()].map((l) => {
   const rel = (l.folder ? `${l.folder}/audio/voice/` : 'voice/') + `${hash}.mp3`;
   return { ...l, rel, abs: path.join(CONTENT, rel), spoken };
 });
-const todo = plan.filter((p) => !(fs.existsSync(p.abs) && fs.statSync(p.abs).size > 0));
+let todo = plan.filter((p) => !(fs.existsSync(p.abs) && fs.statSync(p.abs).size > 0));
+// With a --budget, record the most useful lines first: anything in chapters 1-7 (one
+// unrecorded line stands out among recorded ones), then the special mode's lines in the
+// order of FIRST (the parts heard most often), then everything else in the order it's played.
+const FIRST = ['quizShared', 'skipped', 'testing', 'launchDay', 'launch', 'shake', 'thermal', 'systems', 'review', 'cruise', 'arrival', 'science', 'home', 'report', 'complete', 'intro', 'mission', 'missions'];
+let left = 0;
+if (ONLY) {
+  left = todo.filter((p) => !p.text.includes(ONLY)).length;
+  todo = todo.filter((p) => p.text.includes(ONLY));
+}
+if (BUDGET > 0) {
+  const rank = (p) => (p.folder !== 'scene8' ? -1 : FIRST.includes(p.block) ? FIRST.indexOf(p.block) : FIRST.length);
+  const order = todo.map((p, i) => ({ p, i })).sort((a, b) => rank(a.p) - rank(b.p) || a.i - b.i);
+  let used = 0;
+  const pick = [];
+  for (const { p } of order) {
+    if (used + p.spoken.length > BUDGET) continue;
+    used += p.spoken.length;
+    pick.push(p);
+  }
+  left += todo.length - pick.length;
+  todo = pick;
+}
 const chars = todo.reduce((n, p) => n + p.spoken.length, 0);
 
 console.log(`Voice: ${narration.voiceName} (${narration.voiceId}), model ${narration.model}`);
-console.log(`${plan.length} spoken lines, ${plan.length - todo.length} already recorded, ${todo.length} to generate (${chars.toLocaleString()} characters).`);
+console.log(`${plan.length} spoken lines, ${plan.length - todo.length - left} already recorded, ${todo.length} to generate (${chars.toLocaleString()} characters)${left ? `, ${left} left for a later run (over the budget)` : ''}.`);
 
 if (DRY) {
   const all = process.argv.includes('--all');

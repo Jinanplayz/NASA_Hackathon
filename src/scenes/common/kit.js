@@ -74,7 +74,8 @@ export class InfoPanel {
 export function draggable(scene, obj, { onDrop, onTap, onGrab, focus = true } = {}) {
   obj.setInteractive({ useHandCursor: true, draggable: true });
   scene.input.setDraggable(obj);
-  obj.home = { x: obj.x, y: obj.y };
+  // (a screen may already have given it a home, e.g. a spot it's gliding to right now)
+  if (!obj.home) obj.home = { x: obj.x, y: obj.y };
   obj.enabled = true;
   let start = null;
   obj.on('dragstart', (p) => {
@@ -82,6 +83,8 @@ export function draggable(scene, obj, { onDrop, onTap, onGrab, focus = true } = 
     start = { x: p.worldX, y: p.worldY, depth: obj.depth };
     obj.setDepth(DEPTH.ui + 40);
     scene.tweens.killTweensOf(obj);
+    // picked up again mid-wiggle (after a wrong drop): stand it up straight
+    if (obj._shake && obj._shake.angle !== undefined) obj.setAngle(obj._shake.angle);
     scene.tweens.add({ targets: obj, scale: 1.08, duration: 120 });
     if (onGrab) onGrab();
   });
@@ -170,7 +173,8 @@ export class GoalBar {
     this.scene.tweens.killTweensOf(this.root);
     this.root.setAlpha(0.3);
     this.scene.tweens.add({ targets: this.root, alpha: 1, duration: 260 });
-    if (speak) this.say();
+    // a new task waits for the line being said now (often about the last task) to finish
+    if (speak) this.say({ wait: true });
     return this;
   }
 
@@ -179,8 +183,8 @@ export class GoalBar {
     return this;
   }
 
-  say() {
-    if (this.lines.length) Speech.say(this.lines);
+  say(o = {}) {
+    if (this.lines.length) Speech.say(this.lines, o);
   }
 
   setVisible(v) {

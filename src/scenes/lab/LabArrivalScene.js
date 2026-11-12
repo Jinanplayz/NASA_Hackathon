@@ -28,6 +28,7 @@ export class LabArrivalScene extends BaseScene {
   create() {
     // (Phaser reuses this scene object on every visit, so start from a clean slate)
     this.finished = false;
+    this.playedAny = false; // did any part of the landing get played (not just skipped)?
     this.steerBtns = null;
     this.wg = null;
     this.cutWait = 0;
@@ -114,6 +115,7 @@ export class LabArrivalScene extends BaseScene {
 
   // the task bar for this phase (from the "tasks" block)
   setTask(id) {
+    this.playedAny = true; // every phase the player plays sets its task
     const t = (this.T('tasks', {}) || {})[id];
     if (t) this.goal.set(t);
   }
@@ -528,6 +530,6 @@ export class LabArrivalScene extends BaseScene {
     this.finished = true;
     const skill = this.scores.length ? this.scores.reduce((a, b) => a + b, 0) / this.scores.length : 30;
     const axis = rate(this.d).axes.arrival;
-    endStep(this, 'flight', 'arrival', skill * 0.55 + axis * 0.45, WATCH);
+    endStep(this, 'flight', 'arrival', skill * 0.55 + axis * 0.45, WATCH, { none: !this.playedAny });
   }
 }

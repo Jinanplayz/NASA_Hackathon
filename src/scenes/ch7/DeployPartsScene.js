@@ -74,7 +74,12 @@ export class DeployPartsScene extends BaseScene {
 
   makeZones() {
     this.zones.forEach((z) => z.destroy());
-    this.zones = this.webb.hitAreas().map((a) => {
+    // some parts' areas overlap (the tower sits right under the secondary mirror): the part
+    // the checklist asks for now goes on top, so tapping it always works
+    const want = ORDER[this.step];
+    const now = (a) => a.part === want || (a.part === 'sunshield' && (want === 'pallets' || want === 'shield'));
+    const areas = this.webb.hitAreas();
+    this.zones = [...areas.filter((a) => !now(a)), ...areas.filter(now)].map((a) => {
       const z = this.add.zone(a.x, a.y, a.w, a.h).setInteractive({ useHandCursor: true });
       z.on('pointerup', () => this.tapPart(a.part));
       return z;
@@ -90,7 +95,8 @@ export class DeployPartsScene extends BaseScene {
     const s = this.T('steps', [])[this.step];
     if (!s) return;
     this.goal.set({ title: s.task, help: this.T('tapHelp', 'Tap that part of Webb to unfold it.') }, { count: `${this.step + 1} / ${ORDER.length}`, speak: false });
-    Speech.say(this.step === 0 ? [s.task, this.T('tapHelp', '')] : s.task);
+    // (after the fact about the last part has been said)
+    Speech.say(this.step === 0 ? [s.task, this.T('tapHelp', '')] : s.task, { wait: true });
   }
 
   async tapPart(part) {

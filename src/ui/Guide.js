@@ -143,7 +143,8 @@ export class Guide {
       this.spokenText = lineSpeak(line);
       this.audio = lineAudio(line) ? Content.media(this.scene.payload?.chapterId, lineAudio(line)) : null;
       this.startTyping();
-      const speech = Speech.say(this.spokenText, { audio: this.audio });
+      // (lets a line still being said, like the fact about the last thing done, finish first)
+      const speech = Speech.say(this.spokenText, { audio: this.audio, wait: true });
       if (opts.auto) {
         const minWait = new Promise((r) => this.scene.time.delayedCall(Math.min(estimateMs(this.spokenText), opts.maxWait ?? 99999), r));
         Promise.all([speech, minWait]).then(() => {

@@ -68,14 +68,17 @@ export class CreditsPill {
 // The end of a test or a flight step: remember the score, note what the engineers learned from
 // it (codes from rate(); shown in the design review and the report), and show the result.
 // kind: 'test' or 'flight'. Only notes in `watch` (that this step could notice) are reported.
-export function endStep(scene, kind, name, score, watch = []) {
+// none: the ship was missing what this step needed, so there was nothing to play: no stars,
+// and the result says so (the notes say what was missing).
+export function endStep(scene, kind, name, score, watch = [], { none = false } = {}) {
   if (kind === 'test') Lab.setTest(name, score);
   else Lab.setFlight(name, score);
   const found = rate(Lab.design()).notes.filter((n) => watch.includes(n));
   found.forEach((n) => Lab.event(`note_${n}`));
-  const stars = score >= 85 ? 3 : score >= 60 ? 2 : 1;
-  const title = scene.T('resultTitle', 'Well done!');
-  const text = scene.T('resultText', '');
+  const skipped = labContent().skipped || {};
+  const stars = none ? 0 : score >= 85 ? 3 : score >= 60 ? 2 : 1;
+  const title = none ? skipped.title || "Your ship couldn't do this part" : scene.T('resultTitle', 'Well done!');
+  const text = none ? skipped.text || '' : scene.T('resultText', '');
   const notes = found.slice(0, 2).map(note);
   return dialog(scene, {
     title,

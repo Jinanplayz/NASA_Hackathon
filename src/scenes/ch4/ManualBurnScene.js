@@ -61,7 +61,8 @@ export class ManualBurnScene extends BaseScene {
     this.stateText = txt(this, 1050, 300, '', { size: 30, weight: 800, origin: 0.5, align: 'center', wrap: 300, scale: false }).setDepth(DEPTH.ui);
     this.glowBurn = this.add.image(WX, WY + WR + 10, 'softDot').setDisplaySize(500, 160).setTint(0xff9f43).setAlpha(0).setDepth(DEPTH.ui - 4);
 
-    // controls: up and down
+    // controls: up and down steer the ship (where the window points), like the crew did: aiming
+    // up makes Earth slide down in the window, and aiming down makes it rise
     const hold = (btn, key, v) => {
       btn.off('pointerup');
       btn.on('pointerdown', () => (this.input_[key] = v));
@@ -77,8 +78,8 @@ export class ManualBurnScene extends BaseScene {
     };
     const bx = 1050;
     this.btns = [
-      [new Button(this, bx, 450, { width: 220, height: 96, size: 28, icon: 'up', label: this.T('pitchUp', 'Up'), variant: 'secondary', sound: null }), 'pitch', -1],
-      [new Button(this, bx, 566, { width: 220, height: 96, size: 28, icon: 'down', label: this.T('pitchDown', 'Down'), variant: 'secondary', sound: null }), 'pitch', 1]
+      [new Button(this, bx, 450, { width: 220, height: 96, size: 28, icon: 'up', label: this.T('pitchUp', 'Up'), variant: 'secondary', sound: null }), 'pitch', 1],
+      [new Button(this, bx, 566, { width: 220, height: 96, size: 28, icon: 'down', label: this.T('pitchDown', 'Down'), variant: 'secondary', sound: null }), 'pitch', -1]
     ];
     this.btns.forEach(([b, k, v]) => hold(b, k, v));
     if (this.input.keyboard) {
@@ -90,12 +91,13 @@ export class ManualBurnScene extends BaseScene {
     // stuck? point at the button that brings the line back
     idleHint(this, () => {
       if (this.state !== 'burn' || Math.abs(this.off.y) < TOL_Y) return null;
-      const b = this.btns[this.off.y > 0 ? 0 : 1][0];
+      // the line is below the band: aim down to bring it up (and the other way round)
+      const b = this.btns[this.off.y > 0 ? 1 : 0][0];
       return { x: b.x - 126, y: b.y, dir: 'right' };
     }, { delay: 2500 });
     playIntro(this).then((ok) => {
       if (!ok) return;
-      this.goal.set(this.T('task', { title: 'Keep the line in the green band!', help: 'Use Up and Down to hold the line between day and night in the band.' }));
+      this.goal.set(this.T('task', { title: 'Keep the line in the green band!', help: 'Steer the window with Up and Down, and keep the line between day and night in the band.' }));
       this.countdown();
     });
   }
@@ -211,8 +213,8 @@ export class ManualBurnScene extends BaseScene {
     // controls (keys or buttons)
     let pitch = this.input_.pitch;
     if (this.keys) {
-      if (this.keys.UP.isDown || this.keys.W.isDown) pitch = -1;
-      if (this.keys.DOWN.isDown || this.keys.S.isDown) pitch = 1;
+      if (this.keys.UP.isDown || this.keys.W.isDown) pitch = 1;
+      if (this.keys.DOWN.isDown || this.keys.S.isDown) pitch = -1;
     }
     if (this.state === 'burn' || this.state === 'countdown') {
       // the burn shakes the ship, pushing the view off target; the player steers it back
@@ -232,7 +234,7 @@ export class ManualBurnScene extends BaseScene {
       const left = Math.max(0, this.burnSec - this.elapsed);
       this.goal.setCount(`${Math.ceil(left)} s`);
       this.bar.set(this.elapsed / this.burnSec, true);
-      this.stateText.setText(on ? this.T('onTarget', 'On target!') : this.off.y > 0 ? this.T('pressUp', 'Press Up!') : this.T('pressDown', 'Press Down!')).setColor(on ? CSS.green : CSS.orange);
+      this.stateText.setText(on ? this.T('onTarget', 'On target!') : this.off.y > 0 ? this.T('pressDown', 'Press Down!') : this.T('pressUp', 'Press Up!')).setColor(on ? CSS.green : CSS.orange);
       if (this.elapsed >= this.burnSec) this.endBurn();
     }
   }
